@@ -38,3 +38,4 @@ To see the list of tables created use:
 Example of selecting fields from a table:
 
 SELECT name, date FROM groceryList_grocerylist;
+
