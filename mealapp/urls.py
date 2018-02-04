@@ -18,5 +18,6 @@ from django.contrib import admin
 
 urlpatterns = [
     path('groceryList/', include('groceryList.urls')),
+    path('barcode/', include('barcodeScan.urls')),
     path('admin/', admin.site.urls),
 ]

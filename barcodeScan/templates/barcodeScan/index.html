@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Barcode Scanner</title>
+</head>
+<body>
+
+<h1>Barcode Scanner</h1>
+
+For a demo, try: 737628064502
+
+<br>
+<br>
+
+<form action="/barcode/" method="post">
+    <!-- csrf_token to protect against XSS attacks -->
+    {% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Scan" />
+</form>
+
+</body>
+</html>
