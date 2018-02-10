@@ -1,0 +1,13 @@
+<p>Here is a list of grocery lists</p>
+
+{% if recently_added %}
+    <ul>
+    {% for list in recently_added %}
+        <li><a href="{% url 'groceryList:detail' list.id %}">{{ list.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No grocery lists are available.</p>
+{% endif %}
+
+<a href="{% url 'groceryList:new' %}">Create a new grocery list</a>
