@@ -26,7 +26,7 @@ class DetailView(generic.DetailView):
 def create(request):
     return render(request, 'groceryList/new.html')
 
-def add(request, list_id=None):
+def add(request):
     if request.method == "POST":
         form = AddListForm(request.POST)
         if form.is_valid():
