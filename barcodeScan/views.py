@@ -16,6 +16,10 @@ def index(request):
 			response = requests.get(url, stream=True)
 			json_data = json.loads(response.text)
 
+			# make sure that barcode # is in the database
+			if not json_data.get('status'):
+				return render(request, 'barcodeScan/not_found.html')
+
 			# attempt to get the food's name and an image if available from the json dictionary
 			context = {'generic_name': json_data.get('product').get('generic_name')}
 			context.update({'product_name_en': json_data.get('product').get("product_name_en")})
