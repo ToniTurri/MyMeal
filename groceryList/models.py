@@ -6,11 +6,19 @@ class GroceryList(models.Model):
 
     def __str__(self):
     	return self.name
+    
+    pass
 
-class GroceryListItems(models.Model):
-	groceryListId = models.IntegerField()
-	foodItemId = models.IntegerField()
-	quantity = models.IntegerField()
-
-	def __str__(self):
-		return self.name
+class FoodItem(models.Model):
+    name = models.CharField(max_length=100)
+    quantity = models.IntegerField(default=1)
+    date = models.DateTimeField(null=True, blank=True)
+    
+    lists = models.ManyToManyField(GroceryList)
+    
+    def __str__(self):
+        return self.name
+    
+#	groceryListId = models.IntegerField()
+#	foodItemId = models.IntegerField()
+#	quantity = models.IntegerField()
