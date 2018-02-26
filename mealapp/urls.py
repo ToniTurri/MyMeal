@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.urls import include, path
 from django.contrib import admin
+from registration.forms import RegistrationFormUniqueEmail
 from registration.backends.simple.views import RegistrationView
+from django.contrib.auth import views as auth_views
 
 # Create a new class that redirects the user to the index page, 
 # if successful at logging into o the application.
@@ -28,6 +30,8 @@ urlpatterns = [
     path('groceryList/', include('groceryList.urls')),
     path('barcode/', include('barcodeScan.urls')),
     path('admin/', admin.site.urls),
-    path('accounts/register/', MyRegistrationView.as_view(), name='registration_register'),
+    path('accounts/register/', MyRegistrationView.as_view(form_class=RegistrationFormUniqueEmail), name='registration_register'),
     path('accounts/', include('registration.backends.simple.urls')),
+    path('accounts/login/', auth_views.LoginView.as_view()),
+    path('dashboard/', include('dashboard.urls'))
 ]

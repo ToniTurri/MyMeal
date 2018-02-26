@@ -1,24 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Barcode Scanner</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h1>Barcode Scanner</h1>
+{% block content %}
 
-For a demo, try: 737628064502
+<article id="small-panel">
+	<header>
+		<h3>Barcode Scanner</h3>
+		<p>For a demo, try: 737628064502</a></p>
+	</header>
+	
+	<form action="/barcode/" method="post">
+	    <!-- csrf_token to protect against XSS attacks -->
+	    {% csrf_token %}
 
-<br>
-<br>
+	    <label for="id_number">Barcode Number:</label>
+	    <p>
+	    	<input type="text" name="number" maxlength="13" id="id_number" required>
+	    </p>
+	    <input type="submit" value="Scan" />
+	</form>
+</article>
 
-<form action="/barcode/" method="post">
-    <!-- csrf_token to protect against XSS attacks -->
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Scan" />
-</form>
-
-</body>
-</html>
+{% endblock %}
