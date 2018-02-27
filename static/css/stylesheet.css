@@ -162,10 +162,16 @@ nstead of horizontally */
 }
 
 #content-wrapper {
-	width: 90%;
+	width: 1366px;
 	height: 100%;
 	max-height: 100%;
 	margin: 0 auto;
+}
+
+@media screen and (max-width: 1400px) {
+	#content-wrapper {
+		width: 90%;
+	}
 }
 
 /* When the screen is less than 750px wide, 
@@ -177,13 +183,36 @@ menu by default */
 	}
 }
 
-@media (max-width: 335px) {
+@media (max-width: 460px) {
 	#main {
 		width: 100%;
+		padding: 0px;
 		top: 0;
 	}
 	#content-wrapper {
 		width: 100%;
+		margin: 0px 0px 0px 0px;
+	}
+}
+
+@media (max-width: 460px) {
+	#main {
+		width: 100%;
+		padding: 0px;
+		top: 0;
+	}
+	#content-wrapper {
+		width: 100%;
+		margin: 0px 0px 0px 0px;
+	}
+}
+
+@media (max-width: 320px) {
+	#main {
+		width: 320px;
+	}
+	#content-wrapper {
+		width: 320px;
 	}
 }
 
@@ -197,10 +226,19 @@ article {
 
 article header {
 	line-height: 1.5;
-	font-size: 1.3em;
+	font-size: 1.2em;
+	text-align: left;
+	margin: 10px 25px 15px 25px;
+	display: block;
+}
+
+article section {
+	line-height: 1.5;
+	font-size: 1em;
 	text-align: left;
 	padding-left: 25px;
-	padding-top: 10px;
+	padding-bottom: 10px;
+	border-top: 1px solid #ced4da;
 }
 
 article a:link {

@@ -24,7 +24,7 @@ from django.contrib.auth import views as auth_views
 # This is for login and registration redirect.
 class MyRegistrationView(RegistrationView):
     def get_success_url(request, user):
-        return '/groceryList/'
+        return '/dashboard/'
 
 urlpatterns = [
     path('groceryList/', include('groceryList.urls')),

@@ -46,7 +46,7 @@ INSTALLED_APPS = [
 # Account/Login setting
 REGISTRATION_OPEN = True              # Users can register!
 REGISTRATION_AUTO_LOGIN = True        # The user will be automatically logged in.
-LOGIN_REDIRECT_URL = '/groceryList/'  # The page users will land on after they successfully log in
+LOGIN_REDIRECT_URL = '/dashboard/'  # The page users will land on after they successfully log in
 LOGIN_URL = '/accounts/login/'        # The page users are directed to if they are not logged in,
                                       # and are trying to access pages requiring authentication
 
