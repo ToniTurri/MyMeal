@@ -1,0 +1,25 @@
+<h1>{{ grocerylist.name }}</h1>
+
+<ul>
+{% for fooditem in grocerylist.fooditem_set.all %}
+    <li>{{ fooditem.quantity }} {{ fooditem.name }} on your grocery list</li>
+{% endfor %}
+</ul>
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        <strong>
+        <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}
+        </p></strong>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form action="{% url 'groceryList:add_food_to_list' grocerylist.id %}" method="post">
+{% csrf_token %}
+    {{ form }}
+    <div class="button">
+        <button type="submit">Submit</button>
+    </div>
+</form>
