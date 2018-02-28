@@ -155,7 +155,7 @@ def add_recipe_to_list(request, pk):
                     messages.warning(request, "Grocery list items updated")
     
                 else:
-                    # can't use .filter() ??? something about QuerySets
+                    # have to use .get() instead of .filter() ??? something about QuerySets
                     grocery_list.recipes.add(Recipe.objects.get(name=recipe))
             
             else:
