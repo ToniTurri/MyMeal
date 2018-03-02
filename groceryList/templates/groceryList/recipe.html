@@ -1,0 +1,25 @@
+<h1>{{ recipe.name }}</h1>
+
+<ul>
+{% for fooditem in recipe.fooditems.all %}
+    <li>Recipe calls for {{ fooditem.quantity }} {{ fooditem.name }}</li>
+{% endfor %}
+</ul>
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        <strong>
+        <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}
+        </p></strong>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form action="{% url 'groceryList:add_to_recipe' pk=recipe.id %}" method="post">
+{% csrf_token %}
+    {{ form }} <br>
+    <input type="submit" value="Submit" />
+</form>
+
+<a href="{% url 'groceryList:index' %}">View all grocery lists</a>
