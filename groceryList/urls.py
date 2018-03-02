@@ -2,6 +2,18 @@ from django.urls import path
 
 from . import views
 
+app_name = 'groceryList'
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', views.IndexView.as_view(), name='index'),
+    path('<int:pk>/', views.GroceryListView.as_view(), name='detail'),
+    path('new/', views.NewGroceryListView.as_view(), name='new'),
+    path('add/', views.add, name='add'),
+    path('<int:pk>/add_to_list/', views.add_to_list, name='add_to_list'),
+    
+    path('add_recipe/', views.add_recipe, name='add_recipe'),
+    path('new_recipe/', views.NewRecipeView.as_view(), name='new_recipe'),
+    path('recipe/<int:pk>/', views.RecipeView.as_view(), name='recipe'),
+    path('recipe/<int:pk>/add_to_recipe/', views.add_to_recipe, name='add_to_recipe'),
+    path('<int:pk>/add_recipe_to_list/', views.add_recipe_to_list, name='add_recipe_to_list'),
+    
 ]

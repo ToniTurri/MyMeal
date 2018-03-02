@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+    <header>
+        <h3>Barcode Scanner</h3>
+        <p>
+            Select a grocery list to add this item to: [under construction]
+        </p>
+    </header>
+
+    <!-- if the product has an image_front_url, display it -->
+    {% if image_front_url %}
+        <img src={{ image_front_url }}>
+    {% endif %}
+
+    <br>
+
+    <!-- if the product has a generic_name, give that preference -->
+    {% if generic_name %}
+        {{ generic_name }}
+    {% else %}
+        {{ product_name_en }}
+    {% endif %}
+
+    <br>
+    <br>
+
+    <form action="/barcode/confirm/" method="post">
+        <!-- csrf_token to protect against XSS attacks -->
+        {% csrf_token %}
+        <!-- pass back the product info so it can be added to the db -->
+        <input type="hidden" name="productInfo" value={{ context }}>
+        <input type="submit" value="Add to imaginary list" />
+    </form>
+    </article>
+
+{% endblock %}

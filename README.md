@@ -12,6 +12,9 @@ Web Application for managing food inventory, favorite meals, and meal suggestion
 		- add that directory as a environment variable
 * Clone this mealapp project to a working directory
 
+# Packages
+* View requirements.txt in the main directory of this project and ensure you have all the packages installed
+
 # Running the Application
 * Navigate to your mealapp directory e.g. C:/MyDirectory/.../mealapp
 * Open terminal/command prompt and run

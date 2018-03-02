@@ -1,0 +1,40 @@
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+{% if messages %}
+<ul class="messages">
+    {% for message in messages %}
+        <strong>
+        <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}
+        </p></strong>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<form action="{% url 'groceryList:add' %}" method="post">{% csrf_token %}
+    {{ form }}
+    <input type="submit" value="Submit" />
+</form>
+
+<a href="{% url 'groceryList:index' %}">View all grocery lists</a>
+
+
+
+
+
+
+<script>/*
+
+<form action="{% url 'groceryList:add' %}" method="post">
+{% csrf_token %}
+    <div>
+        <label for="name">Grocery List Name:</label>
+        <input id="name" type="text" name="name" /> <br>
+    </div>
+    <div class="button">
+        <button type="submit">Submit</button>
+    </div>
+</form>
+
+<a href="{% url 'groceryList:index' %}">View all grocery lists</a>
+
+*/</script>
