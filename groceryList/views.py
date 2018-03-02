@@ -1,6 +1,3 @@
-from .models import GroceryList, FoodItem, Recipe
-from . import forms
-
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -9,7 +6,12 @@ from django.utils import timezone
 from django.contrib import messages
 from django.db.models import F
 from django.views.generic.edit import CreateView
+from .models import GroceryList, FoodItem, Recipe
+from . import forms
    
+
+#from django.contrib.auth.decorators import login_required
+#@login_required(login_url='/accounts/login/')
 class IndexView(ListView):
     model = GroceryList
     template_name = 'groceryList/index.html'

@@ -39,13 +39,14 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'groceryList',
     'barcodeScan',
-    "registration"
+    'registration',
+    'dashboard'
 ]
 
 # Account/Login setting
 REGISTRATION_OPEN = True              # Users can register!
 REGISTRATION_AUTO_LOGIN = True        # The user will be automatically logged in.
-LOGIN_REDIRECT_URL = '/groceryList/'  # The page users will land on after they successfully log in
+LOGIN_REDIRECT_URL = '/dashboard/'  # The page users will land on after they successfully log in
 LOGIN_URL = '/accounts/login/'        # The page users are directed to if they are not logged in,
                                       # and are trying to access pages requiring authentication
 
@@ -132,3 +133,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# Additional locations of static files
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static")
+]

@@ -1,23 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Barcode Scanner</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h1>Item not found</h1>
+{% block content %}
 
-Sorry, no product data could be obtained for this item.
-
-<br>
-<br>
-
-<form action="/barcode/" method="get">
+<article id="small-panel">
+	<header>
+		<h3>Barcode Scanner - Item Not Found</h3>
+		<p>
+			Sorry, no product data could be obtained for this item.
+    	</p>
+	</header>
+	
+	<form action="/barcode/" method="get">
     <!-- csrf_token to protect against XSS attacks -->
     {% csrf_token %}
     <input type="submit" value="Back to scanner" />
 </form>
+</article>
 
-</body>
-</html>
+{% endblock %}

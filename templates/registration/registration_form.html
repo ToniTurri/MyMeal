@@ -1,7 +1,25 @@
-<h1>Register Here</h1>
-<form method="post" action=".">
-	{% csrf_token %}
-	{{ form.as_p }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>MyMeal | Register</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="/static/css/stylesheet.css" />
+	<!-- used for importing icons -->
+	<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+</head>
+<body>
+	<article id="small-panel">
+		<header>
+			<h3>Register for a MyMeal Account</h3>
+			<p>Already have an account? <a href="{% url 'auth_login' %}">Login</a></p>
+		</header>
+		<hr/>
+		<form method="post" action=".">
+  			{% csrf_token %}
+  			{{ form.as_p }}
 
-	<input type="submit" value="Submit" />
-</form>
+  			<input type="submit" value="Create Account" />
+		</form>
+	</article>
+</body>
+</html>
