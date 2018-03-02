@@ -1,0 +1,27 @@
+<p>Here is a list of grocery lists</p>
+
+{% if all_grocery_lists %}
+    <ul>
+    {% for list in all_grocery_lists %}
+        <li><a href="{% url 'groceryList:detail' list.id %}">{{ list.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No grocery lists are available.</p>
+{% endif %}
+
+<p>Here is a list of recipes</p>
+
+{% if all_recipes %}
+    <ul>
+    {% for recipe in all_recipes %}
+        <li><a href="{% url 'groceryList:recipe' recipe.id %}">{{ recipe.name }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No recipes are available.</p>
+{% endif %}
+
+<a href="{% url 'groceryList:new' %}">Create a new grocery list</a><br>
+
+<a href="{% url 'groceryList:new_recipe' %}">Create a new recipe</a>
