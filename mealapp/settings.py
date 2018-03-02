@@ -39,7 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'groceryList',
     'barcodeScan',
+    "registration"
 ]
+
+# Account/Login setting
+REGISTRATION_OPEN = True              # Users can register!
+REGISTRATION_AUTO_LOGIN = True        # The user will be automatically logged in.
+LOGIN_REDIRECT_URL = '/groceryList/'  # The page users will land on after they successfully log in
+LOGIN_URL = '/accounts/login/'        # The page users are directed to if they are not logged in,
+                                      # and are trying to access pages requiring authentication
 
 SITE_ID = 1
 
@@ -58,7 +66,9 @@ ROOT_URLCONF = 'mealapp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            BASE_DIR + "/templates/",
+        ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

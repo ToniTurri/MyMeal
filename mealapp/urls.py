@@ -15,9 +15,19 @@ Including another URLconf
 """
 from django.urls import include, path
 from django.contrib import admin
+from registration.backends.simple.views import RegistrationView
+
+# Create a new class that redirects the user to the index page, 
+# if successful at logging into o the application.
+# This is for login and registration redirect.
+class MyRegistrationView(RegistrationView):
+    def get_success_url(request, user):
+        return '/groceryList/'
 
 urlpatterns = [
     path('groceryList/', include('groceryList.urls')),
     path('barcode/', include('barcodeScan.urls')),
     path('admin/', admin.site.urls),
+    path('accounts/register/', MyRegistrationView.as_view(), name='registration_register'),
+    path('accounts/', include('registration.backends.simple.urls')),
 ]
