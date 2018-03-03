@@ -45,7 +45,8 @@ Select a grocery list
     {% endif %}
 
     <input type="submit" value="Add to grocery list" />
-    <input type="button" onclick="window.location.href ='/barcode/';return false;" value="Cancel" />
+    <input type="button" onclick="window.location.href ='{% url 'barcodeScan:index' %}'
+                                 ;return false;" value="Cancel" />
 </form>
 
 </body>
