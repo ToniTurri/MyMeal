@@ -34,9 +34,11 @@ Select a grocery list to add this item to: [under construction]
     <!-- csrf_token to protect against XSS attacks -->
     {% csrf_token %}
     <!-- pass back the product info so it can be added to the db -->
-    <input type="hidden" name="productInfo" value={{ context }}>
+    <input type="hidden" name="product_info" value={{ product_name_en }}>
     <input type="submit" value="Add to imaginary list" />
 </form>
+
+
 
 </body>
 </html>

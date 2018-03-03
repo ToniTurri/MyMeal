@@ -1,7 +1,7 @@
 import requests
 import json
-from django.http import HttpResponse, HttpResponseRedirect, StreamingHttpResponse
-from django.shortcuts import render
+from django.http import HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from .forms import BarcodeForm
 
@@ -13,7 +13,7 @@ def index(request):
 		if form.is_valid():
 			# fetch the JSON file from the external API & convert to py dictionary
 			url = 'http://world.openfoodfacts.org/api/v0/product/%s.json' % (form.cleaned_data['number'],)
-			response = requests.get(url, stream=True)
+			response = requests.get(url)
 			json_data = json.loads(response.text)
 
 			# make sure that barcode # is in the database
