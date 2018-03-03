@@ -8,7 +8,7 @@
 
 <h1>Barcode Scanner</h1>
 
-Select a grocery list to add this item to: [under construction]
+Select a grocery list to add this item to:
 
 <br>
 <br>
@@ -20,25 +20,32 @@ Select a grocery list to add this item to: [under construction]
 
 <br>
 
-<!-- if the product has a generic_name, give that preference -->
-{% if generic_name %}
-    {{ generic_name }}
-{% else %}
-    {{ product_name_en }}
-{% endif %}
+<!-- display the food's name -->
+{{food_name}}
 
 <br>
 <br>
 
-<form action="/barcode/confirm/" method="post">
+Select a grocery list
+
+<form action="{% url 'barcodeScan:add_to_list' %}" method="post">
     <!-- csrf_token to protect against XSS attacks -->
     {% csrf_token %}
-    <!-- pass back the product info so it can be added to the db -->
-    <input type="hidden" name="product_info" value={{ product_name_en }}>
-    <input type="submit" value="Add to imaginary list" />
+    <!-- pass back the food's name so it can be added to the db -->
+    <input type="hidden" name="food_name" value="{{ food_name }}">
+    {% if all_grocery_lists %}
+        <select name="selected_grocery_list">
+            {% for list in all_grocery_lists %}
+                <option value = {{list.id}}>{{ list.name }}</option>
+            {% endfor %}
+                </select>
+    {% else %}
+        <p>No grocery lists are available.</p>
+    {% endif %}
+
+    <input type="submit" value="Add to grocery list" />
+    <input type="button" onclick="window.location.href ='/barcode/';return false;" value="Cancel" />
 </form>
-
-
 
 </body>
 </html>

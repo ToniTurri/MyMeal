@@ -109,16 +109,10 @@ def add_to_list(request, pk):
         
         if form.is_valid():
             food = form.cleaned_data['food_item']
-            
-            if FoodItem.objects.filter(name=food).exists():
-                
-                # probably a good idea to ask the user if they want to do this
-                if grocery_list.fooditems.filter(name=food).exists():
-                    grocery_list.fooditems.filter(name=food).update(quantity = F('quantity') + 1)
-    
-                else:            
-                    grocery_list.fooditems.add(FoodItem.objects.filter(name=food))
-            
+
+            # probably a good idea to ask the user if they want to do this
+            if grocery_list.fooditems.filter(name=food).exists():
+                grocery_list.fooditems.filter(name=food).update(quantity = F('quantity') + 1)
             else:
                 new_food = FoodItem(name=food, date=timezone.now())
                 new_food.save()
@@ -179,9 +173,9 @@ def add_to_recipe(request, pk):
         
         if form.is_valid():
             food = form.cleaned_data['food_item']
-            
+
             if FoodItem.objects.filter(name=food).exists():
-                
+
                 # probably a good idea to ask the user if they want to do this
                 if recipe.fooditems.filter(name=food).exists():
                     recipe.fooditems.filter(name=food).update(quantity = F('quantity') + 1)

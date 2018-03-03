@@ -5,5 +5,6 @@ from . import views
 app_name = 'barcodeScan'
 urlpatterns = [
     path('', views.index, name='index'),
-    path('confirm/', views.confirm, name='confirm')
+    path('confirm/', views.confirm, name='confirm'),
+    path('confirm/add', views.add_to_list, name='add_to_list'),
 ]
