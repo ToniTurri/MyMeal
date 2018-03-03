@@ -1,6 +1,6 @@
 import requests
 import json
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.utils import timezone
@@ -51,24 +51,20 @@ def index(request):
 
 	return render(request, 'barcodeScan/index.html', {'form': form})
 
-# confirm that user wants to add the scanned item to their grocery list
-def confirm(request):
-	# for now, simply returns to index
-	return HttpResponseRedirect(reverse('barcodeScan:index'))
-
 # when a user wants to add an item to a grocery list, go here
 def add_to_list(request):
 	# if the method is POST, do some processing
 	if request.method == "POST":
+		# TODO - add some sort of a one-time token to verify that this POST is coming from a legitimate user
+
 		# get the selected grocery list's id
 		id = request.POST['selected_grocery_list']
 		# get the grocery list that was selected from the form
 		grocery_list = get_object_or_404(GroceryList, pk=id)
 		# get the food's name string from the form
 		food = request.POST['food_name']
-		print(FoodItem.objects.filter(name=food))
 
-		# yes - check if item exists already, update quantity accordingly
+		# check if item exists already, update quantity accordingly
 		if grocery_list.fooditems.filter(name=food).exists():
 			grocery_list.fooditems.filter(name=food).update(quantity=F('quantity') + 1)
 		else:
@@ -79,3 +75,6 @@ def add_to_list(request):
 
 		# take the user to the groceryList to see their added item
 		return HttpResponseRedirect(reverse('groceryList:detail', args=(id,)))
+	else:
+		# we should never receive a GET request to this view's URL
+		raise Http404
