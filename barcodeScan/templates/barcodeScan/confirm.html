@@ -33,6 +33,7 @@ Select a grocery list
     {% csrf_token %}
     <!-- pass back the food's name so it can be added to the db -->
     <input type="hidden" name="food_name" value="{{ food_name }}">
+
     {% if all_grocery_lists %}
         <select name="selected_grocery_list">
             {% for list in all_grocery_lists %}
@@ -40,7 +41,7 @@ Select a grocery list
             {% endfor %}
                 </select>
     {% else %}
-        <p>No grocery lists are available.</p>
+        <p>(No grocery lists available)</p>
     {% endif %}
 
     <input type="submit" value="Add to grocery list" />
