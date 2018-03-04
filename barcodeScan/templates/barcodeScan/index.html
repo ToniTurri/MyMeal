@@ -51,7 +51,7 @@ For a demo, try a few:
 <br>
 <br>
 
-<form action="/barcode/" method="post">
+<form action="{% url 'barcodeScan:index' %}" method="post">
     <!-- csrf_token to protect against XSS attacks -->
     {% csrf_token %}
     {{ form }}

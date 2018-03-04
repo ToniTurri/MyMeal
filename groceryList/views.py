@@ -23,9 +23,14 @@ class IndexView(ListView):
 
 class NewGroceryListView(CreateView):
     model = GroceryList
+    template_name = 'groceryList/new.html'
     form_class = forms.AddGroceryListForm
 
-    template_name = 'groceryList/new.html'
+    def get_context_data(self, **kwargs):
+        context = super(NewGroceryListView, self).get_context_data(**kwargs)
+        context['food_name'] = self.kwargs.get("food_name")
+
+        return context
 
 class NewRecipeView(CreateView):
     model = Recipe
@@ -58,9 +63,10 @@ class RecipeView(DetailView):
 def add(request):
     if request.method == "POST":
         form = forms.AddGroceryListForm(request.POST)
-        
+
         if form.is_valid():
             text = form.cleaned_data['name']
+            scanned_food_name = request.POST.get("food_name")
 
             if GroceryList.objects.filter(name=text).exists():
                 messages.warning(request, "Grocery list already exists")
@@ -70,9 +76,15 @@ def add(request):
             # redirect to new grocery list after creation
             else:        
                 new_list = GroceryList.objects.create(name=text, date=timezone.now())
-                
+
+                # if we are making a list from the barcodeScan app, add the food item too
+                if scanned_food_name is not None:
+                    new_food = FoodItem(name=scanned_food_name, date=timezone.now())
+                    new_food.save()
+                    new_list.fooditems.add(new_food)
+
                 return HttpResponseRedirect(reverse('groceryList:detail', args = (new_list.id,)))
-    
+
     # if method = GET, then return a blank form
     else:
         form = forms.AddListForm()

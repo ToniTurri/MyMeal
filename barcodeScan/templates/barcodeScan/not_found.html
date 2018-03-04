@@ -13,7 +13,7 @@ Sorry, no product data could be obtained for this item.
 <br>
 <br>
 
-<form action="/barcode/" method="get">
+<form action="{% url 'barcodeScan:index' %}" method="get">
     <!-- csrf_token not required in a GET form -->
     <input type="submit" value="Back to scanner" />
 </form>

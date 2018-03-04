@@ -11,6 +11,9 @@
 {% endif %}
 
 <form action="{% url 'groceryList:add' %}" method="post">{% csrf_token %}
+    {% if food_name %}
+        <input type="hidden" name="food_name" value="{{ food_name }}">
+    {% endif %}
     {{ form }}
     <input type="submit" value="Submit" />
 </form>
@@ -27,6 +30,9 @@
 <form action="{% url 'groceryList:add' %}" method="post">
 {% csrf_token %}
     <div>
+        {% if food_name %}
+            <input type="hidden" name="food_name" value="{{ food_name }}">
+        {% endif %}
         <label for="name">Grocery List Name:</label>
         <input id="name" type="text" name="name" /> <br>
     </div>

@@ -26,8 +26,6 @@ Select a grocery list to add this item to:
 <br>
 <br>
 
-Select a grocery list
-
 <form action="{% url 'barcodeScan:add_to_list' %}" method="post">
     <!-- csrf_token to protect against XSS attacks -->
     {% csrf_token %}
@@ -35,16 +33,20 @@ Select a grocery list
     <input type="hidden" name="food_name" value="{{ food_name }}">
 
     {% if all_grocery_lists %}
+        Select a grocery list
         <select name="selected_grocery_list">
             {% for list in all_grocery_lists %}
                 <option value = {{list.id}}>{{ list.name }}</option>
             {% endfor %}
                 </select>
+        <input type="submit" value="Add to grocery list" />
     {% else %}
-        <p>(No grocery lists available)</p>
+        No grocery lists found <br>
+        <input type="button" onclick="window.location.href ='{% url 'groceryList:new' food_name %}'
+                                      ;return false;"
+               value="Create a new list" />
     {% endif %}
 
-    <input type="submit" value="Add to grocery list" />
     <input type="button" onclick="window.location.href ='{% url 'barcodeScan:index' %}'
                                  ;return false;" value="Cancel" />
 </form>
