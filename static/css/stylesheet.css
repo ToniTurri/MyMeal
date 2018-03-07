@@ -1,0 +1,279 @@
+body {
+	margin: 0 auto;
+	background-color: #f8f9fa;
+	height: 100%;
+}
+
+.clear {
+	clear: both;
+}
+
+article#small-panel {
+	width: 400px;
+	margin: 0 auto;
+	padding: 25px;
+	margin-top: 30px;
+}
+
+article#small-panel header {
+	text-align: center;
+	font-size: .9em;
+}
+
+article#small-panel label {
+	font-size: 1.1em;
+}
+
+article#small-panel .helptext, li {
+	font-size: .9em;
+	color: #868e96;
+}
+
+article#small-panel .errorlist li {
+	font-size: .9em;
+	color: #c92a2a;
+}
+
+article#small-panel 
+	input[type=text], 
+	input[type=email],
+	input[type=password] {
+	width: 98%;
+	height: 35px;
+	border-radius: 5px;
+	border: 1px solid #ced4da;
+	padding-left: 5px;
+	font-size: 1.1em;
+	color: #000;
+}
+
+article#small-panel input[type=submit] {
+	width: 100%;
+	height: 35px;
+	border-radius: 5px;
+	border: 1px solid #f76707;
+	background-color: #f76707; 
+	padding-left: 5px;
+	font-size: .9em;
+	color: #f2f2f2;
+}
+
+@media screen and (max-width: 500px) {
+	article#small-panel {
+		width: 85%;
+		padding-left: 0px;
+		padding-right: 0px;
+		background-color: #f8f9fa;
+		border: none;
+	}
+}
+
+/************************************************/
+/************************************************/
+/************************************************/
+
+.navbar {
+  overflow: hidden;
+  background-color: #f76707;
+  position: fixed;
+  top: 0;
+  width: 100%;
+}
+
+.navbar a {
+  float: left;
+  display: block;
+  color: #f1f3f5;
+  text-align: center;
+  padding: 12px;
+  text-decoration: none;
+  font-size: .9em;
+}
+
+/*.navbar a:hover {
+  background: #fd7e14;
+}*/
+
+#nav-left {
+	float: left;
+}
+
+#nav-right {
+	float: right;
+}
+
+#nav-right a {
+	float: right;
+}
+
+.navbar input[type=text] {
+    float: right;
+    padding: 5px;
+    border: none;
+    margin-top: 5px;
+    margin-right: 16px;
+    font-size: 1em;
+    width: 300px;
+}
+
+/* When the screen is less than 750px wide, 
+stack the links and the search field vertically i
+nstead of horizontally */
+@media screen and (max-width: 750px) {
+	
+	#nav-left {
+		clear: right;
+		float: none;
+		margin: 0 auto;
+	}
+
+	#nav-right {
+		clear: left;
+		float: left;
+		text-align: left;
+		display: inline-block;
+		width: 100%;
+	}
+
+	#nav-right a {
+		float: left;
+	}
+
+    .navbar a, .navbar input[type=text] {
+        float: left;
+        display: block;
+        text-align: left;
+        width: 100%;
+        margin: 0;
+        padding: 14px;
+    }
+    .navbar input[type=text] {
+        border: 1px solid #ccc;
+    }
+}
+
+/************************************************/
+/************************************************/
+/************************************************/
+
+#main {
+  padding: 16px;
+  margin-top: 30px;
+  background-color: #f8f9fa;
+}
+
+#content-wrapper {
+	width: 1366px;
+	height: 100%;
+	max-height: 100%;
+	margin: 0 auto;
+}
+
+@media screen and (max-width: 1400px) {
+	#content-wrapper {
+		width: 90%;
+	}
+}
+
+/* When the screen is less than 750px wide, 
+make sure the content isn't hidden by the 
+menu by default */
+@media screen and (max-width: 750px) {
+	#main {
+		margin-top: 325px;
+	}
+}
+
+@media (max-width: 460px) {
+	#main {
+		width: 100%;
+		padding: 0px;
+		top: 0;
+	}
+	#content-wrapper {
+		width: 100%;
+		margin: 0px 0px 0px 0px;
+	}
+}
+
+@media (max-width: 460px) {
+	#main {
+		width: 100%;
+		padding: 0px;
+		top: 0;
+	}
+	#content-wrapper {
+		width: 100%;
+		margin: 0px 0px 0px 0px;
+	}
+}
+
+@media (max-width: 320px) {
+	#main {
+		width: 320px;
+	}
+	#content-wrapper {
+		width: 320px;
+	}
+}
+
+article {
+	/*padding-top: 25px;*/
+	margin-top: 20px;
+	border: 1px solid #ced4da;
+	border-radius: 5px;
+	background-color: #fff;
+}
+
+article header {
+	line-height: 1.5;
+	font-size: 1.2em;
+	text-align: left;
+	margin: 10px 25px 15px 25px;
+	display: block;
+}
+
+article section {
+	line-height: 1.5;
+	font-size: 1em;
+	text-align: left;
+	padding-left: 25px;
+	padding-bottom: 10px;
+	border-top: 1px solid #ced4da;
+}
+
+article a:link {
+	text-decoration: none;
+	color: #f76707;
+	border-bottom: 1px dotted #f76707;
+}
+
+article a:visited {
+	color: #ff922b;
+}
+
+article img.full {
+	display: block;
+	margin: 0 auto;
+	width: 100%;
+	margin-left: 0;
+	margin-top: 2em;
+	margin-bottom: 2em;
+	border: solid 6px #B8B5AD;
+}
+
+article img.right {
+	display: block;
+	float: right;
+	margin: 1.5em;
+	border: solid 6px #B8B5AD;
+}
+
+@media (max-width: 700px) {
+	article img.right {
+		width: 90%;
+		display: block;
+		margin: 4 auto;
+		float: none;
+	}
+}

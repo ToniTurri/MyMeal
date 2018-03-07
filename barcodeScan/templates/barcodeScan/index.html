@@ -1,62 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Barcode Scanner</title>
-    <style>
-        table {
-            font-family: arial, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
-        }
-        td, th {
-            border: 1px solid #dddddd;
-            text-align: left;
-            padding: 8px;
-        }
-        tr:nth-child(even) {
-            background-color: #dddddd;
-        }
-    </style>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h1>Barcode Scanner</h1>
+{% block content %}
 
-For a demo, try a few:
+<article id="small-panel">
+	<header>
+		<h3>Barcode Scanner</h3>
+		<p>
+      For a demo, try a few:
+      <table style="margin: 0 auto;">
+        <tr>
+           <td>737628064502</td>
+        </tr>
+        <tr>
+           <td>5449000000996</td>
+        </tr>
+        <tr>
+           <td>87157246</td>
+        </tr>
+        <tr>
+           <td>0082184000052</td>
+        </tr>
+        <tr>
+           <td>00549257</td>
+        </tr>
+        <tr>
+           <td>0076808514339</td>
+        </tr>
+          <td>0070796300035 </td>
+      </table>
+    </p>
+	</header>
 
-<table>
-<table>
-  <tr>
-     <td>737628064502</td>
-  </tr>
-  <tr>
-     <td>5449000000996</td>
-  </tr>
-  <tr>
-     <td>87157246</td>
-  </tr>
-  <tr>
-     <td>0082184000052</td>
-  </tr>
-  <tr>
-     <td>00549257</td>
-  </tr>
-  <tr>
-     <td>0076808514339</td>
-  </tr>
-    <td>0070796300035 </td>
-</table>
+    <form action="{% url 'barcodeScan:index' %}" method="post">
+        <!-- csrf_token to protect against XSS attacks -->
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="Scan" />
+    </form>
 
-<br>
-<br>
+</article>
 
-<form action="{% url 'barcodeScan:index' %}" method="post">
-    <!-- csrf_token to protect against XSS attacks -->
-    {% csrf_token %}
-    {{ form }}
-    <input type="submit" value="Scan" />
-</form>
-
-</body>
-</html>
+{% endblock %}

@@ -1,9 +1,26 @@
-<h1>Login</h1>
-<form method="post" action=".">
-	{% csrf_token %}
-	{{ form.as_p }}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>MyMeal | Login</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="/static/css/stylesheet.css" />
+	<!-- used for importing icons -->
+	<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+</head>
+<body>
+	<article id="small-panel">
+		<header>
+			<h3>Log in to MyMeal</h3>
+			<p>Not  a member? <a href="{% url 'registration_register' %}">Register</a>!</p>
+		</header>
+		<hr/>
+		<form method="post" action=".">
+			{% csrf_token %}
+			{{ form.as_p }}
 
-	<input type="submit" value="Log in" />
-	<input type="hidden" name="next" value="{{ next }}" />
-</form>
-<p>Not  a member? <a href="{% url 'registration_register' %}">Register</a>!</p>
+			<input type="submit" value="Log In" />
+			<input type="hidden" name="next" value="{{ next }}" />
+		</form>
+	</article>
+</body>
+</html>

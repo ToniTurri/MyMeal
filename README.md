@@ -23,6 +23,11 @@ Web Application for managing food inventory, favorite meals, and meal suggestion
 	* Any working changes you make to files in the mealapp project will be watched and recompiled while the server is running 
 	* Refresh the webpage to see changes/errors
 
+# Creating the Database
+To initially create the database, run the following command:
+
+python manage.py migrate	
+	
 # Updating the Database
 When your datatables are out of sync with the models in the project, run the following commands:
 
