@@ -1,55 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Barcode Scanner</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h1>Barcode Scanner</h1>
+{% block content %}
 
-Select a grocery list to add this item to:
+<article id="small-panel">
+    <header>
+        <h3>Barcode Scanner</h3>
+    </header>
 
-<br>
-<br>
-
-<!-- if the product has an image_front_url, display it -->
-{% if image_front_url %}
-    <img src={{ image_front_url }}>
-{% endif %}
-
-<br>
-
-<!-- display the food's name -->
-{{food_name}}
-
-<br>
-<br>
-
-<form action="{% url 'barcodeScan:add_to_list' %}" method="post">
-    <!-- csrf_token to protect against XSS attacks -->
-    {% csrf_token %}
-    <!-- pass back the food's name so it can be added to the db -->
-    <input type="hidden" name="food_name" value="{{ food_name }}">
-
-    {% if all_grocery_lists %}
-        Select a grocery list
-        <select name="selected_grocery_list">
-            {% for list in all_grocery_lists %}
-                <option value = {{list.id}}>{{ list.name }}</option>
-            {% endfor %}
-                </select>
-        <input type="submit" value="Add to grocery list" />
-    {% else %}
-        No grocery lists found <br>
-        <input type="button" onclick="window.location.href ='{% url 'groceryList:new' food_name %}'
-                                      ;return false;"
-               value="Create a new list" />
+    <!-- if the product has an image_front_url, display it -->
+    {% if image_front_url %}
+        <img src={{ image_front_url }}>
     {% endif %}
 
-    <input type="button" onclick="window.location.href ='{% url 'barcodeScan:index' %}'
-                                 ;return false;" value="Cancel" />
-</form>
+    <br>
 
-</body>
-</html>
+    <!-- display the food's name -->
+    {{food_name}}
+
+    <br>
+    <br>
+
+    <form action="{% url 'barcodeScan:add_to_list' %}" method="post">
+        <!-- csrf_token to protect against XSS attacks -->
+        {% csrf_token %}
+        <!-- pass back the food's name so it can be added to the db -->
+        <input type="hidden" name="food_name" value="{{ food_name }}">
+
+        <!-- display dropdown of grocery lists -->
+        {% if all_grocery_lists %}
+            Select a grocery list
+            <select name="selected_grocery_list">
+                {% for list in all_grocery_lists %}
+                    <option value = {{list.id}}>{{ list.name }}</option>
+                {% endfor %}
+                    </select>
+            <input type="submit" value="Add to grocery list" />
+        {% else %}
+            No grocery lists found <br>
+            <input type="button" onclick="window.location.href ='{% url 'groceryList:new' food_name %}'
+                                          ;return false;"
+                   value="Create a new list" />
+        {% endif %}
+
+        <input type="button" onclick="window.location.href ='{% url 'barcodeScan:index' %}'
+                                     ;return false;" value="Cancel" />
+    </form>
+
+</article>
+
+{% endblock %}

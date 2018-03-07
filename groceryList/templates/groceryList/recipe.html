@@ -1,4 +1,11 @@
-<h1>{{ recipe.name }}</h1>
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+    <header>
+        <h3>{{ recipe.name }}</h3>
+    </header>
 
 <ul>
 {% for fooditem in recipe.fooditems.all %}
@@ -23,3 +30,7 @@
 </form>
 
 <a href="{% url 'groceryList:index' %}">View all grocery lists</a>
+
+</article>
+
+{% endblock %}
