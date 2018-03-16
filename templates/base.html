@@ -1,45 +1,47 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-	<title>MyMeal</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="/static/css/stylesheet.css" />
-	<!-- used for importing icons -->
-	<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
-</head>
-<body>
+    <head>
+    	<title>MyMeal</title>
+    	<meta name="viewport" content="width=device-width, initial-scale=1">
+    	<link rel="stylesheet" href="/static/css/stylesheet.css" />
+    	<!-- used for importing icons -->
+    	<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="navbar">
+        	<!-- TODO; implement collapsing navigation -->
+        	<a href= "#"><i class="fas fa-bars fas-lg"></i></a>
+        	<div id="nav-left">
+        	  	<a href="#home">Home</a>
+        	  	<a href="#inventory">Inventory</a>
+        	  	<a href="#recipes">Recipes</a>
+        	  	<a href="#grocery">Grocery List</a>
+        	</div>
+          	<div id="nav-right">
+          		<a href="{% url 'auth_logout' %}">Log out</a>
+          		<input type="text" placeholder="Search...">
+        	</div>
+        </div>
 
-<div class="navbar">
-	<!-- TODO; implement collapsing navigation -->
-	<a href= "#"><i class="fas fa-bars fas-lg"></i></a>
-	<div id="nav-left">
-	  	<a href="#home">Home</a>
-	  	<a href="#inventory">Inventory</a>
-	  	<a href="#recipes">Recipes</a>
-	  	<a href="#grocery">Grocery List</a>
-	  </div>
-  	<div id="nav-right">
-  		<a href="{% url 'auth_logout' %}">Log out</a>
-  		<input type="text" placeholder="Search...">
-	</div>
-</div>
-
-<div id="main">
-	<div id="content-wrapper">
-		<!-- Placeholder for now -->
-        Logged in: {{ user.username }} 
-        (<a href="{% url 'auth_logout' %}">Log out</a> | 
-        <a href="{% url 'auth_password_change' %}">Change password</a>)
-    
-		{% block content %}{% endblock %}
-  </div>
-</div>
-
-<script>
-/* 
-function toggleUserDropdown() {
-	document.getElementById("user-dropdown-options").classList.toggle("show");
-}*/
-</script>
-</body>
+        <div id="main">
+            <div id="content-wrapper">
+                <!-- Placeholder for now -->
+                Logged in: {{ user.username }} 
+                (<a href="{% url 'auth_logout' %}">Log out</a> | 
+                <a href="{% url 'auth_password_change' %}">Change password</a>)
+            
+        		{% block content %}{% endblock %}
+          </div>
+        </div>
+        
+        <script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+        <script src="{% static 'scripts/main.js' %}"></script>    
+        <script>
+            /* 
+            function toggleUserDropdown() {
+                document.getElementById("user-dropdown-options").classList.toggle("show");
+            }*/
+        </script>
+    </body>
 </html>
