@@ -29,6 +29,7 @@ class MyRegistrationView(RegistrationView):
 urlpatterns = [
     path('groceryList/', include('groceryList.urls')),
     path('barcode/', include('barcodeScan.urls')),
+    path('search/', include('recipeFinder.urls')),
     path('admin/', admin.site.urls),
     path('accounts/register/', MyRegistrationView.as_view(form_class=RegistrationFormUniqueEmail), name='registration_register'),
     path('accounts/', include('registration.backends.simple.urls')),

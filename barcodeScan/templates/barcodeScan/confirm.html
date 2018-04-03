@@ -9,18 +9,17 @@
 
     <!-- if the product has an image_front_url, display it -->
     {% if image_front_url %}
-        <img src={{ image_front_url }}>
+        <img src={{ image_front_url }} class="center">
     {% endif %}
 
     <br>
 
     <!-- display the food's name -->
-    {{food_name}}
+    <center> {{food_name}} </center>
 
-    <br>
-    <br>
+    <br><br>
 
-    <form action="{% url 'barcodeScan:add_to_list' %}" method="post">
+    <form action="{% url 'barcodeScan:add_to_list' %}" method="post" class="center">
         <!-- csrf_token to protect against XSS attacks -->
         {% csrf_token %}
         <!-- pass back the food's name so it can be added to the db -->
@@ -36,14 +35,14 @@
                     </select>
             <input type="submit" value="Add to grocery list" />
         {% else %}
-            No grocery lists found <br>
+        <center>No grocery lists found</center> <br>
             <input type="button" onclick="window.location.href ='{% url 'groceryList:new' food_name %}'
                                           ;return false;"
                    value="Create a new list" />
         {% endif %}
 
         <input type="button" onclick="window.location.href ='{% url 'barcodeScan:index' %}'
-                                     ;return false;" value="Cancel" />
+                                     ;return false;" value="Cancel" class="center"/>
     </form>
 
 </article>

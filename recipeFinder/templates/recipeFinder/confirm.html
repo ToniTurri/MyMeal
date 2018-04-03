@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+    <header>
+        <h3>Barcode Scanner</h3>
+    </header>
+
+    <!-- if the product has an image_front_url, display it -->
+    {% if image_front_url %}
+        <img src={{ image_front_url }}>
+    {% endif %}
+
+    <br>
+
+    <!-- display the food's name -->
+    {{food_name}}
+
+    <br>
+    <br>
+
+</article>
+
+{% endblock %}
