@@ -9,9 +9,11 @@
 
     <br>
 
-    {% if criteria.terms %}
-    <center> <p> Displaying up to {{criteria.maxResults}} search results for
-        "
+    <!-- debug -->
+    {% if criteria.maxResults %}
+    <center> <p> Displaying up to {{criteria.maxResults}} search results
+        {% if criteria.terms %}
+        for "
         {% for term in criteria.terms %}
             {{term}}
             {% if not forloop.last %}
@@ -19,10 +21,12 @@
             {% endif %}
         {% endfor %}
         "
+        {% endif %}
     </p> </center>
     <br>
     {% endif %}
 
+    <!-- display all matched recipes -->
     {% for match in matches %}
     <table style="margin: 0 auto;">
         <tr>

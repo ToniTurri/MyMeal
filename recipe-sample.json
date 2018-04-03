@@ -1600,8 +1600,7 @@
         "requirePictures": false,
         "facetFields": [],
         "terms": [
-            "soup",
-	    "salad"
+            "soup"
         ],
         "allowedAttributes": [
             "course^course-Soups"
