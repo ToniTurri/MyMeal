@@ -70,7 +70,9 @@ def add(request):
         if form.is_valid():
             text = form.cleaned_data['name']
             
-            # this is probably meant for add_to_list()
+            # *for the special case of scanning an item when there are no lists--
+            # create a new list from the barcodeScan app and add the scanned item
+            # to it automatically.
             scanned_food_name = request.POST.get("food_name")
 
             if GroceryList.objects.filter(name=text).exists():
@@ -82,7 +84,7 @@ def add(request):
             else:        
                 new_list = GroceryList.objects.create(name=text, date=timezone.now())
 
-                # if we are making a list from the barcodeScan app, add the food item too
+                # *if we are making a list from the barcodeScan app, add the food item too
                 if scanned_food_name is not None:
                     new_food = FoodItem(name=scanned_food_name, date=timezone.now())
                     new_food.save()
