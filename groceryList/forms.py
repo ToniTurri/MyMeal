@@ -21,6 +21,7 @@ class AddRecipeForm(forms.ModelForm):
 class AddItemToListForm(Form):
     food_item = forms.CharField(label = 'Add an item to your grocery list',
                                 max_length = 100, required = True)
+    quantity = forms.IntegerField(max_value=100, min_value=0)
 
 class AddItemToRecipeForm(Form):
     food_item = forms.CharField(label = 'Add ingredient to recipe',

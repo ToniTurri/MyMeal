@@ -9,17 +9,26 @@
 
     <ul>
     {% for fooditem in grocerylist.fooditems.all %}
-        <li>{{ fooditem.quantity }} {{ fooditem.name }} on your grocery list</li>
+    
+    <p><div data-role="item_name">
+    <i class="fa fa-plus-circle" aria-hidden="true" data-action="plus" data-list_id="{{ grocerylist.id }}" data-food_item="{{ fooditem.name }}" ></i>
+        <i class="fa fa-minus-circle" aria-hidden="true" data-action="minus" data-list_id="{{ grocerylist.id }}" data-food_item="{{ fooditem.name }}" ></i>
+        {{ fooditem.name }}: 
+        <span data-role="item_qty">{{ fooditem.quantity }}</span>
+        
+    </div></p>
+    
     {% endfor %}
     </ul>
 
     <ul>
     {% for recipe in grocerylist.recipes.all %}
-        <li> {{ recipe.name }} on your grocery list; contains - </li>
+        <p> {{ recipe.name }} on your grocery list; contains - </p>
         <ul>
         {% if recipe.fooditems.all %}
             {% for fooditem in recipe.fooditems.all %}
-                    <li>{{ fooditem.quantity }} {{ fooditem.name }} </li>
+                    <p>{{ fooditem.quantity }} {{ fooditem.name }} </p>
+                        
             {% endfor %}
         {% else %}
         <p>No ingredients</p>
@@ -40,20 +49,19 @@
 
     <form action="{% url 'groceryList:add_to_list' pk=grocerylist.id %}" method="post">
     {% csrf_token %}
-        {{ item_form }} <br>
+        {{ item_form.as_p }} <br>
         <input type="submit" value="Submit" />
     </form>
 
 
     <form action="{% url 'groceryList:add_recipe_to_list' pk=grocerylist.id %}" method="post">
     {% csrf_token %}
-        {{ recipe_form }} <br>
+        {{ recipe_form.as_p }} <br>
         <input type="submit" value="Submit" />
     </form>
 
 
     <a href="{% url 'groceryList:index' %}">View all grocery lists</a>
-
 
 
 

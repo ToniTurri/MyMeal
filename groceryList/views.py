@@ -1,4 +1,5 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
+from django.template import RequestContext
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.generic import DetailView, ListView
@@ -68,6 +69,8 @@ def add(request):
 
         if form.is_valid():
             text = form.cleaned_data['name']
+            
+            # this is probably meant for add_to_list()
             scanned_food_name = request.POST.get("food_name")
 
             if GroceryList.objects.filter(name=text).exists():
@@ -89,7 +92,7 @@ def add(request):
 
     # if method = GET, then return a blank form
     else:
-        form = forms.AddListForm()
+        form = forms.AddGroceryListForm()
     return render(request, 'groceryList:index', {'form':form})
 
 def add_recipe(request):
@@ -123,12 +126,13 @@ def add_to_list(request, pk):
         
         if form.is_valid():
             food = form.cleaned_data['food_item']
+            qty = form.cleaned_data['quantity']
 
             # probably a good idea to ask the user if they want to do this
             if grocery_list.fooditems.filter(name=food).exists():
-                grocery_list.fooditems.filter(name=food).update(quantity = F('quantity') + 1)
+                grocery_list.fooditems.filter(name=food).update(quantity = F('quantity') + qty)
             else:
-                new_food = FoodItem(name=food, date=timezone.now())
+                new_food = FoodItem(name=food, quantity = qty, date=timezone.now())
                 new_food.save()
                 grocery_list.fooditems.add(new_food)
             
@@ -139,6 +143,41 @@ def add_to_list(request, pk):
         form = forms.AddItemToListForm()
     
     return render(request, 'groceryList/detail.html', {'form': form})
+
+def increment_food_item(request):
+    pk = None
+    if request.method == 'GET':
+        pk = request.GET['list_id']
+        food_item = request.GET['food_item']
+    
+    if pk:
+        grocery_list = get_object_or_404(GroceryList, pk = pk)
+        qty = grocery_list.fooditems.get(name=food_item).quantity
+        grocery_list.fooditems.filter(name=food_item).update(quantity = F('quantity') + 1)
+
+        return HttpResponse(qty + 1)
+    return HttpResponse(0)
+
+def decrement_food_item(request):
+    pk = None
+    if request.method == 'GET':
+        pk = request.GET['list_id']
+        food_item = request.GET['food_item']
+    
+    if pk:
+        grocery_list = get_object_or_404(GroceryList, pk = pk)
+        qty = grocery_list.fooditems.get(name=food_item).quantity
+        
+        # this doesn't work; probably tricky to make it happen here
+        if qty == 0:
+            grocery_list.fooditems.remove(food_item)
+            grocery_list.save()
+        
+        else:
+            grocery_list.fooditems.filter(name=food_item).update(quantity = F('quantity') - 1)
+            return HttpResponse(qty - 1)
+        
+    return HttpResponse(0)
 
 def add_recipe_to_list(request, pk):
     grocery_list = get_object_or_404(GroceryList, pk = pk)
@@ -152,19 +191,39 @@ def add_recipe_to_list(request, pk):
             if Recipe.objects.filter(name=recipe).exists():
                 
                 # probably a good idea to ask the user if they want to do this
-                if grocery_list.recipes.filter(name=recipe).exists():
-                    
-                    for food_item in Recipe.objects.filter(name=recipe):
-                        on_hand = grocery_list.fooditems.filter(name=food_item.name).quantity()
-                        if on_hand < food_item.quantity:
-                            diff = food_item.quantity - on_hand
-                            grocery_list.fooditems.filter(name=food_item).update(quantity = F('quantity') + diff)
-                                
-                    messages.warning(request, "Grocery list items updated")
-    
-                else:
-                    # have to use .get() instead of .filter() ??? something about QuerySets
+                if not grocery_list.recipes.filter(name=recipe).exists():
                     grocery_list.recipes.add(Recipe.objects.get(name=recipe))
+                
+                # this too maybe? do we want to add the entire quantity that the recipe
+                # calls for, or just the difference between that and what's already
+                # on the user's grocery list?
+                for food_item in Recipe.objects.get(name=recipe).fooditems.all():
+                    
+                    if grocery_list.fooditems.filter(name=food_item).exists():
+                        grocery_list.fooditems.filter(name=food_item).update(quantity = F('quantity') + food_item.quantity)
+                        
+                    else:
+                        new_food = FoodItem(name=food_item, quantity = food_item.quantity, date=timezone.now())
+                        new_food.save()
+                        grocery_list.fooditems.add(new_food)
+                                
+                messages.warning(request, "Grocery list items updated")
+                
+
+#                # probably a good idea to ask the user if they want to do this
+#                if grocery_list.recipes.filter(name=recipe).exists():
+#                    
+#                    for food_item in Recipe.objects.filter(name=recipe):
+#                        on_hand = grocery_list.fooditems.get(name=food_item.name).quantity()
+#                        if on_hand < food_item.quantity:
+#                            diff = food_item.quantity - on_hand
+#                            grocery_list.fooditems.filter(name=food_item).update(quantity = F('quantity') + diff)
+#                                
+#                    messages.warning(request, "Grocery list items updated")
+#    
+#                else:
+#                    # have to use .get() instead of .filter() ??? something about QuerySets
+#                    grocery_list.recipes.add(Recipe.objects.get(name=recipe))
             
             else:
                 new_recipe = Recipe(name=recipe, date=timezone.now())

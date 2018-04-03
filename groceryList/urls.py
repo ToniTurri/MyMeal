@@ -16,5 +16,8 @@ urlpatterns = [
     path('recipe/<int:pk>/', views.RecipeView.as_view(), name='recipe'),
     path('recipe/<int:pk>/add_to_recipe/', views.add_to_recipe, name='add_to_recipe'),
     path('<int:pk>/add_recipe_to_list/', views.add_recipe_to_list, name='add_recipe_to_list'),
+    
+    path('increment/', views.increment_food_item, name='increment_food_item'),
+    path('decrement/', views.decrement_food_item, name='decrement_food_item'),
 
 ]
