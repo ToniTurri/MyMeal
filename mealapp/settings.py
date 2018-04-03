@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'groceryList',
     'barcodeScan',
     'registration',
+    'recipeFinder',
     'dashboard'
 ]
 

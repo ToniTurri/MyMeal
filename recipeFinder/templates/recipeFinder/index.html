@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+	<header>
+		<h3>Recipe Finder</h3>
+	</header>
+
+    <form action="{% url 'recipeFinder:index' %}" method="post">
+        <!-- csrf_token to protect against XSS attacks -->
+        {% csrf_token %}
+        <input type="submit" value="Search for Recipes" />
+    </form>
+
+</article>
+
+{% endblock %}

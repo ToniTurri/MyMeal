@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+    <header>
+        <h3>Recipe Finder</h3>
+    </header>
+
+    <br>
+
+    {% if criteria.terms %}
+    <center> <p> Displaying up to {{criteria.maxResults}} search results for
+        "
+        {% for term in criteria.terms %}
+            {{term}}
+            {% if not forloop.last %}
+                 +
+            {% endif %}
+        {% endfor %}
+        "
+    </p> </center>
+    <br>
+    {% endif %}
+
+    {% for match in matches %}
+    <table style="margin: 0 auto;">
+        <tr>
+            <td>
+            <!-- display first thumbnail if available -->
+            {% if match.smallImageUrls %}
+                <br>
+                <img src = {{match.smallImageUrls.0}} class = "center" >
+                <br>
+            {% endif %}
+            {{match.recipeName}}
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    <br>
+
+    <form action="{% url 'recipeFinder:index' %}" method="get">
+		<!-- csrf_token not required in a GET form -->
+		<input type="submit" value="Back to Recipe Finder" />
+	</form>
+
+</article>
+
+{% endblock %}
