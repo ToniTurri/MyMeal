@@ -15,6 +15,7 @@ def index(request):
 		# display the data as results
 		return render(request, 'recipeFinder/results.html', context)
 
+	# method is GET
 	# otherwise it's a fresh new search - clear the previous results
 	if 'matches' in request.session:
 		request.session.pop('matches')
@@ -34,7 +35,7 @@ def recipe_detail(request, id):
 		# display the data as results
 		return render(request, 'recipeFinder/detail.html', context)
 	else:
-		# we should never receive a POST request to this view's URL
+		# we should never receive a GET request to this view's URL
 		raise Http404
 
 # get search data from the Yummly json response and return it
