@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+    <header>
+        <h3>{{ name }}</h3>
+    </header>
+
+    <center>
+    Yield: {{ yield }}
+    Prep time: {{ totalTime }}
+    </center>
+    <br>
+
+    <!-- display the first large or small thumbnail, if available -->
+    {% if images.0.hostedLargeUrl %}
+        <br>
+        <img src = {{ images.0.hostedLargeUrl }} class = "center" >
+        <br>
+    {% elif images.0.hostedSmallUrl %}
+        <br>
+        <img src = {{ images.0.hostedSmallUrl }} class = "center" >
+        <br>
+    {% endif %}
+
+    <!-- display ingredients -->
+    <ul class="center">
+    {% for line in ingredientLines %}
+        <li>
+        {{line}}
+        </li>
+    {% endfor %}
+    </ul>
+
+    <br>
+
+    <form action="{% url 'recipeFinder:index' %}" method="post">
+		{% csrf_token %}
+        <input type="hidden" name="matches" value="{{ matches }}">
+		<input type="submit" value="Back to Search Results" />
+	</form>
+
+</article>
+
+{% endblock %}
