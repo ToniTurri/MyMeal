@@ -71,12 +71,12 @@ def get_search_results(request, ingredients, search_phrase):
 
 		results = query_API(url)
 
-	# return None if no matches found
-	if not results.get('totalMatchCount'):
-		return None
-
 	# return None if for whatever reason the response json is empty
 	if not results:
+		return None
+
+	# return None if no matches found
+	if not results.get('totalMatchCount'):
 		return None
 
 	# else, populate context with whatever data we wish to display
