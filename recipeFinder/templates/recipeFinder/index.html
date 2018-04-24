@@ -7,11 +7,17 @@
 		<h3>Recipe Finder</h3>
 	</header>
 
-    <form action="{% url 'recipeFinder:index' %}" method="post">
-        <!-- csrf_token to protect against XSS attacks -->
-        {% csrf_token %}
-        <input type="submit" value="Search for Recipes" />
-    </form>
+	<h4>Choose items from your inventory to get a recipe!</h4>
+	<form action="{% url 'recipeFinder:inventory-check' %}" method="get">
+		<input type="submit" value="Pick from your inventory!" />
+	</form>
+
+	<br>
+
+	<h4>Find recipes on anything you want!</h4>
+	<form action="{% url 'recipeFinder:anything' %}" method="get">
+		<input type="submit" value="Search for recipes!" />
+	</form>
 
 </article>
 
