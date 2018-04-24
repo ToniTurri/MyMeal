@@ -177,7 +177,6 @@ def decrement_food_item(request):
 
         else:
             grocery_list.fooditems.filter(name=food_item).update(quantity = F('quantity') - 1)
-            return HttpResponse(qty - 1)
 
         # changes here from Finn
             try:
@@ -190,6 +189,7 @@ def decrement_food_item(request):
                 count2 = 0, count3 = 0, count4 = 0)
                 new_stat_item.save()
             # end changes
+            return HttpResponse(qty - 1)
 
     return HttpResponse(0)
 
