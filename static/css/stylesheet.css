@@ -41,16 +41,39 @@ article#small-panel .errorlist li {
 	color: #c92a2a;
 }
 
-article#small-panel 
+article#small-panel
+	input[type=url],
 	input[type=text], 
 	input[type=email],
-	input[type=password] {
+	input[type=password],
+	input[type=textarea],
+	input[type=number] {
 	width: 98%;
 	height: 35px;
 	border-radius: 5px;
 	border: 1px solid #ced4da;
 	padding-left: 5px;
-	font-size: 1.1em;
+	font-size: .9em;
+	color: #000;
+}
+
+textarea {
+	width: 95%;
+	border-radius: 5px;
+	border: 1px solid #ced4da;
+	padding-left: 5px;
+	font-size: 1.3em;
+	color: #000;
+	resize: vertical;
+}
+
+select {
+	width: 100%;
+	height: 35px;
+	border-radius: 5px;
+	border: 1px solid #ced4da;
+	padding-left: 5px;
+	font-size: .9em;
 	color: #000;
 }
 
@@ -69,11 +92,11 @@ article#small-panel input[type=button] {
 	width: 100%;
 	height: 35px;
 	border-radius: 5px;
-	border: 1px solid #f76707;
-	background-color: #f76707;
+	border: 1px solid #e9ecef;
+	background-color: #e9ecef;
 	padding-left: 5px;
 	font-size: .9em;
-	color: #f2f2f2;
+	color: #000;
 }
 
 @media screen and (max-width: 500px) {
@@ -294,4 +317,9 @@ article img.right {
 		margin: 4 auto;
 		float: none;
 	}
+}
+
+p .warning {
+	text-align: center;
+	color: #d9480f;
 }

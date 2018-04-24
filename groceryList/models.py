@@ -12,9 +12,7 @@ from django.urls import reverse
 class GroceryList(models.Model):
     name = models.CharField(max_length=100)
     date = models.DateTimeField(null=True, blank=True)
-    
-    fooditems = models.ManyToManyField('FoodItem')
-    recipes = models.ManyToManyField('Recipe')
+    fooditems = models.ManyToManyField('FoodItem') # for now can include non-inventory items
 
     def __str__(self):
     	return self.name
@@ -28,14 +26,3 @@ class FoodItem(models.Model):
     
     def __str__(self):
         return self.name
-    
-class Recipe(models.Model):
-    name = models.CharField(max_length=100, blank=True)
-    date = models.DateTimeField(null=True, blank=True)
-    
-    fooditems = models.ManyToManyField(FoodItem)
-    
-    def __str__(self):
-        return self.name
-    
-    pass

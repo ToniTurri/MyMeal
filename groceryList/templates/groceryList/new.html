@@ -26,30 +26,6 @@
 
     <a href="{% url 'groceryList:index' %}">View all grocery lists</a>
 
-
-
-
-
-
-    <script>/*
-
-    <form action="{% url 'groceryList:add' %}" method="post">
-    {% csrf_token %}
-        <div>
-            {% if food_name %}
-                <input type="hidden" name="food_name" value="{{ food_name }}">
-            {% endif %}
-            <label for="name">Grocery List Name:</label>
-            <input id="name" type="text" name="name" /> <br>
-        </div>
-        <div class="button">
-            <button type="submit">Submit</button>
-        </div>
-    </form>
-
-    <a href="{% url 'groceryList:index' %}">View all grocery lists</a>
-
-    */</script>
 </article>
 
 {% endblock %}

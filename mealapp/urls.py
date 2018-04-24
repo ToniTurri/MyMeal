@@ -34,5 +34,7 @@ urlpatterns = [
     path('accounts/register/', MyRegistrationView.as_view(form_class=RegistrationFormUniqueEmail), name='registration_register'),
     path('accounts/', include('registration.backends.simple.urls')),
     path('accounts/login/', auth_views.LoginView.as_view()),
-    path('dashboard/', include('dashboard.urls'))
+    path('dashboard/', include('dashboard.urls')),
+    path('recipes/', include('recipes.urls')),
+    path('inventory/', include('inventory.urls'))
 ]

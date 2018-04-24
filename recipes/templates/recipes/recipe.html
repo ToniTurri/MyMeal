@@ -23,13 +23,7 @@
 </ul>
 {% endif %}
 
-<form action="{% url 'groceryList:add_to_recipe' pk=recipe.id %}" method="post">
-{% csrf_token %}
-    {{ form }} <br>
-    <input type="submit" value="Submit" />
-</form>
-
-<a href="{% url 'groceryList:index' %}">View all grocery lists</a>
+<a href="{% url 'recipes:index' %}">View all recipes</a>
 
 </article>
 

@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+    <header>
+        <h3>Recipes</h3>
+    </header>
+
+    <p>Here is a list of recipes</p>
+
+    {% if all_recipes %}
+        <ul>
+        {% for recipe in all_recipes %}
+            <li><a href="{% url 'recipes:detail' recipe.id %}">{{ recipe.name }}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <p>No recipes are available.</p>
+    {% endif %}
+
+    <a href="{% url 'recipes:new_recipe' %}">Create a new recipe</a>
+</article>
+
+{% endblock %}

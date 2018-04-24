@@ -21,22 +21,6 @@
     {% endfor %}
     </ul>
 
-    <ul>
-    {% for recipe in grocerylist.recipes.all %}
-        <p> {{ recipe.name }} on your grocery list; contains - </p>
-        <ul>
-        {% if recipe.fooditems.all %}
-            {% for fooditem in recipe.fooditems.all %}
-                    <p>{{ fooditem.quantity }} {{ fooditem.name }} </p>
-                        
-            {% endfor %}
-        {% else %}
-        <p>No ingredients</p>
-        {% endif %}
-        </ul>
-    {% endfor %}
-    </ul>
-
     {% if messages %}
     <ul class="messages">
         {% for message in messages %}
@@ -53,38 +37,7 @@
         <input type="submit" value="Submit" />
     </form>
 
-
-    <form action="{% url 'groceryList:add_recipe_to_list' pk=grocerylist.id %}" method="post">
-    {% csrf_token %}
-        {{ recipe_form.as_p }} <br>
-        <input type="submit" value="Submit" />
-    </form>
-
-
     <a href="{% url 'groceryList:index' %}">View all grocery lists</a>
-
-
-
-
-
-
-
-
-
-    <script>/*
-
-    <form action="{% url 'groceryList:add_to_list' pk=grocerylist.id %}" method="post">
-        {% csrf_token %}
-        <div>
-            <label for="food_item">Add an item to your grocery list:</label>
-            <input id="food_item" type="text" name="food_item" /> <br>
-        </div>
-        <div class="button">
-            <button type="submit">Submit</button>
-        </div>
-    </form>
-
-    */</script>
 
 </article>
 

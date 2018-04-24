@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'barcodeScan',
     'registration',
     'recipeFinder',
-    'dashboard'
+    'dashboard',
+    'inventory',
+    'recipes'
 ]
 
 # Account/Login setting
