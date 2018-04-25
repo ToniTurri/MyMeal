@@ -12,7 +12,7 @@
     {% csrf_token %}
     {% for item in food_items %}
     <input type="checkbox" name="checked" id="item{{ forloop.counter }}"
-    value="{{ item.id }}" />
+    value="{{ item.name}}" />
     <label for="item{{ forloop.counter }}">{{ item.name }}</label> <br />
     {% endfor %}
     <br>

@@ -9,6 +9,7 @@ from django.db.models import F
 from django.views.generic.edit import CreateView
 from .models import GroceryList, FoodItem, Recipe
 from . import forms
+from stats.models import Consumed_Stats
 
 
 #from django.contrib.auth.decorators import login_required
