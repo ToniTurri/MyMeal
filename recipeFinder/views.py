@@ -1,6 +1,5 @@
 import requests
 import json
-from json.decoder import JSONDecodeError
 from django.http import Http404
 from django.shortcuts import render
 from groceryList.models import FoodItem
@@ -101,7 +100,7 @@ def query_API(url):
 	response = requests.get(url, headers=headers)
 	try:
 		return json.loads(response.text)
-	except JSONDecodeError:
+	except ValueError:
 		return None
 
 # Added from Finn
