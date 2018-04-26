@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'recipeFinder',
     'dashboard',
     'inventory',
-    'recipes'
+    'recipes',
+    'stats'
 ]
 
 # Account/Login setting
