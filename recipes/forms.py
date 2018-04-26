@@ -15,11 +15,12 @@ class AddRecipeForm(forms.ModelForm):
     
     class Meta:
         model = Recipe
-        fields = ['name', 'prepTime', 'servings', 'category', 'instructions', 'externalLink']
+        fields = ['name', 'prepTime', 'servings', 'category', 'instructions', 'externalLink', 'image']
         widgets = {
         	'category': forms.Select(),
         	'instructions': forms.Textarea(),
-        	'externalLink': forms.URLInput()
+        	'externalLink': forms.URLInput(),
+            'image': forms.ClearableFileInput()
         }
 
 
