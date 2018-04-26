@@ -19,7 +19,7 @@ from registration.forms import RegistrationFormUniqueEmail
 from registration.backends.simple.views import RegistrationView
 from django.contrib.auth import views as auth_views
 
-# Create a new class that redirects the user to the index page, 
+# Create a new class that redirects the user to the index page,
 # if successful at logging into o the application.
 # This is for login and registration redirect.
 class MyRegistrationView(RegistrationView):
@@ -36,5 +36,6 @@ urlpatterns = [
     path('accounts/login/', auth_views.LoginView.as_view()),
     path('dashboard/', include('dashboard.urls')),
     path('recipes/', include('recipes.urls')),
-    path('inventory/', include('inventory.urls'))
+    path('inventory/', include('inventory.urls')),
+    path('stats/', include('stats.urls'))
 ]

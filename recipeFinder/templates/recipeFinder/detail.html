@@ -37,7 +37,6 @@
 
     <form action="{% url 'recipeFinder:index' %}" method="post">
 		{% csrf_token %}
-        <input type="hidden" name="matches" value="{{ matches }}">
 		<input type="submit" value="Back to Search Results" />
 	</form>
 
