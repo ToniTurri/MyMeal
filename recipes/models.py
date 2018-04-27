@@ -8,17 +8,17 @@ from django.core.validators import MinValueValidator
 
 CATEGORY_CHOICES = (
 	('', ''),
-    ('breakfast','Breakfast'),
-    ('lunch', 'Lunch'),
-    ('dinner','Dinner'),
-    ('dessert','Dessert'),
-    ('snack','Snack'),
-    ('other','Other'),
+    ('Breakfast','Breakfast'),
+    ('Lunch', 'Lunch'),
+    ('Dinner','Dinner'),
+    ('Dessert','Dessert'),
+    ('Snack','Snack'),
+    ('Other','Other'),
 )
 
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
-    return 'user_{0}/{1}'.format(instance.user.id, filename)
+    return 'user_{0}/{1}'.format(0, filename) #instance.user.id
 
 class Recipe(models.Model):
     def validate_image(fieldfile_obj):
@@ -44,8 +44,8 @@ class Recipe(models.Model):
 
 class RecipeIngredients(models.Model):
 	recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
-	ingredient = models.CharField(max_length=100)
-	foodItem = models.ForeignKey(FoodItem, on_delete=models.CASCADE)
+	ingredient = models.CharField(max_length=100, null=False, blank=False)
+	foodItem = models.ForeignKey(FoodItem, on_delete=models.CASCADE, null=True, blank=True)
 
 	def __str__(self):
 	    return self.name

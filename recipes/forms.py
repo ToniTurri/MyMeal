@@ -6,7 +6,7 @@ from django.forms.formsets import formset_factory, BaseFormSet
 
 class IngredientForm(forms.Form):
 	value = forms.CharField(max_length = 100, widget=forms.TextInput(), required=True)
-	foodItem = forms.ModelChoiceField(queryset=FoodItem.objects.all())
+	foodItem = forms.ModelChoiceField(queryset=FoodItem.objects.all(), required=False)
 
 	def __init__(self, *arg, **kwarg):
 		super(IngredientForm, self).__init__(*arg, **kwarg)
