@@ -18,6 +18,8 @@ from django.contrib import admin
 from registration.forms import RegistrationFormUniqueEmail
 from registration.backends.simple.views import RegistrationView
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 # Create a new class that redirects the user to the index page,
 # if successful at logging into o the application.
@@ -39,3 +41,7 @@ urlpatterns = [
     path('inventory/', include('inventory.urls')),
     path('stats/', include('stats.urls'))
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL,document_root=settings.STATIC_ROOT) 
+    urlpatterns += static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

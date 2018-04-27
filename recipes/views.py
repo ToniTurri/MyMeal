@@ -39,7 +39,7 @@ class RecipeView(DetailView):
    
     def get_context_data(self, **kwargs):
         context = super(RecipeView, self).get_context_data(**kwargs)
-        #context['form'] = forms.AddItemToRecipeForm
+        context['ingredients'] = RecipeIngredients.objects.filter(recipe=self.kwargs.get('pk'))
             
         return context
 
@@ -48,7 +48,7 @@ def add_recipe(request):
 	IngredientFormSet = formset_factory(IngredientForm, max_num=20, min_num=1, validate_min=True, extra=0)
 
 	if request.method == "POST":		
-		form = forms.AddRecipeForm(request.POST)
+		form = forms.AddRecipeForm(request.POST, request.FILES)
 		ingredient_formset = IngredientFormSet(request.POST)
 	    
 		if form.is_valid() and ingredient_formset.is_valid():
@@ -62,10 +62,14 @@ def add_recipe(request):
 
 			if Recipe.objects.filter(name=name).exists():
 				messages.warning(request, "Recipe already exists")
-				return HttpResponseRedirect(reverse('recipes:new_recipe'))
 
 			# redirect to new recipe after creation
 			else:
+
+				image = None
+				if 'image' in request.FILES:
+					image = request.FILES['image']
+
 				# add other fields
 				new_recipe = Recipe.objects.create(
 					name=name, 
@@ -74,7 +78,8 @@ def add_recipe(request):
 					servings=servings,
 					category=category,
 					instructions=instructions,
-					externalLink=externalLink)
+					externalLink=externalLink,
+					image=image)
 
 				# Save ingredients for each form in the formset
 				new_ingredients = []
@@ -84,7 +89,7 @@ def add_recipe(request):
 					food_item = ingredient_form.cleaned_data['foodItem']
 
 					if ingredient:
-						new_ingredient_link = RecipeIngredients.objects.create(
+						new_ingredient_link = RecipeIngredients(
 							recipe=new_recipe, 
 							ingredient=ingredient,
 							foodItem=food_item)

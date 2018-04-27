@@ -4,14 +4,8 @@
 
 <article id="small-panel">
     <header>
-        <h3>{{ recipe.name }}</h3>
+        <h2>{{ recipe.name }}</h2>
     </header>
-
-<ul>
-{% for fooditem in recipe.fooditems.all %}
-    <li>Recipe calls for {{ fooditem.quantity }} {{ fooditem.name }}</li>
-{% endfor %}
-</ul>
 
 {% if messages %}
 <ul class="messages">
@@ -22,6 +16,30 @@
     {% endfor %}
 </ul>
 {% endif %}
+
+{% if recipe.image %}
+    <br>
+    <img src = {{ recipe.image.url }} class = "center" >
+    <br>
+{% endif %}
+
+<label>Yield: {{ recipe.servings }}</label><br>
+<label>Prep time: {{ recipe.preptime }}</label> <br>
+<label>Category: {{ recipe.category }}</label><br>
+<br>
+
+<!-- display ingredients -->
+{% if ingredients %}
+<label>Ingredients</label>
+<ul class="center">
+	{% for ingredient in ingredients %}
+	<li>{{ ingredient.ingredient }}</li>
+	{% endfor %}
+</ul>
+{% endif %}
+
+<p>Instructions: {{ recipe.instructions }}</p>
+<p>External Link: {{ recipe.externalLink }}</p>
 
 <a href="{% url 'recipes:index' %}">View all recipes</a>
 

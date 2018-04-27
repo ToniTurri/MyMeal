@@ -20,7 +20,7 @@
     {% endif %}
 
 
-    <form action="" method="post">
+    <form action="/recipes/new_recipe/" method="post" enctype="multipart/form-data"> 
         {% csrf_token %}
         
         <p><label for="recipe_name">Name:</label>{{ form.name }}</p>
