@@ -135,17 +135,17 @@ def decrement_food_item(request):
         else:
             grocery_list.fooditems.filter(name=food_item).update(quantity = F('quantity') - 1)
 
-        # changes here from Finn
             try:
                 food_item = FoodItem.objects.get(name=food_item)
                 stat_item = Consumed_Stats.objects.get(food=food_item)
                 stat_item.count1 += 1
+                stat_item.total += 1
                 stat_item.save()
             except Consumed_Stats.DoesNotExist:
                 new_stat_item = Consumed_Stats(food = food_item, count1 = 1,
-                count2 = 0, count3 = 0, count4 = 0)
+                count2 = 0, count3 = 0, count4 = 0, total = 1)
                 new_stat_item.save()
-            # end changes
+
             return HttpResponse(qty - 1)
 
     return HttpResponse(0)

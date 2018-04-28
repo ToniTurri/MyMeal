@@ -7,5 +7,6 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('detail/<str:id>', views.recipe_detail, name='recipe_detail'),
     path('inventory-check', views.inventoryCheck, name='inventory-check'),
-    path('anything', views.anything, name='anything')
+    path('freedom', views.freeChoice, name='freedom'),
+    path('suggestions', views.suggestions, name='suggestions')
 ]
