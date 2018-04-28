@@ -15,8 +15,15 @@
 	<br>
 
 	<h4>Find recipes on anything you want!</h4>
-	<form action="{% url 'recipeFinder:anything' %}" method="get">
+	<form action="{% url 'recipeFinder:freedom' %}" method="get">
 		<input type="submit" value="Search for recipes!" />
+	</form>
+
+	<br>
+
+	<h4>Let us show you recipes you might be interested in!</h4>
+	<form action="{% url 'recipeFinder:suggestions' %}" method="get">
+		<input type="submit" value="I'm feeling lucky!" />
 	</form>
 
 </article>

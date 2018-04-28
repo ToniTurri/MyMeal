@@ -3,6 +3,8 @@ import json
 from django.http import Http404
 from django.shortcuts import render
 from groceryList.models import FoodItem
+from stats.models import Consumed_Stats
+from django.db.models import Count
 
 app_id = '6fd6322a'
 api_key = '3ea09467f568742e613075b1305e2eb2'
@@ -47,7 +49,7 @@ def get_search_results(request, ingredients, search_phrase):
 		with open('search-sample.json') as json_data:
 			results = json.load(json_data)
 	else:
-		url = 'http://api.yummly.com/v1/api/recipes?&q=%s' % search_phrase
+		url = 'http://api.yummly.com/v1/api/recipes?&q='
 
 		# append ingredients to search url
 		allowed_ingredients = []
@@ -113,18 +115,52 @@ def inventoryCheck(request):
 	# This isn't supposed to actually do anything, but this is where the data is
 	if request.method == 'POST':
 		ingredients = request.POST.getlist('checked')
-		# if the method is POST, do some processing
-		if request.method == 'POST':
-			# populate our context with the json response data
-			#TODO: replace hard-coded ingredients and search term
-			search_phrase = 'cookies'
-			context = get_search_results(request, ingredients, search_phrase)
-			# make sure that matches were found
-			if context is None:
-				return render(request, 'recipeFinder/not_found.html')
-			# display the data as results
-			return render(request, 'recipeFinder/results.html', context)
+		search_phrase = 'cookies'
+		# populate our context with the json response data
+		context = get_search_results(request, ingredients, search_phrase)
+		# make sure that matches were found
+		if context is None:
+			return render(request, 'recipeFinder/not_found.html')
+		# display the data as results
+		return render(request, 'recipeFinder/results.html', context)
 
-# Not yet implemented
-def anything(request):
-	return render(request, 'recipeFinder/anything.html')
+# Not yet implemented, trying to figure out cool form techniques
+def freeChoice(request):
+	return render(request, 'recipeFinder/freechoice.html')
+
+# probably needs tweaking, need to determine number of items to checked
+# and some 'counts' have better results than others
+def suggestions(request):
+	stats_list = Consumed_Stats.objects.order_by('-total')
+	search_phrase = None # temp test phrase until better thing comes
+
+	count = resolveCount(len(stats_list))
+	if count is None:
+		return render(request, 'recipeFinder/not_found.html')
+	# Get top values
+	ingredients = []
+	for i in range(0, count):
+		ingredients.append(stats_list[i].food.name)
+	context = None
+	# make sure that matches were found and keep trying if not
+	while context is None and count >= 2:
+		context = get_search_results(request, ingredients, search_phrase)
+		count -=1
+		ingredients = []
+		for i in range(0, count):
+			ingredients.append(stats_list[i].food.name)
+
+	if context is None:
+		return render(request, 'recipeFinder/not_found.html')
+	# display the data as results
+	return render(request, 'recipeFinder/results.html', context)
+
+# helper function determines the inital number of ingredients to use
+def resolveCount(count):
+	# This wants at least 2 ingredients for suggestions, and max 6 (6 might be
+	# too much, if it works only 1 random thing)
+	if not count >= 2:
+		return None
+	elif count > 5:
+		return 4
+	return count
