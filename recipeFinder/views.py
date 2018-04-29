@@ -16,14 +16,31 @@ DEBUGGING = False
 
 # initial view & search results
 def index(request):
-	# method is GET
-	# it's a fresh new search - clear the previous results held in session
-	if 'matches' in request.session:
-		request.session.pop('matches')
-	return render(request, 'recipeFinder/index.html')
+	# method is POST
+	# go back to previous search results
+	if request.method == 'POST':
+		ingredients = request.session.get('ingredients')
+		search_phrase = request.session.get('search_phrase')
+		context = get_search_results(request, ingredients, search_phrase)
+
+		# make sure that matches were found
+		if context is None:
+			return render(request, 'recipeFinder/not_found.html')
+
+		return render(request, 'recipeFinder/results.html', context)
+	else:
+		# method is GET
+		# it's a fresh new search - clear the previous results held in session
+		if 'matches' in request.session:
+			request.session.pop('matches')
+		if 'ingredients' in request.session:
+			request.session.pop('ingredients')
+		if 'search_phrase' in request.session:
+			request.session.pop('search_phrase')
+		return render(request, 'recipeFinder/index.html')
 
 # recipe detail view
-def recipe_detail(request, id):
+def recipe_detail(request, id, course=None):
 	# if the method is POST, then try and save the recipe
 	if request.method == 'POST':
 		# get the old recipe context
@@ -59,6 +76,7 @@ def recipe_detail(request, id):
 
 		# if the recipe is saved, add that to the context (for save button)
 		context.update({'is_saved': Recipe.objects.filter(yummlyId = id).exists()})
+		context.update({'course': course})
 
 		# save the current context
 		request.session['recipe_context'] = context
@@ -73,11 +91,13 @@ def get_search_results(request, ingredients, search_phrase):
 		return context
 
 	# otherwise, perform API lookup
+	# use JSON mock if DEBUGGING is True
 	if DEBUGGING:
 		with open('search-sample.json') as json_data:
 			results = json.load(json_data)
 	else:
 		url = 'http://api.yummly.com/v1/api/recipes?&q='
+		url += search_phrase
 
 		# append ingredients to search url
 		allowed_ingredients = []
@@ -103,6 +123,8 @@ def get_search_results(request, ingredients, search_phrase):
 	context.update({'matches': matches})
 	# remember the search results in our session
 	request.session['matches'] = matches
+	request.session['ingredients'] = ingredients
+	request.session['search_phrase'] = search_phrase
 	return context
 
 # get recipe data from the Yummly json response and return it
@@ -124,30 +146,42 @@ def get_recipe_details(id):
 
 	return context
 
+# try to save the recipe to the recipes app
 def save_recipe(request, context):
 
 	yummlyId = context.get('id')
-
-	# try to get the large url first, then the small if none available
-	image = context.get('images')[0].get('hostedLargeUrl')
-	if not image:
-		image = context.get('images')[0].get('hostedSmallUrl')
-
 	name = context.get('name')
 	prepTime = context.get('totalTime')
+	ingredients = context.get('ingredientLines')
+	instructions = '' # no instructions from Yummly
+
+	# get the images if there are any
+	images = context.get('images')
+
+	# try to get the large url first, then the small if none available
+	if(images[0]):
+		image = images[0].get('hostedLargeUrl')
+
+		if not image:
+			image = images[0].get('hostedSmallUrl')
 
 	# yield is a string
 	servingsString = context.get('yield')
 	servings = 0
-	# try and parse the number from it TODO: maybe change the model to use string for simplicity?
+
+	# try and parse the number from it
 	if servingsString:
 		servings = int(servingsString.strip(string.ascii_letters))
 
-	externalLink = context.get('source').get('sourceRecipeUrl')
-	ingredients = context.get('ingredientLines')
-	instructions = ''
-	category = 'Other'
-	#category = context.get('category') TODO: implement this
+	# try to get external url
+	source = context.get('source')
+	if source:
+		externalLink = source.get('sourceRecipeUrl')
+
+	# try to get the categiry
+	category = context.get('course')
+	if not category:
+		category = 'Other'
 
 	# add other fields
 	new_recipe = Recipe.objects.create(
