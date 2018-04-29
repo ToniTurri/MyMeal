@@ -3,53 +3,64 @@
 {% block content %}
 
 <article id="small-panel">
+
+    <form action="{% url 'recipes:delete_recipe' recipe.id %}" method="post">
+	    <!-- csrf_token to protect against XSS attacks -->
+	    {% csrf_token %}
+        <button type = submit title = "Delete recipe" class = "savebutton"><img src="../../static/save_icon_active.png" /></button>
+    </form>
+
     <header>
-        <h2>{{ recipe.name }}</h2>
+        <h3>{{ recipe.name }}</h3>
     </header>
 
-{% if messages %}
-<ul class="messages">
-    {% for message in messages %}
-        <strong>
-        <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}
-        </p></strong>
-    {% endfor %}
-</ul>
-{% endif %}
+	{% if messages %}
+	<ul class="messages">
+	    {% for message in messages %}
+	        <strong>
+	        <p{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}
+	        </p></strong>
+	    {% endfor %}
+	</ul>
+	{% endif %}
 
-<!-- user-uploaded ImageField -->
-{% if recipe.image %}
-    <br>
-    <img src = {{ recipe.image.url }} class = "center" >
-    <br>
-{% endif %}
+	<!-- user-uploaded ImageField -->
+	{% if recipe.image %}
+	    <br>
+	    <img src = {{ recipe.image.url }} class = "center" >
+	    <br>
+	{% endif %}
 
-<!-- Yummly image url -->
-{% if recipe.imageUrl %}
-<br>
-<img src = {{ recipe.imageUrl }} class = "center" >
-<br>
-{% endif %}
+	<!-- Yummly image url -->
+	{% if recipe.imageUrl %}
+	<br>
+	<img src = {{ recipe.imageUrl }} class = "center" >
+	<br>
+	{% endif %}
 
-<label>Yield: {{ recipe.servings }}</label><br>
-<label>Prep time: {{ recipe.preptime }}</label> <br>
-<label>Category: {{ recipe.category }}</label><br>
-<br>
+	<label>Yield: {{ recipe.servings }}</label><br>
+	<label>Prep time: {{ recipe.preptime }}</label> <br>
+	<label>Category: {{ recipe.category }}</label><br>
+	<br>
 
-<!-- display ingredients -->
-{% if ingredients %}
-<label>Ingredients</label>
-<ul class="center">
-	{% for ingredient in ingredients %}
-	<li>{{ ingredient.ingredient }}</li>
-	{% endfor %}
-</ul>
-{% endif %}
+	<!-- display ingredients -->
+	{% if ingredients %}
+	<ul class="center">
+		{% for ingredient in ingredients %}
+		<li>{{ ingredient.ingredient }}</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
 
-<p>Instructions: {{ recipe.instructions }}</p>
-<p>External Link: {{ recipe.externalLink }}</p>
+	<p>Instructions: {{ recipe.instructions }}</p>
+	<p>External Link: {{ recipe.externalLink }}</p>
 
-<a href="{% url 'recipes:index' %}">View all recipes</a>
+
+	<form action="{% url 'recipes:edit_recipe' recipe.id %}">
+		<input type="submit" value="Edit Recipe" /><br></br>
+	</form>
+
+	<input type="button" value="Back" /><br/><br/>
 
 </article>
 

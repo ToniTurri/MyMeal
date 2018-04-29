@@ -41,8 +41,18 @@ class RecipeView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(RecipeView, self).get_context_data(**kwargs)
         context['ingredients'] = RecipeIngredients.objects.filter(recipe=self.kwargs.get('pk'))
+        context['is_saved'] = True
             
         return context
+
+def delete_recipe(request, pk):
+	if request.method == 'POST':
+		is_saved = False
+		Recipe.objects.filter(id=pk).delete()
+		return HttpResponseRedirect(reverse('recipes:index'))
+
+def edit_recipe(request):
+	return render(request, 'recipes/index.html', context)
 
 def add_recipe(request):
 
@@ -87,13 +97,13 @@ def add_recipe(request):
 
 				for ingredient_form in ingredient_formset:
 					ingredient = ingredient_form.cleaned_data['value']
-					food_item = ingredient_form.cleaned_data['inventoryItem']
+					inventory_item = ingredient_form.cleaned_data['inventoryItem']
 
 					if ingredient:
 						new_ingredient_link = RecipeIngredients(
 							recipe=new_recipe, 
 							ingredient=ingredient,
-							foodItem=food_item)
+							inventoryItem=inventory_item)
 
 						new_ingredients.append(new_ingredient_link)
 				

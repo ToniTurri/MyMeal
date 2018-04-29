@@ -2,24 +2,48 @@
 
 {% block content %}
 
-<article id="small-panel">
+<article>
     <header>
-        <h3>Recipes</h3>
+        <div style="display: block;">
+        <span>My Recipes</span>
+        <input type="button" onclick="window.location.href ='{% url 'recipes:new_recipe' %}'; return false;" value="Add New Recipe" 
+            style=" float: right;
+                height: 35px;
+                border-radius: 5px;
+                background-color: #f76707;
+                border: none;
+                color: #f2f2f2;
+                font-size: .7em;
+                clear:left;"
+                />
+            </div>
     </header>
 
-    <p>Here is a list of recipes</p>
-
     {% if all_recipes %}
-        <ul>
+    <section>
+        <div style="display: block; margin: 0 auto;">
         {% for recipe in all_recipes %}
-            <li><a href="{% url 'recipes:detail' recipe.id %}">{{ recipe.name }}</a></li>
+            <div class="recipe-preview">
+                <h4>{{ recipe.name }}</h4>
+                {% if recipe.image %}
+                    <img src="{{ recipe.image.url }}" />
+                {% else %}
+                    <div class="no-image">
+                    <p>No Image</p>
+                    <i class="fas fa-camera fa-2x" style="margin:0 auto;"></i>
+                    </div>
+                {% endif %}
+                <div style="margin-top: 5px">
+                    <a href="{% url 'recipes:detail' recipe.id %}">View Recipe</a>
+                </div>
+            </div>
         {% endfor %}
-        </ul>
+        </div>
+    </section>
     {% else %}
         <p>No recipes are available.</p>
     {% endif %}
 
-    <a href="{% url 'recipes:new_recipe' %}">Create a new recipe</a>
 </article>
 
 {% endblock %}
