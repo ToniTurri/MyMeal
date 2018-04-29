@@ -91,11 +91,13 @@ def get_search_results(request, ingredients, search_phrase):
 		return context
 
 	# otherwise, perform API lookup
+	# use JSON mock if DEBUGGING is True
 	if DEBUGGING:
 		with open('search-sample.json') as json_data:
 			results = json.load(json_data)
 	else:
 		url = 'http://api.yummly.com/v1/api/recipes?&q='
+		url += search_phrase
 
 		# append ingredients to search url
 		allowed_ingredients = []
@@ -144,9 +146,14 @@ def get_recipe_details(id):
 
 	return context
 
+# try to save the recipe to the recipes app
 def save_recipe(request, context):
 
 	yummlyId = context.get('id')
+	name = context.get('name')
+	prepTime = context.get('totalTime')
+	ingredients = context.get('ingredientLines')
+	instructions = '' # no instructions from Yummly
 
 	# get the images if there are any
 	images = context.get('images')
@@ -158,20 +165,20 @@ def save_recipe(request, context):
 		if not image:
 			image = images[0].get('hostedSmallUrl')
 
-	name = context.get('name')
-	prepTime = context.get('totalTime')
-
 	# yield is a string
 	servingsString = context.get('yield')
 	servings = 0
+
 	# try and parse the number from it
 	if servingsString:
 		servings = int(servingsString.strip(string.ascii_letters))
 
+	# try to get external url
 	source = context.get('source')
-	externalLink = source.get('sourceRecipeUrl')
-	ingredients = context.get('ingredientLines')
-	instructions = '' # no instructions from Yummly
+	if source:
+		externalLink = source.get('sourceRecipeUrl')
+
+	# try to get the categiry
 	category = context.get('course')
 	if not category:
 		category = 'Other'
