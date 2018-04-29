@@ -1,10 +1,12 @@
 import requests
 import json
-from django.http import Http404
+import string
 from django.shortcuts import render
 from groceryList.models import FoodItem
+from recipes.models import Recipe, RecipeIngredients
 from stats.models import Consumed_Stats
-from django.db.models import Count
+from django.utils import timezone
+from django.db import IntegrityError, transaction
 
 app_id = ''
 api_key = ''
@@ -15,27 +17,53 @@ DEBUGGING = False
 # initial view & search results
 def index(request):
 	# method is GET
-	# otherwise it's a fresh new search - clear the previous results
+	# it's a fresh new search - clear the previous results held in session
 	if 'matches' in request.session:
 		request.session.pop('matches')
 	return render(request, 'recipeFinder/index.html')
 
 # recipe detail view
 def recipe_detail(request, id):
-	# if the method is GET, do some processing
-	if request.method == 'GET':
+	# if the method is POST, then try and save the recipe
+	if request.method == 'POST':
+		# get the old recipe context
+		context = request.session.get('recipe_context')
+		is_saved = context.get('is_saved')
+
+		if not is_saved:
+			# try to save the recipe
+			if save_recipe(request, context):
+				# all good
+				print("Successfully saved recipe %s" % id)
+			else:
+				# something went wrong!
+				print("Problem saving recipe %s" % id)
+		else:
+			Recipe.objects.filter(yummlyId = id).delete()
+			print("Removed recipe %s" % id)
+
+		# update save button
+		context.update({'is_saved': Recipe.objects.filter(yummlyId = id).exists()})
+		request.session.update({'recipe_context': context})
+
+		return render(request, 'recipeFinder/detail.html', context)
+	else:
+		# if the method is GET, display recipe details
+
 		# populate our context with the json response data
 		context = get_recipe_details(id)
+
 		# in case something went wrong
 		if context is None:
 			return render(request, 'recipeFinder/not_found.html')
 
-		context.update({'matches': request.session.get('matches')})
+		# if the recipe is saved, add that to the context (for save button)
+		context.update({'is_saved': Recipe.objects.filter(yummlyId = id).exists()})
+
+		# save the current context
+		request.session['recipe_context'] = context
 		# display the data as results
 		return render(request, 'recipeFinder/detail.html', context)
-	else:
-		# we should never receive a GET request to this view's URL
-		raise Http404
 
 # get search data from the Yummly json response and return it
 def get_search_results(request, ingredients, search_phrase):
@@ -95,6 +123,63 @@ def get_recipe_details(id):
 	context = results
 
 	return context
+
+def save_recipe(request, context):
+
+	yummlyId = context.get('id')
+
+	# try to get the large url first, then the small if none available
+	image = context.get('images')[0].get('hostedLargeUrl')
+	if not image:
+		image = context.get('images')[0].get('hostedSmallUrl')
+
+	name = context.get('name')
+	prepTime = context.get('totalTime')
+
+	# yield is a string
+	servingsString = context.get('yield')
+	servings = 0
+	# try and parse the number from it TODO: maybe change the model to use string for simplicity?
+	if servingsString:
+		servings = int(servingsString.strip(string.ascii_letters))
+
+	externalLink = context.get('source').get('sourceRecipeUrl')
+	ingredients = context.get('ingredientLines')
+	instructions = ''
+	category = 'Other'
+	#category = context.get('category') TODO: implement this
+
+	# add other fields
+	new_recipe = Recipe.objects.create(
+		name=name,
+		date=timezone.now(),
+		prepTime=prepTime,
+		servings=servings,
+		category=category,
+		instructions=instructions,
+		externalLink=externalLink,
+		yummlyId = yummlyId,
+		imageUrl=image)
+
+	# Save ingredients for each form in the formset
+	new_ingredients = []
+
+	for ingredient in ingredients:
+
+		if ingredient:
+			new_ingredient_link = RecipeIngredients(
+				recipe=new_recipe,
+				ingredient=ingredient,
+				#foodItem=ingredient TODO: fix this
+				)
+			new_ingredients.append(new_ingredient_link)
+
+	try:
+		with transaction.atomic():
+			RecipeIngredients.objects.bulk_create(new_ingredients)
+			return True
+	except IntegrityError:
+		return False
 
 def query_API(url):
 	headers = {'X-Yummly-App-ID': app_id,
