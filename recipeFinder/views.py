@@ -16,11 +16,28 @@ DEBUGGING = False
 
 # initial view & search results
 def index(request):
-	# method is GET
-	# it's a fresh new search - clear the previous results held in session
-	if 'matches' in request.session:
-		request.session.pop('matches')
-	return render(request, 'recipeFinder/index.html')
+	# method is POST
+	# go back to previous search results
+	if request.method == 'POST':
+		ingredients = request.session.get('ingredients')
+		search_phrase = request.session.get('search_phrase')
+		context = get_search_results(request, ingredients, search_phrase)
+
+		# make sure that matches were found
+		if context is None:
+			return render(request, 'recipeFinder/not_found.html')
+
+		return render(request, 'recipeFinder/results.html', context)
+	else:
+		# method is GET
+		# it's a fresh new search - clear the previous results held in session
+		if 'matches' in request.session:
+			request.session.pop('matches')
+		if 'ingredients' in request.session:
+			request.session.pop('ingredients')
+		if 'search_phrase' in request.session:
+			request.session.pop('search_phrase')
+		return render(request, 'recipeFinder/index.html')
 
 # recipe detail view
 def recipe_detail(request, id):
@@ -103,6 +120,8 @@ def get_search_results(request, ingredients, search_phrase):
 	context.update({'matches': matches})
 	# remember the search results in our session
 	request.session['matches'] = matches
+	request.session['ingredients'] = ingredients
+	request.session['search_phrase'] = search_phrase
 	return context
 
 # get recipe data from the Yummly json response and return it
