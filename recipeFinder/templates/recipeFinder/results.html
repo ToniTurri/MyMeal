@@ -37,7 +37,11 @@
                 <img src = {{match.smallImageUrls.0}} class = "center" >
                 <br>
             {% endif %}
-                <a href = "{% url 'recipeFinder:recipe_detail' match.id %}">{{match.recipeName}}</a>
+                {% if match.attributes.course.0 %}
+                    <a href = "{% url 'recipeFinder:recipe_detail' match.id match.attributes.course.0 %}">{{match.recipeName}}</a>
+                {% else %}
+                    <a href = "{% url 'recipeFinder:recipe_detail' match.id %}">{{match.recipeName}}</a>
+                {% endif %}
             </td>
         </tr>
     {% endfor %}
