@@ -9,3 +9,4 @@ class Consumed_Stats(models.Model):
     count2 = models.IntegerField(default = 0)
     count3 = models.IntegerField(default = 0)
     count4 = models.IntegerField(default = 0)
+    total = models.IntegerField(default = 1)

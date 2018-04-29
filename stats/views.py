@@ -29,11 +29,11 @@ def reinitStats(day_diff):
         stats_list[i].count1 = 0
         stats_list[i].save()
 
-    # Now iterate through the second day values, if the difference in days is
-    # greater than 1 (though it checks equality), keep shifting over,
+   # Now iterate through the second day values, if the difference in days is
+    # less than or equal to its respective number, keep shifting over,
     # otherwise, set those values to zero
     for i in range(0, len(stats_list)):
-        if (day_diff == 1):
+        if (day_diff <= 2):
             temp_count_array2.append(stats_list[i].count2)
             stats_list[i].count2 = temp_count_array[i]
             stats_list[i].save()
@@ -43,22 +43,22 @@ def reinitStats(day_diff):
             stats_list[i].save()
 
     for i in range(0, len(stats_list)):
-        if day_diff == 2:
+        if day_diff <= 3:
             temp_count_array[i] = stats_list[i].count3
             stats_list[i].count3 = temp_count_array2[i]
             stats_list.save()
         else:
             temp_count_array[i] = stats_list[i].count3
             stats_list[i].count3 = 0
-            stats_list.save()
+            stats_list[i].save()
 
     for i in range(0, len(stats_list)):
-        if day_diff > 4:
+        if day_diff <= 4:
             stats_list[i].count4 = 0
             stats_list.save()
         else:
-            stats_list[i] = temp_count_array[i]
-            stats_list.save()
+            stats_list[i].count4 = temp_count_array[i]
+            stats_list[i].save()
 
     # Now cleanup
     cleanup()
