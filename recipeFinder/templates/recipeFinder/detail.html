@@ -4,14 +4,19 @@
 
 <article id="small-panel">
 
-    <form action="{% url 'recipeFinder:recipe_detail' id %}" method="post">
+    {% if course %}
+        <form action="{% url 'recipeFinder:recipe_detail' id course.0 %}" method="post">
+    {% else %}
+        <form action="{% url 'recipeFinder:recipe_detail' id %}" method="post">
+    {% endif %}
     <!-- csrf_token to protect against XSS attacks -->
     {% csrf_token %}
     <!-- Display different icons depending on whether the user has the recipe saved-->
+    {% load static %}
     {% if is_saved %}
-        <button type = submit title = "Save recipe" class = "savebutton"><img src="../../static/save_icon_active.png" /></button>
+        <button type = submit title = "Save recipe" class = "savebutton"><img src="{% static 'img/save_icon_active.png' %}" /></button>
     {% else %}
-        <button type = submit title = "Save recipe" class = "savebutton"><img src="../../static/save_icon_inactive.png" /></button>
+        <button type = submit title = "Save recipe" class = "savebutton"><img src="{% static 'img/save_icon_inactive.png' %}" /></button>
     {% endif %}
     </form>
 
