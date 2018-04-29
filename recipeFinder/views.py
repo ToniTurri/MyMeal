@@ -40,7 +40,7 @@ def index(request):
 		return render(request, 'recipeFinder/index.html')
 
 # recipe detail view
-def recipe_detail(request, id):
+def recipe_detail(request, id, course=None):
 	# if the method is POST, then try and save the recipe
 	if request.method == 'POST':
 		# get the old recipe context
@@ -76,6 +76,7 @@ def recipe_detail(request, id):
 
 		# if the recipe is saved, add that to the context (for save button)
 		context.update({'is_saved': Recipe.objects.filter(yummlyId = id).exists()})
+		context.update({'course': course})
 
 		# save the current context
 		request.session['recipe_context'] = context
@@ -147,10 +148,15 @@ def save_recipe(request, context):
 
 	yummlyId = context.get('id')
 
+	# get the images if there are any
+	images = context.get('images')
+
 	# try to get the large url first, then the small if none available
-	image = context.get('images')[0].get('hostedLargeUrl')
-	if not image:
-		image = context.get('images')[0].get('hostedSmallUrl')
+	if(images[0]):
+		image = images[0].get('hostedLargeUrl')
+
+		if not image:
+			image = images[0].get('hostedSmallUrl')
 
 	name = context.get('name')
 	prepTime = context.get('totalTime')
@@ -158,15 +164,17 @@ def save_recipe(request, context):
 	# yield is a string
 	servingsString = context.get('yield')
 	servings = 0
-	# try and parse the number from it TODO: maybe change the model to use string for simplicity?
+	# try and parse the number from it
 	if servingsString:
 		servings = int(servingsString.strip(string.ascii_letters))
 
-	externalLink = context.get('source').get('sourceRecipeUrl')
+	source = context.get('source')
+	externalLink = source.get('sourceRecipeUrl')
 	ingredients = context.get('ingredientLines')
-	instructions = ''
-	category = 'Other'
-	#category = context.get('category') TODO: implement this
+	instructions = '' # no instructions from Yummly
+	category = context.get('course')
+	if not category:
+		category = 'Other'
 
 	# add other fields
 	new_recipe = Recipe.objects.create(
