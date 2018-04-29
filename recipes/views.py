@@ -13,6 +13,7 @@ from groceryList.models import FoodItem
 from . import forms
 from django.forms.formsets import formset_factory
 from django.db import IntegrityError, transaction
+from django.core.exceptions import ValidationError
    
 #from django.contrib.auth.decorators import login_required
 #@login_required(login_url='/accounts/login/')
@@ -86,7 +87,7 @@ def add_recipe(request):
 
 				for ingredient_form in ingredient_formset:
 					ingredient = ingredient_form.cleaned_data['value']
-					food_item = ingredient_form.cleaned_data['foodItem']
+					food_item = ingredient_form.cleaned_data['inventoryItem']
 
 					if ingredient:
 						new_ingredient_link = RecipeIngredients(

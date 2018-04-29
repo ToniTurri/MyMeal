@@ -27,17 +27,28 @@
         
         <p><label for="recipe_prep">Prep Time:</label>{{ form.prepTime }}</p>
 
-        <p><label for="recipe_servings">Servings:</label>{{ form.servings }}</p>
+        <p><label for="recipe_servings">Yield:</label>{{ form.servings }}</p>
 
         <p><label for="recipe_category">Category:</label>{{ form.category }}</p>
 
         <p>
-            <label for="recipe_image">Image:</label><p>{{ form.image }}</p>
+            <label for="recipe_image">Image:</label>
+            <br><span class="helptext">
+            Add an image to your recipe! The upload only accepts .png, .gif, .jpg, and .jpeg
+            files with a max size of 2MB.
+            </span>
+
+
             {% if form.image.errors %}
+                <p style="color: red;">
                 {% for error in form.image.errors %}
                     {{ error|escape }}
                 {% endfor %}
+                </p>
             {% endif %}
+
+            <p>{{ form.image }}</p>
+
             <div id="image-holder"></div>
         </p>
 
@@ -59,7 +70,7 @@
                             {% endfor %}
                         {% endif %}
 
-                        {{ ingredient_form.foodItem }}
+                        {{ ingredient_form.inventoryItem }}
                     </p>
                 </div>
             {% endfor %}
@@ -96,7 +107,8 @@ $("#id_image").on('change', function () {
 
             var reader = new FileReader();
             reader.onload = function (e) {
-                $("<img />", {"src": e.target.result}).appendTo(image_holder);
+                $("<img />", {"src": e.target.result,
+                              "style": "width:100%;"}).appendTo(image_holder);
             };
 
             image_holder.show();
