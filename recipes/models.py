@@ -33,9 +33,10 @@ class Recipe(models.Model):
     servings = models.PositiveIntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
     category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='')
     instructions = models.TextField(blank=True, null=True)
-    yummlyId = models.IntegerField(null=True, blank = True)
+    yummlyId = models.CharField(max_length=100, null=True, blank=True)
     externalLink = models.URLField(max_length=200,null=True, blank=True)
     image = models.ImageField(upload_to=user_directory_path, null=True, blank=True, validators=[validate_image])
+    imageUrl = models.URLField(max_length=200,null=True, blank=True)
     
     def __str__(self):
         return self.name

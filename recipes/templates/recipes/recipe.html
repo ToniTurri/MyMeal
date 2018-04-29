@@ -17,10 +17,18 @@
 </ul>
 {% endif %}
 
+<!-- user-uploaded ImageField -->
 {% if recipe.image %}
     <br>
     <img src = {{ recipe.image.url }} class = "center" >
     <br>
+{% endif %}
+
+<!-- Yummly image url -->
+{% if recipe.imageUrl %}
+<br>
+<img src = {{ recipe.imageUrl }} class = "center" >
+<br>
 {% endif %}
 
 <label>Yield: {{ recipe.servings }}</label><br>
