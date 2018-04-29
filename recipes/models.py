@@ -1,20 +1,26 @@
 from django.db import models
 from django.forms import ModelForm, ModelChoiceField
 from django.urls import reverse
-from groceryList.models import FoodItem
+from inventory.models import InventoryItem
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
 #from django.utils import timezone
 #import datetime
 
 CATEGORY_CHOICES = (
 	('', ''),
-    ('Breakfast','Breakfast'),
-    ('Lunch', 'Lunch'),
-    ('Dinner','Dinner'),
-    ('Dessert','Dessert'),
-    ('Snack','Snack'),
-    ('Other','Other'),
-)
+    ('Appetizers', 'Appetizers'),
+    ('Soups', 'Soups'),
+    ('Salads', 'Salads'),
+    ('Breads', 'Breads'),
+    ('Main Dishes', 'Main Dishes'),
+    ('Side Dishes', 'Side Dishes'),
+    ('Desserts', 'Desserts'),
+    ('Breakfast and Brunch', 'Breakfast and Brunch'),
+    ('Lunch and Snacks', 'Lunch and Snacks'),
+    ('Beverages', 'Beverages'),
+    ('Cocktails', 'Cocktails'),
+    ('Condiments and Sauces', 'Condiments and Sauces'))
 
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
@@ -46,7 +52,7 @@ class Recipe(models.Model):
 class RecipeIngredients(models.Model):
 	recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 	ingredient = models.CharField(max_length=100, null=False, blank=False)
-	foodItem = models.ForeignKey(FoodItem, on_delete=models.CASCADE, null=True, blank=True)
+	inventoryItem = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, null=True, blank=True)
 
 	def __str__(self):
 	    return self.name
