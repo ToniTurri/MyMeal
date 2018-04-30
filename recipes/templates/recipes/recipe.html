@@ -7,7 +7,7 @@
     <form action="{% url 'recipes:delete_recipe' recipe.id %}" method="post">
 	    <!-- csrf_token to protect against XSS attacks -->
 	    {% csrf_token %}
-        <button type = submit title = "Delete recipe" class = "savebutton"><img src="../../static/save_icon_active.png" /></button>
+        <button type = submit title = "Delete recipe" class = "savebutton"><img src="../../static/img/save_icon_active.png" /></button>
     </form>
 
     <header>
@@ -24,6 +24,13 @@
 	</ul>
 	{% endif %}
 
+
+    <center>
+    Yield: {{ recipe.servings }}<br>
+	Prep time: {{ recipe.prepTime }}<br>
+	Category: {{ recipe.category }}
+    </center>
+
 	<!-- user-uploaded ImageField -->
 	{% if recipe.image %}
 	    <br>
@@ -38,11 +45,6 @@
 	<br>
 	{% endif %}
 
-	<label>Yield: {{ recipe.servings }}</label><br>
-	<label>Prep time: {{ recipe.preptime }}</label> <br>
-	<label>Category: {{ recipe.category }}</label><br>
-	<br>
-
 	<!-- display ingredients -->
 	{% if ingredients %}
 	<ul class="center">
@@ -52,15 +54,29 @@
 	</ul>
 	{% endif %}
 
-	<p>Instructions: {{ recipe.instructions }}</p>
-	<p>External Link: {{ recipe.externalLink }}</p>
+	{% if recipe.instructions %}
+		<p>{{ recipe.instructions }}
+	{% endif %}
 
+	{% if recipe.externalLink %}
+		<p>External Link:<br>
+			{% if recipe.yummlyId %}
+			<span class="helptext">
+				This recipe was imported using a Yummly search. Follow the external link to view
+				instructions on how to make this recipe!
+			</span>
+			{% endif %}
+			<a href="{{ recipe.externalLink }}">{{ recipe.externalLink }}</a></p>
+			
+	{% endif %}	
 
+	{% if not recipe.yummlyId %}
 	<form action="{% url 'recipes:edit_recipe' recipe.id %}">
 		<input type="submit" value="Edit Recipe" /><br></br>
 	</form>
+	{% endif %}
 
-	<input type="button" value="Back" /><br/><br/>
+	<input type="button" onclick="window.location.href ='{% url 'recipes:index' %}'; return false;" value="Back" />
 
 </article>
 
