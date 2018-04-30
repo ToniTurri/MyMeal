@@ -10,7 +10,7 @@
 
   <form action="{% url 'recipeFinder:inventory-check' %}" method="post">
     {% csrf_token %}
-    {% for item in food_items %}
+    {% for item in inventory_items %}
     <input type="checkbox" name="checked" id="item{{ forloop.counter }}"
     value="{{ item.name}}" />
     <label for="item{{ forloop.counter }}">{{ item.name }}</label> <br />

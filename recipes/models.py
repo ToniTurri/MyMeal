@@ -1,20 +1,26 @@
 from django.db import models
 from django.forms import ModelForm, ModelChoiceField
 from django.urls import reverse
-from groceryList.models import FoodItem
+from inventory.models import InventoryItem
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
 #from django.utils import timezone
 #import datetime
 
 CATEGORY_CHOICES = (
 	('', ''),
-    ('Breakfast','Breakfast'),
-    ('Lunch', 'Lunch'),
-    ('Dinner','Dinner'),
-    ('Dessert','Dessert'),
-    ('Snack','Snack'),
-    ('Other','Other'),
-)
+    ('Appetizers', 'Appetizers'),
+    ('Soups', 'Soups'),
+    ('Salads', 'Salads'),
+    ('Breads', 'Breads'),
+    ('Main Dishes', 'Main Dishes'),
+    ('Side Dishes', 'Side Dishes'),
+    ('Desserts', 'Desserts'),
+    ('Breakfast and Brunch', 'Breakfast and Brunch'),
+    ('Lunch and Snacks', 'Lunch and Snacks'),
+    ('Beverages', 'Beverages'),
+    ('Cocktails', 'Cocktails'),
+    ('Condiments and Sauces', 'Condiments and Sauces'))
 
 def user_directory_path(instance, filename):
     # file will be uploaded to MEDIA_ROOT/user_<id>/<filename>
@@ -30,8 +36,8 @@ class Recipe(models.Model):
     name = models.CharField(max_length=100)
     date = models.DateTimeField(null=True, blank=True)
     prepTime = models.CharField(max_length=20, blank=True, null=True)
-    servings = models.PositiveIntegerField(validators=[MinValueValidator(1)], null=True, blank=True)
-    category = models.CharField(max_length=10, choices=CATEGORY_CHOICES, default='')
+    servings = models.CharField(max_length=50, null=True, blank=True)
+    category = models.CharField(max_length=25, choices=CATEGORY_CHOICES)
     instructions = models.TextField(blank=True, null=True)
     yummlyId = models.CharField(max_length=100, null=True, blank=True)
     externalLink = models.URLField(max_length=200,null=True, blank=True)
@@ -46,7 +52,7 @@ class Recipe(models.Model):
 class RecipeIngredients(models.Model):
 	recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE)
 	ingredient = models.CharField(max_length=100, null=False, blank=False)
-	foodItem = models.ForeignKey(FoodItem, on_delete=models.CASCADE, null=True, blank=True)
+	inventoryItem = models.ForeignKey(InventoryItem, on_delete=models.CASCADE, null=True, blank=True)
 
 	def __str__(self):
 	    return self.name
