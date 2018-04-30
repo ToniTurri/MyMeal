@@ -2,7 +2,7 @@ import requests
 import json
 import string
 from django.shortcuts import render
-from groceryList.models import FoodItem
+from inventory.models import InventoryItem
 from recipes.models import Recipe, RecipeIngredients
 from stats.models import Consumed_Stats
 from django.utils import timezone
@@ -167,11 +167,6 @@ def save_recipe(request, context):
 
 	# yield is a string
 	servingsString = context.get('yield')
-	servings = 0
-
-	# try and parse the number from it
-	if servingsString:
-		servings = int(servingsString.strip(string.ascii_letters))
 
 	# try to get external url
 	source = context.get('source')
@@ -181,14 +176,14 @@ def save_recipe(request, context):
 	# try to get the categiry
 	category = context.get('course')
 	if not category:
-		category = 'Other'
+		category = None
 
 	# add other fields
 	new_recipe = Recipe.objects.create(
 		name=name,
 		date=timezone.now(),
 		prepTime=prepTime,
-		servings=servings,
+		servings=servingsString,
 		category=category,
 		instructions=instructions,
 		externalLink=externalLink,
@@ -227,8 +222,8 @@ def query_API(url):
 # Added from Finn
 def inventoryCheck(request):
 	if request.method == 'GET' :
-		food_items = FoodItem.objects.all()
-		context = {'food_items': food_items}
+		inventory_items = InventoryItem.objects.all()
+		context = {'inventory_items': inventory_items}
 		return render(request, 'recipeFinder/inventory-check.html', context)
 
 	# This isn't supposed to actually do anything, but this is where the data is
