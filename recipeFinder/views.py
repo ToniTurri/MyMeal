@@ -167,11 +167,6 @@ def save_recipe(request, context):
 
 	# yield is a string
 	servingsString = context.get('yield')
-	servings = 0
-
-	# try and parse the number from it
-	if servingsString:
-		servings = int(servingsString.strip(string.ascii_letters))
 
 	# try to get external url
 	source = context.get('source')
@@ -181,14 +176,14 @@ def save_recipe(request, context):
 	# try to get the categiry
 	category = context.get('course')
 	if not category:
-		category = 'Other'
+		category = None
 
 	# add other fields
 	new_recipe = Recipe.objects.create(
 		name=name,
 		date=timezone.now(),
 		prepTime=prepTime,
-		servings=servings,
+		servings=servingsString,
 		category=category,
 		instructions=instructions,
 		externalLink=externalLink,

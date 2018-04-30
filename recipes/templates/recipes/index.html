@@ -25,14 +25,18 @@
         {% for recipe in all_recipes %}
             <div class="recipe-preview">
                 <h4>{{ recipe.name }}</h4>
+                <div class="recipe-image" style="height:125px">
                 {% if recipe.image %}
                     <img src="{{ recipe.image.url }}" />
+                {% elif recipe.imageUrl %}
+                    <img src="{{ recipe.imageUrl }}" />
                 {% else %}
                     <div class="no-image">
                     <p>No Image</p>
                     <i class="fas fa-camera fa-2x" style="margin:0 auto;"></i>
                     </div>
                 {% endif %}
+                </div>
                 <div style="margin-top: 5px">
                     <a href="{% url 'recipes:detail' recipe.id %}">View Recipe</a>
                 </div>
@@ -41,7 +45,12 @@
         </div>
     </section>
     {% else %}
-        <p>No recipes are available.</p>
+        <p>
+        <center>
+            You have no recipes available.<br>
+            Try <a href="{% url 'recipes:new_recipe' %}">adding a new recipe</a> or <a href="/search">searching</a> for one!<br><br>
+        </center>
+        </p>
     {% endif %}
 
 </article>

@@ -81,7 +81,7 @@
         <p><label for="recipe_external">External Link:</label><br/>{{ form.externalLink }}</p>
 
         <input type="submit" value="Save" /><br/><br/>
-        <input type="button" value="Cancel" /><br/><br/>
+        <input type="button" onclick="window.location.href ='{% url 'recipes:index' %}'; return false;" value="Cancel" />
 
     </form>
 </article>
