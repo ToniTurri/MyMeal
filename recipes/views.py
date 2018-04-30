@@ -41,27 +41,36 @@ class RecipeView(DetailView):
     def get_context_data(self, **kwargs):
         context = super(RecipeView, self).get_context_data(**kwargs)
         context['ingredients'] = RecipeIngredients.objects.filter(recipe=self.kwargs.get('pk'))
-        context['is_saved'] = True
             
         return context
 
 def delete_recipe(request, pk):
 	if request.method == 'POST':
-		is_saved = False
 		Recipe.objects.filter(id=pk).delete()
 		return HttpResponseRedirect(reverse('recipes:index'))
 
-def edit_recipe(request):
-	return render(request, 'recipes/index.html', context)
+def add_recipe(request, pk=0):
 
-def add_recipe(request):
-
+	is_edit = False
 	IngredientFormSet = formset_factory(IngredientForm, max_num=20, min_num=1, validate_min=True, extra=0)
 
-	if request.method == "POST":		
-		form = forms.AddRecipeForm(request.POST, request.FILES)
+	if pk:
+		is_edit = True
+		recipe = Recipe.objects.get(pk=pk)
+		ingredients = RecipeIngredients.objects.filter(recipe=pk)
+		ingredient_data = [{'value': i.ingredient, 'inventoryItem': i.inventoryItem}
+							for i in ingredients]
+
+		ingredient_formset = IngredientFormSet(initial=ingredient_data)
+	else:
+		recipe = Recipe()
+		ingredient_formset = IngredientFormSet()
+
+	form = forms.AddRecipeForm(instance=recipe, data=request.POST or None)
+
+	if request.method == "POST":
 		ingredient_formset = IngredientFormSet(request.POST)
-	    
+
 		if form.is_valid() and ingredient_formset.is_valid():
 			# Get basic recipe information
 			name = form.cleaned_data['name']
@@ -71,7 +80,10 @@ def add_recipe(request):
 			instructions = form.cleaned_data['instructions']
 			externalLink = form.cleaned_data['externalLink']
 
-			if Recipe.objects.filter(name=name).exists():
+			# Error if the name of a recipe is taken when the recipe is new
+			# or the user is editing an existing recipe
+			nameExists = Recipe.objects.filter(name=name).exists()
+			if (not is_edit or (is_edit and recipe.name != name)) and nameExists:
 				messages.warning(request, "Recipe already exists")
 
 			# redirect to new recipe after creation
@@ -81,19 +93,36 @@ def add_recipe(request):
 				if 'image' in request.FILES:
 					image = request.FILES['image']
 
-				# add other fields
-				new_recipe = Recipe.objects.create(
-					name=name, 
-					date=timezone.now(),
-					prepTime=prepTime,
-					servings=servings,
-					category=category,
-					instructions=instructions,
-					externalLink=externalLink,
-					image=image)
+				if not is_edit:
+					# add other fields
+					new_recipe = Recipe.objects.create(
+						name=name, 
+						date=timezone.now(),
+						prepTime=prepTime,
+						servings=servings,
+						category=category,
+						instructions=instructions,
+						externalLink=externalLink,
+						image=image)
+
+				else:
+					# update fields
+					recipe.name = name
+					recipe.prepTime = prepTime
+					recipe.servings = servings
+					recipe.category = category
+					recipe.instructions = instructions
+					recipe.externalLink = externalLink
+					recipe.image = image
+					recipe.save()
 
 				# Save ingredients for each form in the formset
 				new_ingredients = []
+
+				if is_edit:
+					linked_recipe = recipe
+				else:
+					linked_recipe = new_recipe
 
 				for ingredient_form in ingredient_formset:
 					ingredient = ingredient_form.cleaned_data['value']
@@ -101,7 +130,7 @@ def add_recipe(request):
 
 					if ingredient:
 						new_ingredient_link = RecipeIngredients(
-							recipe=new_recipe, 
+							recipe=linked_recipe, 
 							ingredient=ingredient,
 							inventoryItem=inventory_item)
 
@@ -109,23 +138,22 @@ def add_recipe(request):
 				
 				try:
 					with transaction.atomic():
-						RecipeIngredients.objects.bulk_create(new_ingredients)
-						messages.success(request, "You have successfully added a recipe")
+						if is_edit:
+							# drop and recreate ingredients for ease
+							ingredients.delete()
 
-						return HttpResponseRedirect(reverse('recipes:detail', args = (new_recipe.id,)))
+						RecipeIngredients.objects.bulk_create(new_ingredients)
+
+						return HttpResponseRedirect(reverse('recipes:detail', args = (linked_recipe.id,)))
 				except IntegrityError:
 					messages.warning(request, "There was an error saving your recipe")
 					return HttpResponseRedirect(reverse('recipes:new_recipe'))
-   
-
-	# if method = GET, then return a blank form
-	else:
-		form = forms.AddRecipeForm()
-		ingredient_formset = IngredientFormSet()
 
 	context = {
 	    'form': form,
-	    'ingredient_formset': ingredient_formset
+	    'ingredient_formset': ingredient_formset,
+	    'is_edit': is_edit,
+	    'id': recipe.id
 	}
 
 	return render(request, 'recipes/new_recipe.html', context)

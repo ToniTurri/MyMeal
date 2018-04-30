@@ -4,7 +4,11 @@
 
 <article id="small-panel">
     <header>
+        {% if is_edit %}
+        <h3> Edit Recipe </h3>
+        {% else %}
         <h3> Add A New Recipe </h3>
+        {% endif %}
     </header>
 
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
@@ -19,8 +23,11 @@
     </ul>
     {% endif %}
 
-
-    <form action="/recipes/new_recipe/" method="post" enctype="multipart/form-data"> 
+    {% if is_edit %}
+    <form action="{% url 'recipes:edit_recipe' id %}" method="post" enctype="multipart/form-data"> 
+    {% else %}
+    <form action="/recipes/new_recipe/" method="post" enctype="multipart/form-data">    
+    {% endif %}
         {% csrf_token %}
         
         <p><label for="recipe_name">Name:</label>{{ form.name }}</p>
@@ -37,7 +44,6 @@
             Add an image to your recipe! The upload only accepts .png, .gif, .jpg, and .jpeg
             files with a max size of 2MB.
             </span>
-
 
             {% if form.image.errors %}
                 <p style="color: red;">
@@ -80,9 +86,13 @@
 
         <p><label for="recipe_external">External Link:</label><br/>{{ form.externalLink }}</p>
 
-        <input type="submit" value="Save" /><br/><br/>
-        <input type="button" onclick="window.location.href ='{% url 'recipes:index' %}'; return false;" value="Cancel" />
+        <input type="submit" value="Save" /><br/><br/> 
 
+        {% if is_edit %}
+        <input type="button" onclick="window.location.href ='{% url 'recipes:detail' id %}'; return false;" value="Cancel" />
+        {% else %}
+        <input type="button" onclick="window.location.href ='{% url 'recipes:index' %}'; return false;" value="Cancel" />
+        {% endif %}
     </form>
 </article>
 
