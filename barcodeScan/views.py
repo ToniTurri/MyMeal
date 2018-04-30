@@ -7,6 +7,7 @@ from django.utils import timezone
 from .forms import BarcodeForm
 from django.db.models import F
 from groceryList.models import GroceryList, FoodItem
+from inventory.models import InventoryItem
 
 # initial view - prompt for barcode / do processing
 def index(request):
@@ -15,7 +16,8 @@ def index(request):
 		form = BarcodeForm(request.POST)
 		if form.is_valid():
 			# fetch the JSON file from the external API & convert to py dictionary
-			url = 'http://world.openfoodfacts.org/api/v0/product/%s.json' % (form.cleaned_data['number'],)
+			barcode = (form.cleaned_data['number'])
+			url = 'http://world.openfoodfacts.org/api/v0/product/%s.json' % barcode
 			response = requests.get(url)
 			json_data = json.loads(response.text)
 
@@ -41,7 +43,9 @@ def index(request):
 			# otherwise we are good, try and get an image url from the json dict
 			context.update({'image_front_url': json_data.get('product').get("image_front_url")})
 			# add the list of grocery lists
-			context.update({'all_grocery_lists' : GroceryList.objects.all()})
+			context.update({'all_grocery_lists': GroceryList.objects.all()})
+			# add the barcode
+			context.update({'barcode': barcode})
 
 			# display the HTML page, passing the template context generated above
 			return render(request, 'barcodeScan/confirm.html', context)
@@ -75,6 +79,26 @@ def add_to_list(request):
 
 		# take the user to the groceryList to see their added item
 		return HttpResponseRedirect(reverse('groceryList:detail', args=(id,)))
+	else:
+		# we should never receive a GET request to this view's URL
+		raise Http404
+
+# when a user wants to add an item to their inventory, go here
+def add_to_inventory(request, barcode):
+	# if the method is POST, do some processing
+	if request.method == "POST":
+		food = request.POST['food_name']
+
+		# nothing to do here
+		if not food:
+			return
+
+		# add a barcode field here if you'd like
+		new_item = InventoryItem(name=food, quantity=1, date=timezone.now())
+		new_item.save()
+
+		# take the user to their inventory to see their added item
+		return HttpResponseRedirect(reverse('inventory:index'))
 	else:
 		# we should never receive a GET request to this view's URL
 		raise Http404
