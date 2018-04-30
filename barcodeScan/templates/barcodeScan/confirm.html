@@ -33,6 +33,7 @@
                     <option value = {{list.id}}>{{ list.name }}</option>
                 {% endfor %}
                     </select>
+            <br> <br>
             <input type="submit" value="Add to grocery list" />
         {% else %}
         <center>No grocery lists found</center> <br>
@@ -40,6 +41,16 @@
                                           ;return false;"
                    value="Create a new list" />
         {% endif %}
+        <br> <br>
+    </form>
+
+
+    <form action="{% url 'barcodeScan:add_to_inventory' barcode %}" method="post" class="center">
+        <!-- csrf_token to protect against XSS attacks -->
+        {% csrf_token %}
+        <!-- pass back the food's name so it can be added to the db -->
+        <input type="hidden" name="food_name" value="{{ food_name }}">
+        <input type="submit" value="Add to inventory" />
         <br> <br>
         <input type="button" onclick="window.location.href ='{% url 'barcodeScan:index' %}'
                                      ;return false;" value="Cancel" />
