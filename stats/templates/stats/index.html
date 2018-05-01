@@ -9,18 +9,22 @@ table, th, td {
 </style>
 <article id='small-panel'>
 {% if stats_list %}
-  <h1 style="text-align:center;color:orange;">
+  <h1 style="text-align:center;">
     Here's how you have been eating. </h1>
-    <p>This table keeps track of all the food you've consumed in the past 4 days.
-      Green means you didn't have alot, yellow means you had a bit, and red means
-      you had alot.</p>
+    <p>This table keeps track of all the food you've consumed in the past 4 days,
+       and works as follows...</p>
+       <ul>
+         <li>Green means you didn't have alot</li>
+         <li>Yellow means you had some</li>
+         <li>Red means you had alot.</li>
+       </ul>
   <table style="width:100%;" align="center">
     <tr bgcolor="orange">
       <th>Food Item</th>
-      <th>Day 1</th>
-      <th>Day 2</th>
-      <th>Day 3</th>
-      <th>Day 4</th>
+      <th>{{ value|date:"m/j"}}</th>
+      <th>{{ value2|date:"m/j"}}</th>
+      <th>{{ value3|date:"m/j"}}</th>
+      <th>{{ value4|date:"m/j"}}</th>
     </tr>
 
     {% for item in stats_list %}
@@ -65,8 +69,8 @@ table, th, td {
 {% else %}
     <h2 style="text-align:center;">Sorry, we don't have anything to show you
       right now.</h2>
-      <h3 style="text-align:center;">Try reducing the quantity in your inventory
-         to start producing results in your stats.</h3>
+      <h4 style="text-align:center;">Try reducing the quantity in your inventory
+         to start producing results in your stats.</h4>
 {% endif %}
 
 </article>

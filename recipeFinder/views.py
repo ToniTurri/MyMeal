@@ -2,11 +2,13 @@ import requests
 import json
 import string
 from django.shortcuts import render
-from groceryList.models import FoodItem
+from inventory.models import InventoryItem
 from recipes.models import Recipe, RecipeIngredients
 from stats.models import Consumed_Stats
 from django.utils import timezone
 from django.db import IntegrityError, transaction
+from django.forms.formsets import formset_factory
+from .forms import IngredientInputForm
 
 app_id = ''
 api_key = ''
@@ -97,7 +99,7 @@ def get_search_results(request, ingredients, search_phrase):
 			results = json.load(json_data)
 	else:
 		url = 'http://api.yummly.com/v1/api/recipes?&q='
-		url += search_phrase
+
 
 		# append ingredients to search url
 		allowed_ingredients = []
@@ -167,11 +169,6 @@ def save_recipe(request, context):
 
 	# yield is a string
 	servingsString = context.get('yield')
-	servings = 0
-
-	# try and parse the number from it
-	if servingsString:
-		servings = int(servingsString.strip(string.ascii_letters))
 
 	# try to get external url
 	source = context.get('source')
@@ -181,14 +178,14 @@ def save_recipe(request, context):
 	# try to get the categiry
 	category = context.get('course')
 	if not category:
-		category = 'Other'
+		category = None
 
 	# add other fields
 	new_recipe = Recipe.objects.create(
 		name=name,
 		date=timezone.now(),
 		prepTime=prepTime,
-		servings=servings,
+		servings=servingsString,
 		category=category,
 		instructions=instructions,
 		externalLink=externalLink,
@@ -224,17 +221,17 @@ def query_API(url):
 	except ValueError:
 		return None
 
-# Added from Finn
+# Shows inventory with checkboxes to select ingredients
 def inventoryCheck(request):
 	if request.method == 'GET' :
-		food_items = FoodItem.objects.all()
-		context = {'food_items': food_items}
+		inventory_items = InventoryItem.objects.all()
+		context = {'inventory_items': inventory_items}
 		return render(request, 'recipeFinder/inventory-check.html', context)
 
 	# This isn't supposed to actually do anything, but this is where the data is
 	if request.method == 'POST':
 		ingredients = request.POST.getlist('checked')
-		search_phrase = 'cookies'
+		search_phrase = ''
 		# populate our context with the json response data
 		context = get_search_results(request, ingredients, search_phrase)
 		# make sure that matches were found
@@ -243,16 +240,38 @@ def inventoryCheck(request):
 		# display the data as results
 		return render(request, 'recipeFinder/results.html', context)
 
-# Not yet implemented, trying to figure out cool form techniques
-def freeChoice(request):
-	return render(request, 'recipeFinder/freechoice.html')
+# Almsot there
+def freeSelect(request):
+	IngredientFormSet = formset_factory(IngredientInputForm, max_num=20, min_num=1, validate_min=True, extra=0)
+	if request.method == 'POST':
+		ingredient_formset = IngredientFormSet(request.POST)
+		if ingredient_formset.is_valid():
 
-# probably needs tweaking, need to determine number of items to checked
-# and some 'counts' have better results than others
+			ingredients = []
+
+			for ingredient_form in ingredient_formset:
+				ingredient = ingredient_form.cleaned_data['item']
+				ingredients.append(ingredient)
+
+			search_phrase = ''
+			context = get_search_results(request, ingredients, search_phrase)
+			if context is None:
+				return render(request, 'recipeFinder/not_found.html')
+
+			return render(request, 'recipeFinder/results.html', context)
+
+	else:
+		ingredient_formset = IngredientFormSet()
+		context = {'ingredient_formset': ingredient_formset}
+		return render(request, 'recipeFinder/free-select.html', context)
+
+
+#
 def suggestions(request):
 	stats_list = Consumed_Stats.objects.order_by('-total')
-	search_phrase = None # temp test phrase until better thing comes
+	search_phrase = '' # temp test phrase until better thing comes
 
+	# get number of ingredients to use ( might need work)
 	count = resolveCount(len(stats_list))
 	if count is None:
 		return render(request, 'recipeFinder/not_found.html')
@@ -264,10 +283,8 @@ def suggestions(request):
 	# make sure that matches were found and keep trying if not
 	while context is None and count >= 2:
 		context = get_search_results(request, ingredients, search_phrase)
+		ingredients = ingredients[:-1]
 		count -=1
-		ingredients = []
-		for i in range(0, count):
-			ingredients.append(stats_list[i].food.name)
 
 	if context is None:
 		return render(request, 'recipeFinder/not_found.html')
