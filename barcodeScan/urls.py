@@ -6,4 +6,5 @@ app_name = 'barcodeScan'
 urlpatterns = [
     path('', views.index, name='index'),
     path('confirm/', views.add_to_list, name='add_to_list'),
+    path('confirm/<str:barcode>', views.add_to_inventory, name='add_to_inventory'),
 ]
