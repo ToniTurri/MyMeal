@@ -14,7 +14,6 @@
     {% for ingredient_form in ingredient_formset %}
         <div class="ingredient-formset">
             <p>
-              <p>Ingredient:</p>
                 {{ ingredient_form.value }}
                 {% if ingredient_form.value.errors %}
                     {% for error in ingredient_form.value.errors %}

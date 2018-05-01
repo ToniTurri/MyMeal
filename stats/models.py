@@ -10,3 +10,10 @@ class Consumed_Stats(models.Model):
     count3 = models.IntegerField(default = 0)
     count4 = models.IntegerField(default = 0)
     total = models.IntegerField(default = 1)
+
+'''
+Need to save the last date person consumed something, or accessed stats
+class Time_Stamp(models.Model):
+    time = models.TimeField(default = datetime.now())
+
+'''
