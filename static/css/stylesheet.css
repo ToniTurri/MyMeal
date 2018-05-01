@@ -331,3 +331,19 @@ p .warning {
 	text-align: center;
 	color: #d9480f;
 }
+
+/************************************************/
+/************************************************/
+/************************************************/
+
+.recipe-preview {
+	text-align: center; 
+	display: inline-block; 
+	height: 225px; 
+	width: 250px; 
+	margin-right: 10px;
+}
+
+.recipe-preview img {
+	height: 125px;
+}

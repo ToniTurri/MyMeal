@@ -7,9 +7,11 @@ from django.utils import timezone
 from django.contrib import messages
 from django.db.models import F
 from django.views.generic.edit import CreateView
-from .models import GroceryList, FoodItem
+from .models import GroceryList
 from . import forms
 from stats.models import Consumed_Stats
+from stats.views import reinitStats
+from inventory.models import InventoryItem
 
 
 #from django.contrib.auth.decorators import login_required
@@ -135,8 +137,9 @@ def decrement_food_item(request):
         else:
             grocery_list.fooditems.filter(name=food_item).update(quantity = F('quantity') - 1)
 
+
             try:
-                food_item = FoodItem.objects.get(name=food_item)
+                food_item = InventoryItem.objects.get(name=food_item)
                 stat_item = Consumed_Stats.objects.get(food=food_item)
                 stat_item.count1 += 1
                 stat_item.total += 1
@@ -149,4 +152,3 @@ def decrement_food_item(request):
             return HttpResponse(qty - 1)
 
     return HttpResponse(0)
-

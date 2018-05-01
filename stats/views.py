@@ -1,14 +1,28 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Consumed_Stats
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # Create your views here.
 def statsHandler(request):
-    stats_list = Consumed_Stats.objects.all()
     # Check if we want to show the stats table
-    if stats_list:
-        context = {'stats_list': stats_list}
+    if request.method == 'POST':
+        '''
+        form = forms.FilterForm(request.POST)
+        if form.is_valid():
+            choice = form.cleaned_data['select']
+
+        if choice is 'Name':
+            stats_list = Consumed_Stats.objects.order_by('-food.name')
+        elif choice is 'Most Consumed':
+            stats_list = Consumed_Stats.objects.order_by('-total')
+        '''
+
+        context = {'stats_list': stats_list,
+        'value':datetime.now(),
+        'value2':datetime.now() - timedelta(days=1),
+        'value3':datetime.now() - timedelta(days=2),
+        'value4':datetime.now() - timedelta(days=3)}
         return render(request, 'stats/index.html', context)
     else :
         stats_list = False
@@ -19,7 +33,7 @@ def statsHandler(request):
 # of days to change
 def reinitStats(day_diff):
     temp_count_array = [] # holds the values to be pushed to next day
-    temp_count_array2 = [] # holds for an additonal day
+    temp_count_array2 = [] #hold additional day
     stats_list = Consumed_Stats.objects.all()
 
     # Since this function is only called when a new day is detected, by default
@@ -30,34 +44,40 @@ def reinitStats(day_diff):
         stats_list[i].save()
 
    # Now iterate through the second day values, if the difference in days is
-    # less than or equal to its respective number, keep shifting over,
+    # equal to its respective number, keep shifting over,
     # otherwise, set those values to zero
     for i in range(0, len(stats_list)):
-        if (day_diff <= 2):
-            temp_count_array2.append(stats_list[i].count2)
+        if 1 >= day_diff:
+            temp = stats_list[i].count2
             stats_list[i].count2 = temp_count_array[i]
+            temp_count_array[i] = temp
             stats_list[i].save()
         else:
-            temp_count_array[i] = stats_list[i].count2
+            temp_count_array2.append(stats_list[i].count2)
             stats_list[i].count2 = 0
             stats_list[i].save()
 
     for i in range(0, len(stats_list)):
-        if day_diff <= 3:
-            temp_count_array[i] = stats_list[i].count3
-            stats_list[i].count3 = temp_count_array2[i]
-            stats_list.save()
+        if 2 >= day_diff:
+            temp = stats_list[i].count3
+            stats_list[i].count3 = temp_count_array[i]
+            temp_count_array[i] = temp
+            stats_list[i].save()
         else:
-            temp_count_array[i] = stats_list[i].count3
             stats_list[i].count3 = 0
             stats_list[i].save()
 
     for i in range(0, len(stats_list)):
-        if day_diff <= 4:
-            stats_list[i].count4 = 0
-            stats_list.save()
+        if 3 >= day_diff:
+            # if difference is 2 days, then it's day 2 values
+            if day_diff is 2:
+                stats_list[i].count4 = temp_count_array2[i]
+            # else it's just what's in the first array
+            else:
+                stats_list[i].count4 = temp_count_array[i]
+            stats_list[i].save()
         else:
-            stats_list[i].count4 = temp_count_array[i]
+            stats_list[i].count4 = 0
             stats_list[i].save()
 
     # Now cleanup
@@ -68,7 +88,20 @@ def reinitStats(day_diff):
 def cleanup():
     stats_list = Consumed_Stats.objects.all()
 
+    # Omit count1 since it's only called on new day and that day is 0
     for i in range(0, len(stats_list)):
-        if (stats_list[i].count1 == 0 and stats_list[i].count2 == 0 and
-                stats_list[i].count3 == 0 and stats_list[i].count4 == 0):
-                stats_list.remove()
+        if (stats_list[i].count2 == 0 and stats_list[i].count3 == 0
+            and stats_list[i].count4 == 0):
+                stats_list[i].delete()
+
+# Checks if the last day a food item was consumed or stat page accessed is
+# different than the current day to reinitStats
+def timeCheck():
+    date = datetime.now()
+    stat_time = None # Placeholder for now
+    # return false if same day (so don't reinit) and true otherwise
+    if ((date.month is stat_time.month) and (date.year is stats_time.year)
+        and (date.day is stats_time.day)):
+            return False
+    else:
+        return True
