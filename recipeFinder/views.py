@@ -136,7 +136,7 @@ def get_recipe_details(id):
 		with open('recipe-sample.json') as json_data:
 			results = json.load(json_data)
 	else:
-		url = 'http://api.yummly.com/v1/api/recipe/%s' % id
+		url = 'https://api.yummly.com/v1/api/recipe/%s' % id
 		results = query_API(url)
 
 	# return None if for whatever reason the response json is empty
@@ -175,7 +175,7 @@ def save_recipe(request, context):
 	if source:
 		externalLink = source.get('sourceRecipeUrl')
 
-	# try to get the categiry
+	# try to get the category
 	category = context.get('course')
 	if not category:
 		category = None
