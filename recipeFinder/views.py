@@ -99,7 +99,7 @@ def get_search_results(request, ingredients, search_phrase):
 			results = json.load(json_data)
 	else:
 		url = 'http://api.yummly.com/v1/api/recipes?&q='
-
+		url += search_phrase
 
 		# append ingredients to search url
 		allowed_ingredients = []
@@ -242,6 +242,7 @@ def inventoryCheck(request):
 
 # Almsot there
 def freeSelect(request):
+
 	IngredientFormSet = formset_factory(IngredientInputForm, max_num=20, min_num=1, validate_min=True, extra=0)
 	if request.method == 'POST':
 		ingredient_formset = IngredientFormSet(request.POST)
@@ -250,8 +251,10 @@ def freeSelect(request):
 			ingredients = []
 
 			for ingredient_form in ingredient_formset:
-				ingredient = ingredient_form.cleaned_data['item']
-				ingredients.append(ingredient)
+				ingredient = ingredient_form.cleaned_data.get('item')
+				# make sure it's not empty
+				if ingredient:
+					ingredients.append(ingredient)
 
 			search_phrase = ''
 			context = get_search_results(request, ingredients, search_phrase)
