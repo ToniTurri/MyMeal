@@ -7,7 +7,7 @@ from django.utils import timezone
 from .forms import BarcodeForm
 from django.db.models import F
 from groceryList.models import GroceryList, FoodItem
-from inventory.models import InventoryItem
+from inventory.views import add as inv_add
 
 # initial view - prompt for barcode / do processing
 def index(request):
@@ -16,7 +16,7 @@ def index(request):
 		form = BarcodeForm(request.POST)
 		if form.is_valid():
 			# fetch the JSON file from the external API & convert to py dictionary
-			barcode = (form.cleaned_data['number'])
+			barcode = (form.cleaned_data['barcode'])
 			url = 'http://world.openfoodfacts.org/api/v0/product/%s.json' % barcode
 			response = requests.get(url)
 			json_data = json.loads(response.text)
@@ -56,10 +56,14 @@ def index(request):
 	return render(request, 'barcodeScan/index.html', {'form': form})
 
 # when a user wants to add an item to a grocery list, go here
-def add_to_list(request):
+def add_to_list(request, barcode):
 	# if the method is POST, do some processing
 	if request.method == "POST":
 		# TODO - add some sort of a one-time token to verify that this POST is coming from a legitimate user
+
+		# make sure barcode is valid (never trust the evil user)
+		if len(barcode) > BarcodeForm().fields['barcode'].max_length:
+			raise Http404
 
 		# get the selected grocery list's id
 		id = request.POST['selected_grocery_list']
@@ -73,7 +77,7 @@ def add_to_list(request):
 			grocery_list.fooditems.filter(name=food).update(quantity=F('quantity') + 1)
 		else:
 			# add new FoodItem to the grocery list
-			new_food = FoodItem(name=food, date=timezone.now())
+			new_food = FoodItem(name=food, barcode=barcode, date=timezone.now())
 			new_food.save()
 			grocery_list.fooditems.add(new_food)
 
@@ -87,15 +91,20 @@ def add_to_list(request):
 def add_to_inventory(request, barcode):
 	# if the method is POST, do some processing
 	if request.method == "POST":
+
+		# make sure barcode is valid (never trust the evil user)
+		if len(barcode) > BarcodeForm().fields['barcode'].max_length:
+			raise Http404
+
+		# get the food's name string from the form
 		food = request.POST['food_name']
 
-		# nothing to do here
+		# no food name? nothing to do here
 		if not food:
 			return
 
-		# add a barcode field here if you'd like
-		new_item = InventoryItem(name=food, quantity=1, date=timezone.now())
-		new_item.save()
+		# add the item to the inventory db
+		inv_add(food, barcode)
 
 		# take the user to their inventory to see their added item
 		return HttpResponseRedirect(reverse('inventory:index'))
