@@ -102,8 +102,7 @@ def get_search_results(request, ingredients, search_phrase):
 		with open('search-sample.json') as json_data:
 			results = json.load(json_data)
 	else:
-		url = 'http://api.yummly.com/v1/api/recipes?&q='
-		url += search_phrase
+		url = 'https://api.yummly.com/v1/api/recipes?&q=%s' % search_phrase
 
 		# append ingredients to search url
 		allowed_ingredients = []
@@ -193,13 +192,14 @@ def save_recipe(request, context):
 		category=category,
 		instructions=instructions,
 		externalLink=externalLink,
-		yummlyId = yummlyId,
+		yummlyId=yummlyId,
 		imageUrl=image)
 
-	# Save ingredients for each form in the formset
+	# create the RecipeIngredients
 	new_ingredients = []
 
 	for ingredient in ingredients:
+		# try to automatically link ingredient to inventory item
 		inventoryItem = findInventoryItem(ingredient)
 		if ingredient:
 			new_ingredient_link = RecipeIngredients(
@@ -227,8 +227,9 @@ def findInventoryItem(ingredientLine):
 	inventoryItems = None
 	try:
 		if not inventoryItems:
-			inventoryItems = InventoryItem.objects.raw("SELECT * FROM inventory_inventoryitem "
-													   "WHERE %s LIKE '%%' || name || '%%'", [ingredientLine])
+			query = "SELECT * FROM inventory_inventoryitem " \
+					"WHERE %s LIKE '%%' || name || '%%'"
+			inventoryItems = InventoryItem.objects.raw(query, [ingredientLine])
 	except InventoryItem.DoesNotExist:
 		if not inventoryItems:
 			inventoryItems = None
