@@ -7,4 +7,6 @@ urlpatterns = [
     path('', views.IndexView.as_view(), name='index'),
     path('<int:pk>/', views.GroceryListView.as_view(), name='detail'),
     path('<int:pk>/update', views.update, name='update'),
+    path('<int:pk>/<int:id>/confirm', views.confirm_item, name='confirm_item'),
+    path('<int:pk>/<int:id>/delete', views.delete_item, name='delete_item')
 ]
