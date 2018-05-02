@@ -6,8 +6,8 @@ from django.urls import reverse
 from django.utils import timezone
 from .forms import BarcodeForm
 from django.db.models import F
-from groceryList.models import GroceryList, FoodItem
 from inventory.views import add as inv_add
+from groceryList.models import GroceryList, GroceryItems
 
 # initial view - prompt for barcode / do processing
 def index(request):
@@ -69,17 +69,23 @@ def add_to_list(request, barcode):
 		id = request.POST['selected_grocery_list']
 		# get the grocery list that was selected from the form
 		grocery_list = get_object_or_404(GroceryList, pk=id)
+		grocery_items = GroceryItems.objects.filter(groceryList=grocery_list)
+
 		# get the food's name string from the form
 		food = request.POST['food_name']
 
 		# check if item exists already, update quantity accordingly
-		if grocery_list.fooditems.filter(name=food).exists():
-			grocery_list.fooditems.filter(name=food).update(quantity=F('quantity') + 1)
+		if grocery_items.filter(name=food).exists():
+			grocery_items.filter(name=food).update(quantity=F('quantity') + 1)
 		else:
-			# add new FoodItem to the grocery list
-			new_food = FoodItem(name=food, barcode=barcode, date=timezone.now())
-			new_food.save()
-			grocery_list.fooditems.add(new_food)
+			# add new GroceryItem to the grocery list
+			GroceryItems.objects.create(
+				groceryList=grocery_list,
+                name=food,
+                quantity=1,
+				barcode=barcode,
+                date=timezone.now(),
+                inventoryItem=None)
 
 		# take the user to the groceryList to see their added item
 		return HttpResponseRedirect(reverse('groceryList:detail', args=(id,)))
