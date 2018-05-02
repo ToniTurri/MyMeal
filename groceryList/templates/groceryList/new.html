@@ -3,6 +3,9 @@
 {% block content %}
 
 <article id="small-panel">
+    <header>
+        <h3>Add New Grocery List</h3>
+    </header>
 
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 
@@ -16,15 +19,20 @@
     </ul>
     {% endif %}
 
-    <form action="{% url 'groceryList:add' %}" method="post">{% csrf_token %}
+    <form action="{% url 'groceryList:add' %}" method="post">
+        {% csrf_token %}
         {% if food_name %}
+            <!-- Used to add items from the barcode scanner to the grocery list -->
             <input type="hidden" name="food_name" value="{{ food_name }}">
         {% endif %}
         {{ form }}
+        <br>
+        <br>
         <input type="submit" value="Submit" />
     </form>
 
-    <a href="{% url 'groceryList:index' %}">View all grocery lists</a>
+    <br>
+    <input type="button" onclick="window.location.href ='{% url 'groceryList:index' %}'; return false;" value="Cancel" />
 
 </article>
 
