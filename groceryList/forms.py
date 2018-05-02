@@ -1,10 +1,10 @@
 from django import forms
-from django.forms import Form, ModelForm, TextInput
-from .models import FoodItem, GroceryList
+from django.forms import Form, ModelForm, TextInput, ModelChoiceField
+from .models import GroceryItems, GroceryList
+from inventory.models import InventoryItem
 
 class AddListForm(Form):
-    name = forms.CharField(label = 'Add new grocery list', max_length = 100,
-                           empty_value = "None")
+    name = forms.CharField(label = 'Add new grocery list', max_length = 100, empty_value = "None")
 
 class AddGroceryListForm(forms.ModelForm):
     
@@ -13,6 +13,6 @@ class AddGroceryListForm(forms.ModelForm):
         fields = ['name']
     
 class AddItemToListForm(Form):
-    food_item = forms.CharField(label = 'Add an item to your grocery list',
-                                max_length = 100, required = True)
-    quantity = forms.IntegerField(max_value=100, min_value=0)
+    name = forms.CharField(label = 'Item', max_length = 100, required=False)
+    quantity = forms.IntegerField(max_value=100, min_value=1, required=False)
+    inventory_item = forms.ModelChoiceField(queryset=InventoryItem.objects.all(), required=False)

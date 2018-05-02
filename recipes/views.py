@@ -9,7 +9,6 @@ from django.db.models import F
 from django.views.generic.edit import CreateView
 from .models import Recipe, RecipeIngredients
 from .forms import IngredientForm
-from groceryList.models import FoodItem
 from . import forms
 from django.forms.formsets import formset_factory
 from django.db import IntegrityError, transaction
