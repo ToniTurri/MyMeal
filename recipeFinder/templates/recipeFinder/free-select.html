@@ -13,17 +13,17 @@
 
     {% for ingredient_form in ingredient_formset %}
         <div class="ingredient-formset">
-            <p>
-                {{ ingredient_form.value }}
+          <p>
+                {{ ingredient_form.item }}
                 {% if ingredient_form.value.errors %}
                     {% for error in ingredient_form.value.errors %}
                         {{ error|escape }}
                     {% endfor %}
                 {% endif %}
-            </p>
+          </p>
         </div>
     {% endfor %}
-
+    <br><br>
     <input type="submit" value="Search!" /><br/><br/>
   </form>
 </article>

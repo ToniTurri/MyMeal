@@ -1,6 +1,12 @@
 import requests
 import json
 import string
+import re
+import nltk
+nltk.download('stopwords')
+nltk.download('punkt')
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 from django.shortcuts import render
 from inventory.models import InventoryItem
 from recipes.models import Recipe, RecipeIngredients
@@ -98,8 +104,7 @@ def get_search_results(request, ingredients, search_phrase):
 		with open('search-sample.json') as json_data:
 			results = json.load(json_data)
 	else:
-		url = 'http://api.yummly.com/v1/api/recipes?&q='
-
+		url = 'https://api.yummly.com/v1/api/recipes?&q=%s' % search_phrase
 
 		# append ingredients to search url
 		allowed_ingredients = []
@@ -189,19 +194,20 @@ def save_recipe(request, context):
 		category=category,
 		instructions=instructions,
 		externalLink=externalLink,
-		yummlyId = yummlyId,
+		yummlyId=yummlyId,
 		imageUrl=image)
 
-	# Save ingredients for each form in the formset
+	# create the RecipeIngredients
 	new_ingredients = []
 
 	for ingredient in ingredients:
-
+		# try to automatically link ingredient to inventory item
+		inventoryItem = findInventoryItem(ingredient)
 		if ingredient:
 			new_ingredient_link = RecipeIngredients(
 				recipe=new_recipe,
 				ingredient=ingredient,
-				#foodItem=ingredient TODO: fix this
+				inventoryItem=inventoryItem
 				)
 			new_ingredients.append(new_ingredient_link)
 
@@ -211,6 +217,47 @@ def save_recipe(request, context):
 			return True
 	except IntegrityError:
 		return False
+
+# perform some NLP on the ingredient line and then check against database to see if it
+# contains any InventoryItems
+# return the first one found, or None
+def findInventoryItem(ingredientLine):
+	# try to clean the ingredient line of garbage before running the query
+	ingredientLine = cleanIngredientLine(ingredientLine)
+
+	# check cleaned string for a match in the InventoryItem db
+	inventoryItems = None
+	try:
+		if not inventoryItems:
+			query = "SELECT * FROM inventory_inventoryitem " \
+					"WHERE %s LIKE '%%' || name || '%%'"
+			inventoryItems = InventoryItem.objects.raw(query, [ingredientLine])
+	except InventoryItem.DoesNotExist:
+		if not inventoryItems:
+			inventoryItems = None
+
+	# return the first match--or if none found, return None
+	return first(inventoryItems) if inventoryItems else inventoryItems;
+
+# safely get the first element of a raw query set
+def first(rawquery):
+	try:
+		return rawquery[0]
+	except:
+		return None
+
+def cleanIngredientLine(ingredientLine):
+	# filter out punctuation
+	ingredientLine = re.sub('['+string.punctuation+']', '', ingredientLine)
+	# filter out special characters
+	ingredientLine = re.sub('\W+', ' ', ingredientLine)
+	# tokenize
+	tokens = word_tokenize(ingredientLine)
+	# filter out english stop words ('a', 'is', 'this', 'the', 'each', etc)
+	stop_words = set(stopwords.words('english'))
+	potentialIngredients = [w for w in tokens if not w in stop_words]
+	# put cleaned ingredient string back together
+	return ' '.join(str(w) for w in potentialIngredients)
 
 def query_API(url):
 	headers = {'X-Yummly-App-ID': app_id,
@@ -242,6 +289,7 @@ def inventoryCheck(request):
 
 # Almsot there
 def freeSelect(request):
+
 	IngredientFormSet = formset_factory(IngredientInputForm, max_num=20, min_num=1, validate_min=True, extra=0)
 	if request.method == 'POST':
 		ingredient_formset = IngredientFormSet(request.POST)
@@ -250,8 +298,10 @@ def freeSelect(request):
 			ingredients = []
 
 			for ingredient_form in ingredient_formset:
-				ingredient = ingredient_form.cleaned_data['item']
-				ingredients.append(ingredient)
+				ingredient = ingredient_form.cleaned_data.get('item')
+				# make sure it's not empty
+				if ingredient:
+					ingredients.append(ingredient)
 
 			search_phrase = ''
 			context = get_search_results(request, ingredients, search_phrase)
