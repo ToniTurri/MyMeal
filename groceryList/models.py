@@ -22,6 +22,7 @@ class GroceryList(models.Model):
 class FoodItem(models.Model):
     name = models.CharField(max_length = 100, blank=True)
     quantity = models.IntegerField(default=1)
+    barcode = models.CharField(max_length=13, blank=True)
     date = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):

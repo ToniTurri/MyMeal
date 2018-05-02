@@ -19,7 +19,7 @@
 
     <br><br>
 
-    <form action="{% url 'barcodeScan:add_to_list' %}" method="post" class="center">
+    <form action="{% url 'barcodeScan:add_to_list' barcode %}" method="post" class="center">
         <!-- csrf_token to protect against XSS attacks -->
         {% csrf_token %}
         <!-- pass back the food's name so it can be added to the db -->
