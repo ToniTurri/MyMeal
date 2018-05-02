@@ -1,6 +1,12 @@
 import requests
 import json
 import string
+import re
+import nltk
+nltk.download('stopwords')
+nltk.download('punkt')
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 from django.shortcuts import render
 from inventory.models import InventoryItem
 from recipes.models import Recipe, RecipeIngredients
@@ -196,12 +202,12 @@ def save_recipe(request, context):
 	new_ingredients = []
 
 	for ingredient in ingredients:
-
+		inventoryItem = findInventoryItem(ingredient)
 		if ingredient:
 			new_ingredient_link = RecipeIngredients(
 				recipe=new_recipe,
 				ingredient=ingredient,
-				#foodItem=ingredient TODO: fix this
+				inventoryItem=inventoryItem
 				)
 			new_ingredients.append(new_ingredient_link)
 
@@ -211,6 +217,46 @@ def save_recipe(request, context):
 			return True
 	except IntegrityError:
 		return False
+
+# perform some NLP on the ingredient line and then check against database to see if it
+# contains any InventoryItems
+# return the first one found, or None
+def findInventoryItem(ingredientLine):
+	# try to clean the ingredient line of garbage before running the query
+	ingredientLine = cleanIngredientLine(ingredientLine)
+
+	# check cleaned string for a match in the InventoryItem db
+	inventoryItems = None
+	try:
+		if not inventoryItems:
+			inventoryItems = InventoryItem.objects.raw("SELECT * FROM inventory_inventoryitem "
+													   "WHERE %s LIKE '%%' || name || '%%'", [ingredientLine])
+	except InventoryItem.DoesNotExist:
+		if not inventoryItems:
+			inventoryItems = None
+
+	# return the first match--or if none found, return None
+	return first(inventoryItems) if inventoryItems else inventoryItems;
+
+# safely get the first element of a raw query set
+def first(rawquery):
+	try:
+		return rawquery[0]
+	except:
+		return None
+
+def cleanIngredientLine(ingredientLine):
+	# filter out punctuation
+	ingredientLine = re.sub('['+string.punctuation+']', '', ingredientLine)
+	# filter out special characters
+	ingredientLine = re.sub('\W+', ' ', ingredientLine)
+	# tokenize
+	tokens = word_tokenize(ingredientLine)
+	# filter out english stop words ('a', 'is', 'this', 'the', 'each', etc)
+	stop_words = set(stopwords.words('english'))
+	potentialIngredients = [w for w in tokens if not w in stop_words]
+	# put cleaned ingredient string back together
+	return ' '.join(str(w) for w in potentialIngredients)
 
 def query_API(url):
 	headers = {'X-Yummly-App-ID': app_id,
