@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .models import Consumed_Stats
 from datetime import datetime, timedelta
+#from .forms import FilterForm
 
 # Create your views here.
 def statsHandler(request):
@@ -13,21 +14,28 @@ def statsHandler(request):
             choice = form.cleaned_data['select']
 
         if choice is 'Name':
-            stats_list = Consumed_Stats.objects.order_by('-food.name')
+            stats_list = Consumed_Stats.objects.order_by('-food__name')
         elif choice is 'Most Consumed':
             stats_list = Consumed_Stats.objects.order_by('-total')
+        elif choice is 'Least Consumed':
+            stats_list = Consumed_Stats.objects.order_by('total')
         '''
 
+    else :
+        stats_list = Consumed_Stats.objects.all()
+
+    if stats_list:
         context = {'stats_list': stats_list,
         'value':datetime.now(),
         'value2':datetime.now() - timedelta(days=1),
         'value3':datetime.now() - timedelta(days=2),
-        'value4':datetime.now() - timedelta(days=3)}
+        'value4':datetime.now() - timedelta(days=3),
+        'form': FilterForm()}
         return render(request, 'stats/index.html', context)
-    else :
-        stats_list = False
-        context = None
-        return render(request, 'stats/index.html', context)
+
+    stats_list = False
+    context = None
+    return render(request, 'stats/index.html', context)
 
 # Re-initializes the stats table with a parameter to distinguish the number
 # of days to change
@@ -100,8 +108,8 @@ def timeCheck():
     date = datetime.now()
     stat_time = None # Placeholder for now
     # return false if same day (so don't reinit) and true otherwise
-    if ((date.month is stat_time.month) and (date.year is stats_time.year)
-        and (date.day is stats_time.day)):
+    if ((date.month is stat_time.month) and (date.year is stat_time.year)
+        and (date.day is stat_time.day)):
             return False
     else:
         return True

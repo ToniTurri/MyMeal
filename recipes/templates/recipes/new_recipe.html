@@ -24,14 +24,14 @@
     {% endif %}
 
     {% if is_edit %}
-    <form action="{% url 'recipes:edit_recipe' id %}" method="post" enctype="multipart/form-data"> 
+    <form action="{% url 'recipes:edit_recipe' id %}" method="post" enctype="multipart/form-data">
     {% else %}
-    <form action="/recipes/new_recipe/" method="post" enctype="multipart/form-data">    
+    <form action="/recipes/new_recipe/" method="post" enctype="multipart/form-data">
     {% endif %}
         {% csrf_token %}
-        
+
         <p><label for="recipe_name">Name:</label>{{ form.name }}</p>
-        
+
         <p><label for="recipe_prep">Prep Time:</label>{{ form.prepTime }}</p>
 
         <p><label for="recipe_servings">Yield:</label>{{ form.servings }}</p>
@@ -61,7 +61,7 @@
         <p>
             <label for="recipe_ingredients">Ingredients:</label><br/>
             <span class="helptext">
-            Add ingredients to your recipe and connect them to items in your 
+            Add ingredients to your recipe and connect them to items in your
             inventory to get meal suggestions.
             </span><br/>
             {{ ingredient_formset.management_form }}
@@ -81,12 +81,12 @@
                 </div>
             {% endfor %}
         </p>
-        
+
         <p><label for="recipe_instructions">Instructions:</label>{{ form.instructions }}</p>
 
         <p><label for="recipe_external">External Link:</label><br/>{{ form.externalLink }}</p>
 
-        <input type="submit" value="Save" /><br/><br/> 
+        <input type="submit" value="Save" /><br/><br/>
 
         {% if is_edit %}
         <input type="button" onclick="window.location.href ='{% url 'recipes:detail' id %}'; return false;" value="Cancel" />
@@ -127,9 +127,8 @@ $("#id_image").on('change', function () {
          } else {
              alert("This browser does not support FileReader.");
          }
-     } 
+     }
  });
 </script>
 
 {% endblock %}
-
