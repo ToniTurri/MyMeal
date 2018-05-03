@@ -7,7 +7,8 @@
     <form action="" method="post">
         <!-- csrf_token to protect against XSS attacks -->
         {% csrf_token %}
-        <button type = submit title = "Delete Grocery List" class = "savebutton"><img src="../../static/img/save_icon_active.png" /></button>
+        {% load static %}
+        <button type = submit title = "Delete Grocery List" class = "savebutton"><img src="{% static 'img/save_icon_active.png' %}" /></button>
     </form>
 
     <header>
@@ -154,6 +155,9 @@ $(document).ready(function() {
 <script>
     $( function() {
     $( "#{{ item_form.name.id_for_label }}" ).autocomplete({
+      autoFocus: true,
+      minLength: 2,
+      delay: 0,
       source: {{ inventory_items|safe }}
     });
     } );
