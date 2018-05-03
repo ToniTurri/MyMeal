@@ -128,7 +128,7 @@ def add_recipe(request, pk=0):
 					ingredient = ingredient_form.cleaned_data['value']
 					# try and link the ingredient to an inventory item
 					try:
-						inventory_item = InventoryItem.objects.get(name__exact=ingredient)
+						inventory_item = InventoryItem.objects.filter(name__exact=ingredient)[:1].get()
 					except InventoryItem.DoesNotExist:
 						inventory_item = None
 					#inventory_item = ingredient_form.cleaned_data['inventoryItem']
