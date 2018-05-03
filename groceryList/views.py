@@ -151,6 +151,34 @@ def confirm_item(request, pk, id):
             grocery_item.confirmed = True
             grocery_item.save()
 
+            # if the grocery item was manually linked to an inventory item update that
+            # item directly
+            if grocery_item.inventoryItem:
+                inventory_item = InventoryItem.objects.get(pk=grocery_item.inventoryItem.id)
+                inventory_item.quantity += int(grocery_item.quantity)
+                inventory_item.save()
+            # if the grocery item was added view the barcode scanner update the inventory
+            # item that has that same barcode or create a new inventory item for it
+            elif grocery_item.barcode:
+                inventory_item = InventoryItem.objects.filter(name=grocery_list.name, 
+                                                              barcode=grocery_item.barcode).first()
+
+                if inventory_item:
+                    inventory_item.quantity += grocery_item.quantity
+                    inventory_item.save()    
+                else:
+                    InventoryItem.objects.create(name=grocery_item.name,
+                                                 quantity=quantity,
+                                                 barcode=grocery_item.barcode,
+                                                 date=timezone.now())
+            # Straight up add a new inventory item without barcode, because it was not 
+            # organized/linked to any other model types
+            else:
+                InventoryItem.objects.create(name=grocery_item.name,
+                                             quantity=quantity,
+                                             barcode=None,
+                                             date=timezone.now())
+
     return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 
 def delete_item(request, pk, id):
