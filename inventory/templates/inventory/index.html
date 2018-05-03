@@ -97,10 +97,19 @@
 <script>
     $( function() {
     $( "#{{ add_item_form.name.id_for_label }}" ).autocomplete({
+
       autoFocus: true,
-      minLength: 2,
+      minLength: 1,
       delay: 0,
-      source: {{ generic_foods|safe }}
+      source: function (request, response) {
+             var resultLimit = 8;
+             var results = $.map({{ generic_foods|safe }}, function (food) {
+                 if (food.toUpperCase().indexOf(request.term.toUpperCase()) === 0) {
+                     return food;
+                 }
+             });
+            response(results.slice(0, resultLimit));
+       }
 
     });
     } );
