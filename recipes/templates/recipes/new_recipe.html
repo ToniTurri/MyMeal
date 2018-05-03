@@ -112,6 +112,9 @@
 <script>
     $( function(row) {
     $( "#{{ ingredient_form.value.id_for_label }}" ).autocomplete({
+      autoFocus: true,
+      minLength: 2,
+      delay: 0,
       source: {{ inventory_items|safe }}
     });
     } );
