@@ -79,7 +79,7 @@
                 Add items to your grocery list and connect them to inventory item to get meal suggestions and automatically update inventory quantities.
             </span><br>
             {{ item_form.name }}
-            {{ item_form.inventory_item }}
+            <!--{{ item_form.inventory_item }}-->
         </p>
         <p><label>Quantity:</label>{{ item_form.quantity }}</p>
 
@@ -147,5 +147,15 @@ $(document).ready(function() {
     });
 });
 </script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script>
+    $( function() {
+    $( "#{{ item_form.name.id_for_label }}" ).autocomplete({
+      source: {{ inventory_items|safe }}
+    });
+    } );
+</script>
 {% endblock %}
