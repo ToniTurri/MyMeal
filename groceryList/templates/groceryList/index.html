@@ -7,7 +7,7 @@
         <h3>Grocery Lists</h3>
     </header>
 
-    <p>Here is a list of grocery lists</p>
+    <center>Here are your grocery lists:</center>
 
     {% if all_grocery_lists %}
         <ul>
@@ -19,8 +19,7 @@
         <p>No grocery lists are available.</p>
     {% endif %}
 
-    <a href="{% url 'groceryList:new' %}">Create a new grocery list</a><br>
-
+    <input type="submit" onclick="window.location.href ='{% url 'groceryList:new' %}'; return false;" value="Add New Grocery List" /> 
 </article>
 
 {% endblock %}

@@ -95,13 +95,19 @@ def update(request, pk):
             quantity = form.cleaned_data['quantity']
 
             # the add new item form is empty, so attempt to update quantities of
-            # existing items in the grocery list
+            # existing items in the grocery list instead
             if not item and not quantity:
-                print("save quantities")
+                update_quantities(grocery_items)
+            # either item or quantity is empty which is an invalid state for adding 
+            # a new item to the list. so show an error to the user
             elif not item or not quantity:
                 messages.warning(request, "Item and Quantity are required when adding a new item to the list.")
                 return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
+            # else the user inputted a new grocery item successfully
+            # update the quantities as well, since they are considered editable
+            # at this point in time too
             else:
+                update_quantities(grocery_items)
                 new_grocery_item = GroceryItems.objects.create(
                             groceryList=grocery_list,
                             name=item,
@@ -118,6 +124,17 @@ def update(request, pk):
     }
 
     return render(request, 'groceryList/detail.html', context)
+
+def update_quantities(grocery_items):
+    # confirmed items indicate they've already been added to the inventory with
+    # their amounts. so we will skip them here
+    unconfirmed_grocery_items = (x for x in grocery_items if not x.confirmed)
+    for grocery_item in unconfirmed_grocery_items:
+        identifier = 'quantity_item_' + str(grocery_item.id)                 
+        if identifier in request.POST:
+            grocery_item_amount = request.POST[identifier]
+            grocery_item.quantity = grocery_item_amount
+            grocery_item.save()
 
 def confirm_item(request, pk, id):
 
