@@ -104,7 +104,7 @@ def get_search_results(request, ingredients, search_phrase):
 		with open('search-sample.json') as json_data:
 			results = json.load(json_data)
 	else:
-		url = 'https://api.yummly.com/v1/api/recipes?&q=%s' % search_phrase
+		url = 'https://api.yummly.com/v1/api/recipes?&q=%s' % search_phrase.lower()
 
 		# append ingredients to search url
 		allowed_ingredients = []
@@ -230,14 +230,15 @@ def findInventoryItem(ingredientLine):
 	try:
 		if not inventoryItems:
 			query = "SELECT * FROM inventory_inventoryitem " \
-					"WHERE %s LIKE '%%' || name || '%%'"
+					"WHERE %s LIKE '%%' || name || '%%'" \
+					" ORDER BY LENGTH(name) DESC LIMIT 1"
 			inventoryItems = InventoryItem.objects.raw(query, [ingredientLine])
 	except InventoryItem.DoesNotExist:
 		if not inventoryItems:
 			inventoryItems = None
 
-	# return the first match--or if none found, return None
-	return first(inventoryItems) if inventoryItems else inventoryItems;
+	# return the first match (if none found, first() returns None)
+	return first(inventoryItems)
 
 # safely get the first element of a raw query set
 def first(rawquery):
@@ -279,6 +280,7 @@ def inventoryCheck(request):
 	if request.method == 'POST':
 		ingredients = request.POST.getlist('checked')
 		search_phrase = ''
+
 		# populate our context with the json response data
 		context = get_search_results(request, ingredients, search_phrase)
 		# make sure that matches were found
