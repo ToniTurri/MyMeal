@@ -7,7 +7,6 @@ from django.utils import timezone
 from django.contrib import messages
 from django.db.models import F
 from django.views.generic.edit import CreateView
-from .models import GroceryList
 from . import forms
 from inventory.models import InventoryItem
 from groceryList.models import GroceryItems, GroceryList
@@ -45,6 +44,7 @@ class GroceryListView(DetailView):
         context['item_form'] = forms.AddItemToListForm
         context['grocery_list'] = self.get_object()
         context['grocery_items'] = GroceryItems.objects.filter(groceryList=self.kwargs.get('pk'))
+        context['inventory_items'] = list(InventoryItem.objects.values_list('name', flat=True))
         return context
 
 def add(request):
@@ -91,7 +91,12 @@ def update(request, pk):
 
         if form.is_valid():
             item = form.cleaned_data['name']
-            inventory_item = form.cleaned_data['inventory_item']
+            # try and link the ingredient to an inventory item
+            try:
+                inventory_item = InventoryItem.objects.filter(name__exact=item)[:1].get()
+            except InventoryItem.DoesNotExist:
+                inventory_item = None
+            #inventory_item = form.cleaned_data['inventory_item']
             quantity = form.cleaned_data['quantity']
 
             # the add new item form is empty, so attempt to update quantities of
@@ -107,7 +112,7 @@ def update(request, pk):
             # update the quantities as well, since they are considered editable
             # at this point in time too
             else:
-                update_quantities(grocery_items)
+                update_quantities(request, grocery_items)
                 new_grocery_item = GroceryItems.objects.create(
                             groceryList=grocery_list,
                             name=item,
@@ -125,7 +130,7 @@ def update(request, pk):
 
     return render(request, 'groceryList/detail.html', context)
 
-def update_quantities(grocery_items):
+def update_quantities(request, grocery_items):
     # confirmed items indicate they've already been added to the inventory with
     # their amounts. so we will skip them here
     unconfirmed_grocery_items = (x for x in grocery_items if not x.confirmed)
@@ -151,7 +156,7 @@ def confirm_item(request, pk, id):
             grocery_item.confirmed = True
             grocery_item.save()
 
-            # if the grocery item was manually linked to an inventory item update that
+            # if the grocery item was linked to an inventory item update that
             # item directly
             if grocery_item.inventoryItem:
                 inventory_item = InventoryItem.objects.get(pk=grocery_item.inventoryItem.id)
