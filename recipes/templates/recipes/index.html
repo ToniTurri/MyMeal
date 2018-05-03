@@ -16,6 +16,17 @@
                 font-size: .7em;
                 clear:left;"
                 />
+        <input type="button" onclick="window.location.href ='{% url 'recipeFinder:index' %}'; return false;" value="Find New Recipes" 
+            style=" float: right;
+                height: 35px;
+                border-radius: 5px;
+                background-color: #e9ecef;
+                border: none;
+                color: #000;
+                font-size: .7em;
+                clear:left;
+                margin-right:15px;"
+                />
             </div>
     </header>
 
@@ -45,12 +56,14 @@
         </div>
     </section>
     {% else %}
+    <section>
         <p>
         <center>
             You have no recipes available.<br>
             Try <a href="{% url 'recipes:new_recipe' %}">adding a new recipe</a> or <a href="/search">searching</a> for one!<br><br>
         </center>
         </p>
+    </section>
     {% endif %}
 
 </article>

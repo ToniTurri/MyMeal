@@ -2,42 +2,77 @@
 
 {% block content %}
 
-<article id="small-panel">
-	<header>
-		<h3>Inventory</h3>
-	</header>
+<article>
+    <header>
+        <div style="display: block;">
+        <span>Inventory</span>
+        <input type="button" onclick="window.location.href ='{% url 'barcodeScan:index' %}'; return false;" value="Scan New Items" 
+            style=" float: right;
+                height: 35px;
+                border-radius: 5px;
+                background-color: #f76707;
+                border: none;
+                color: #f2f2f2;
+                font-size: .7em;
+                clear:left;"
+                />
+    </header>
 
+    <section>
 	{% if inventoryitems %}
-    	{% for inventoryitem in inventoryitems %}
+		<div style="display: block; margin: 0 auto;">
+    	{% for item in inventoryitems %}
+    		<div data-role="inventory_item" class="recipe-preview">
+            	
+            	<h4>{{ item.name }}</h4>
+            	
+            	{% if item.barcode %}
+            	<center>
+            		<label>Barcode:</label><br> 
+            		{{ item.barcode }}
+            	</center>
+            	{% endif %}
 
-	        {{inventoryitem.quantity}} {{inventoryitem.name}} <form action="{% url 'inventory:remove' inventoryitem.pk %}" method="post">
-															      {% csrf_token %}
-															  	  <button type="submit">Remove</button>
-															  </form>
-															  <form action="{% url 'inventory:update' inventoryitem.pk 1 %}" method="post">
-																  {% csrf_token %}
-																  <button type="submit">+1 qty</button>
-															  </form>
-															  <form action="{% url 'inventory:update' inventoryitem.pk -1 %}" method="post">
-																  {% csrf_token %}
-																  <button type="submit">-1 qty</button>
-															  </form>
-			{% if inventoryitem.barcode %}
-			 Barcode: {{inventoryitem.barcode}}
-			{% endif %}
-			<br>
+	            <input data-role="quantity" 
+	                type="number" 
+	                required 
+	                style="text-align: right;" 
+	                min="0" 
+	                max="100" 
+	                value="{{ item.quantity }}" 
+	                name="quantity_item_{{ item.id }}"
+	                id="quantity_item_{{ item.id }}" /><br>
+	
+	            <div>
+	            	<div style="text-align: center; display: block; float: left; width: 50%; margin-top: 10px;color:#c92a2a;">
+		                <i aria-hidden="true" 
+		                   data-action="delete" 
+		                   data-item-id="{{ item.id }}"
+		                   class="far fa-trash-alt fa-lg" >       
+		                </i>
+	                </div>
 
+	                <div style="text-align: center; display: block; float: left; width: 50%; margin-top: 10px;color:#2f9e44;">
+		                <i aria-hidden="true" 
+		                   data-action="confirm" 
+		                   data-item-id="{{ item.id }}"
+		                   class="fas fa-check fa-lg">
+		                    
+		                </i>
+	            	</div>
+	            </div>
+			</div>
     	{% endfor %}
+    	</div>
     {% else %}
 		<p>
-			Sorry, no items in your inventory
-    	</p>
-		<form action="{% url 'barcodeScan:index' %}" method="get">
-			<!-- csrf_token not required in a GET form -->
-			<input type="submit" value="Scan Barcodes" />
-		</form>
+        <center>
+            You have no items in your inventory.<br>
+            Try <a href="{% url 'barcodeScan:index' %}">scanning barcodes</a> or <a href="/">adding items</a> to fill it up!<br><br>
+        </center>
+        </p>
 	{% endif %}
-
+	</section>
 
 </article>
 

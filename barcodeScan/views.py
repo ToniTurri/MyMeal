@@ -76,7 +76,15 @@ def add_to_list(request, barcode):
 
 		# check if item exists already, update quantity accordingly
 		if grocery_items.filter(name=food).exists():
-			grocery_items.filter(name=food).update(quantity=F('quantity') + 1)
+			# edge case where user confirms an item and rescans it:
+			# we don't want the quantity to go off the confirmed amount or else the
+			# inventory would grow on the next confirm 
+			if grocery_items.filter(name=food).first().confirmed:
+				# reset the grocery item to unconfirmed so user can reconfirm to update
+				# inventory. reset to 1 so quantities aren't duplicated
+				grocery_items.filter(name=food).update(quantity=1, confirmed=False)
+			else:
+				grocery_items.filter(name=food).update(quantity=F('quantity') + 1)
 		else:
 			# add new GroceryItem to the grocery list
 			GroceryItems.objects.create(

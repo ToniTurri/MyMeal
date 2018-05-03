@@ -3,6 +3,13 @@
 {% block content %}
 
 <article id="small-panel">
+
+    <form action="" method="post">
+        <!-- csrf_token to protect against XSS attacks -->
+        {% csrf_token %}
+        <button type = submit title = "Delete Grocery List" class = "savebutton"><img src="../../static/img/save_icon_active.png" /></button>
+    </form>
+
     <header>
         <h3>{{ grocery_list.name }}</h3>
     </header>
@@ -20,7 +27,16 @@
         {% for item in grocery_items %}
         <div data-role="grocery_item">
             <label>{{ item.name }}</label><br>
-            <input data-role="quantity" type="number" required style="width:75%; text-align: right;" min="1" max="100" value="{{ item.quantity }}" {% if item.confirmed %} disabled {% endif %}>
+            <input data-role="quantity" 
+                type="number" 
+                required 
+                style="width:75%; text-align: right;" 
+                min="1" 
+                max="100" 
+                value="{{ item.quantity }}" 
+                {% if item.confirmed %} disabled {% endif %}
+                name="quantity_item_{{ item.id }}"
+                id="quantity_item_{{ item.id }}">
             <div style="float:right;">
 
                 <i aria-hidden="true" 
@@ -55,10 +71,9 @@
             <br><br>
         </div>
         {% endfor %}
-
-        <hr>
         {% endif %}
     
+        <hr>
         <p><label>Item:</label><br>
             <span class="helptext">
                 Add items to your grocery list and connect them to inventory item to get meal suggestions and automatically update inventory quantities.
@@ -96,7 +111,7 @@ $(document).ready(function() {
         var grocery_item_id = $delete.data("grocery-item-id");
         var actionable = $delete.data("actionable");
 
-        if (actionable) {
+        if (actionable == 'True') {
             var delete_path = "/groceryList/" + grocery_list_id + "/" + grocery_item_id + "/delete"
             $.get(delete_path, function(data) {
                 $grocery_item.remove();
@@ -115,7 +130,7 @@ $(document).ready(function() {
         var grocery_item_id = $confirm.data("grocery-item-id");
         var actionable = $confirm.data("actionable");
 
-        if (actionable) {
+        if (actionable == 'True') {
             var confirm_path = "/groceryList/" + grocery_list_id + "/" + grocery_item_id + "/confirm"
             $.get(confirm_path, {quantity: $quantity.val()}, function(data) {
                 $quantity.attr("disabled", "true");
