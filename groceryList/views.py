@@ -93,7 +93,7 @@ def update(request, pk):
             item = form.cleaned_data['name']
             # try and link the ingredient to an inventory item
             try:
-                inventory_item = InventoryItem.objects.get(name__exact=item)
+                inventory_item = InventoryItem.objects.filter(name__exact=item)[:1].get()
             except InventoryItem.DoesNotExist:
                 inventory_item = None
             #inventory_item = form.cleaned_data['inventory_item']
