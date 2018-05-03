@@ -75,8 +75,7 @@
                                 {{ error|escape }}
                             {% endfor %}
                         {% endif %}
-
-                        {{ ingredient_form.inventoryItem }}
+                        <!--{{ ingredient_form.inventoryItem }}-->
                     </p>
                 </div>
             {% endfor %}
@@ -94,6 +93,7 @@
         <input type="button" onclick="window.location.href ='{% url 'recipes:index' %}'; return false;" value="Cancel" />
         {% endif %}
     </form>
+    </form>
 </article>
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
@@ -102,8 +102,21 @@
     $('.ingredient-formset').formset({
         addText: 'Add Ingredient',
         deleteText: 'Remove Ingredient'
-    });
 </script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+{% for ingredient_form in ingredient_formset %}
+<script>
+    $( function(row) {
+    $( "#{{ ingredient_form.value.id_for_label }}" ).autocomplete({
+      source: {{ inventory_items|safe }}
+    });
+    } );
+</script>
+{% endfor %}
+
 <script>
 $("#id_image").on('change', function () {
 
