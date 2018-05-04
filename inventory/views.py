@@ -2,7 +2,6 @@ import csv
 from django.shortcuts import render, redirect
 from django.http import Http404
 from inventory.models import InventoryItem
-from django.db.models import F
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from inventory.forms import AddItemToInventoryForm
@@ -69,7 +68,7 @@ def add_view(request):
     return redirect('inventory:index')
 
 
-def add(name, barcode=None):
+def add(name, barcode=''):
     item = InventoryItem(name=name, quantity=1, barcode=barcode, date=timezone.now())
     existing_item = InventoryItem.objects.filter(name=name, barcode=barcode).first()
     # if the item is in the db already, update its quantity by 1
@@ -98,37 +97,48 @@ def update_view(request, pk, quantity):
         quantity = int(quantity)
 
         # get the item to update
-        item = InventoryItem.objects.get(pk=pk)
+        try:
+            item = InventoryItem.objects.get(pk=pk)
+        except InventoryItem.DoesNotExist:
+            item = None
 
-        # don't decrement if we're already at 0
-        if quantity == -1 and item.quantity == 0:
-            return redirect('inventory:index')
+        # something went wrong
+        if not item:
+            raise Http404
 
-        # for stats
-        if quantity < item.quantity:
-            difference = item.quantity - quantity
-            time_diff = timeCheck()
-            if time_diff > 0:
-                reinitStats(time_diff)
-            try:
-                stat_item = Consumed_Stats.objects.get(food=item)
-                stat_item.count1 += quantity
-                stat_item.total += quantity
-                stat_item.save()
-            except Consumed_Stats.DoesNotExist:
-                stat_item = Consumed_Stats(food = item, count1 = difference, count2 = 0,
-                                count3 = 0, count4 = 0, total = difference)
-                stat_item.save()
-            print(quantity)
-        # update the qty
-        update(item, quantity)
+        # we want to distinguish between saving the quantity
+        # amount from the inventory view vs updating the
+        # quantity from the grocery list view
+        if 'inventory-view' in request.POST:
+            collect_stats(item, quantity)
+            # update the qty
+            update(item, quantity)
+        else:
+            # update the qty
+            update(item, quantity)
     else:
         # no GET requests to this URL
         raise Http404
     return redirect('inventory:index')
 
-
 def update(item, quantity):
     # update the qty
     item.quantity = quantity
     item.save()
+
+def collect_stats(item, quantity):
+    # for stats
+    if quantity < item.quantity:
+        difference = item.quantity - quantity
+        time_diff = timeCheck()
+        if time_diff > 0:
+            reinitStats(time_diff)
+        try:
+            stat_item = Consumed_Stats.objects.get(food=item)
+            stat_item.count1 += quantity
+            stat_item.total += quantity
+            stat_item.save()
+        except Consumed_Stats.DoesNotExist:
+            stat_item = Consumed_Stats(food=item, count1=difference, count2=0,
+                                       count3=0, count4=0, total=difference)
+            stat_item.save()
