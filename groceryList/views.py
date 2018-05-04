@@ -130,7 +130,9 @@ def update(request, pk):
 
     return render(request, 'groceryList/detail.html', context)
 
-def update_quantities(request, grocery_items):
+def update_quantities(request, grocery_items=None):
+    if not grocery_items:
+        return
     # confirmed items indicate they've already been added to the inventory with
     # their amounts. so we will skip them here
     unconfirmed_grocery_items = (x for x in grocery_items if not x.confirmed)
@@ -145,7 +147,10 @@ def confirm_item(request, pk, id):
 
     if request.method == 'GET':
         grocery_list = get_object_or_404(GroceryList, pk = pk)
-        grocery_item = GroceryItems.objects.get(pk=id,groceryList=grocery_list)
+        try:
+            grocery_item = GroceryItems.objects.get(pk=id,groceryList=grocery_list)
+        except GroceryItems.DoesNotExist:
+            grocery_item = None
         quantity = request.GET['quantity']
 
         if grocery_list and grocery_item:
@@ -159,9 +164,14 @@ def confirm_item(request, pk, id):
             # if the grocery item was linked to an inventory item update that
             # item directly
             if grocery_item.inventoryItem:
-                inventory_item = InventoryItem.objects.get(pk=grocery_item.inventoryItem.id)
-                inventory_item.quantity += int(grocery_item.quantity)
-                inventory_item.save()
+                try:
+                    inventory_item = InventoryItem.objects.get(pk=grocery_item.inventoryItem.id)
+                except InventoryItem.DoesNotExist:
+                    inventory_item = None
+
+                if inventory_item:
+                    inventory_item.quantity += int(grocery_item.quantity)
+                    inventory_item.save()
             # if the grocery item was added view the barcode scanner update the inventory
             # item that has that same barcode or create a new inventory item for it
             elif grocery_item.barcode:
@@ -169,7 +179,7 @@ def confirm_item(request, pk, id):
                                                               barcode=grocery_item.barcode).first()
 
                 if inventory_item:
-                    inventory_item.quantity += grocery_item.quantity
+                    inventory_item.quantity += int(grocery_item.quantity)
                     inventory_item.save()    
                 else:
                     InventoryItem.objects.create(name=grocery_item.name,
@@ -180,10 +190,13 @@ def confirm_item(request, pk, id):
             # organized/linked to any other model types. Check if there is an item with
             # the same name first and update that to avoid duplicates where necessary
             else:
-                inventory_item = InventoryItem.objects.get(name=grocery_item.name)
+                try:
+                    inventory_item = InventoryItem.objects.get(name=grocery_item.name)
+                except InventoryItem.DoesNotExist:
+                    inventory_item = None
 
                 if inventory_item:
-                    inventory_item.quantity += grocery_item.quantity
+                    inventory_item.quantity += int(grocery_item.quantity)
                     inventory_item.save()
                 else:
                     InventoryItem.objects.create(name=grocery_item.name,
@@ -196,7 +209,10 @@ def delete_item(request, pk, id):
 
     if request.method == 'GET':
         grocery_list = get_object_or_404(GroceryList, pk = pk)
-        grocery_item = GroceryItems.objects.get(pk=id,groceryList=grocery_list)
+        try:
+            grocery_item = GroceryItems.objects.get(pk=id,groceryList=grocery_list)
+        except GroceryItems.DoesNotExist:
+            grocery_item = None
 
         if grocery_list and grocery_item:
             grocery_item.delete()
