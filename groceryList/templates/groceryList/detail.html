@@ -41,20 +41,6 @@
             <div style="float:right;">
 
                 <i aria-hidden="true"
-                   data-action="delete"
-                   data-actionable="{{ item.confirmed|yesno:'False,True' }}"
-                   data-list-id="{{ grocery_list.id }}"
-                   data-grocery-item-id="{{ item.id }}"
-                   style="margin-right: 10px; margin-top: 10px;
-                    {% if item.confirmed %}
-                    color:#adb5bd;
-                    {% else %}
-                    color:#c92a2a;
-                    {% endif %}"
-                   class="far fa-trash-alt fa-lg" >
-                </i>
-
-                <i aria-hidden="true"
                    data-action="confirm"
                    data-actionable="{{ item.confirmed|yesno:'False,True' }}"
                    data-list-id="{{ grocery_list.id }}"
@@ -66,7 +52,20 @@
                     color:#2f9e44;
                     {% endif %}"
                    class="fas fa-check fa-lg">
+                </i>
 
+                <i aria-hidden="true"
+                   data-action="delete"
+                   data-actionable="{{ item.confirmed|yesno:'False,True' }}"
+                   data-list-id="{{ grocery_list.id }}"
+                   data-grocery-item-id="{{ item.id }}"
+                   style="margin-right: 10px; margin-top: 10px;
+                    {% if item.confirmed %}
+                    color:#adb5bd;
+                    {% else %}
+                    color:#c92a2a;
+                    {% endif %}"
+                   class="far fa-trash-alt fa-lg" >
                 </i>
             </div>
             <br><br>
