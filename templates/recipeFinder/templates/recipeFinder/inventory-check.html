@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+  <header>
+    <h3>Pick ingredients from your inventory!</h3>
+  </header>
+
+
+  <form action="{% url 'recipeFinder:inventory-check' %}" method="post">
+    {% csrf_token %}
+    {% for item in inventory_items %}
+    <input type="checkbox" name="checked" id="item{{ forloop.counter }}"
+    value="{{ item.name}}" />
+    <label for="item{{ forloop.counter }}">{{ item.name }}</label> <br />
+    {% endfor %}
+    <br>
+    <input type="submit" value="Get recipe!" />
+  </form>
+
+  {% endblock %}

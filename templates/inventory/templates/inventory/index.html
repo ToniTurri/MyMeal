@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+	<header>
+		<h3>Inventory</h3>
+	</header>
+
+	{% if inventoryitems %}
+    	{% for inventoryitem in inventoryitems %}
+
+	        {{inventoryitem.quantity}} {{inventoryitem.name}} <form action="{% url 'inventory:remove' inventoryitem.pk %}" method="post">
+															      {% csrf_token %}
+															  	  <button type="submit">Remove</button>
+															  </form>
+															  <form action="{% url 'inventory:update' inventoryitem.pk 1 %}" method="post">
+																  {% csrf_token %}
+																  <button type="submit">+1 qty</button>
+															  </form>
+															  <form action="{% url 'inventory:update' inventoryitem.pk -1 %}" method="post">
+																  {% csrf_token %}
+																  <button type="submit">-1 qty</button>
+															  </form>
+			{% if inventoryitem.barcode %}
+			 Barcode: {{inventoryitem.barcode}}
+			{% endif %}
+			<br>
+
+    	{% endfor %}
+    {% else %}
+		<p>
+			Sorry, no items in your inventory
+    	</p>
+		<form action="{% url 'barcodeScan:index' %}" method="get">
+			<!-- csrf_token not required in a GET form -->
+			<input type="submit" value="Scan Barcodes" />
+		</form>
+	{% endif %}
+
+
+</article>
+
+{% endblock %}

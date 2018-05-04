@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+    <header>
+        <h3>Barcode Scanner</h3>
+    </header>
+
+    <!-- if the product has an image_front_url, display it -->
+    {% if image_front_url %}
+        <img src={{ image_front_url }} class="center">
+    {% endif %}
+
+    <br>
+
+    <!-- display the food's name -->
+    <center> {{food_name}} </center>
+
+    <br><br>
+
+    <form action="{% url 'barcodeScan:add_to_list' barcode %}" method="post" class="center">
+        <!-- csrf_token to protect against XSS attacks -->
+        {% csrf_token %}
+        <!-- pass back the food's name so it can be added to the db -->
+        <input type="hidden" name="food_name" value="{{ food_name }}">
+
+        <!-- display dropdown of grocery lists -->
+        {% if all_grocery_lists %}
+            Select a grocery list
+            <select name="selected_grocery_list">
+                {% for list in all_grocery_lists %}
+                    <option value = {{list.id}}>{{ list.name }}</option>
+                {% endfor %}
+                    </select>
+            <br> <br>
+            <input type="submit" value="Add to grocery list" />
+        {% else %}
+        <center>No grocery lists found</center> <br>
+            <input type="button" onclick="window.location.href ='{% url 'groceryList:new' food_name %}'
+                                          ;return false;"
+                   value="Create a new list" />
+        {% endif %}
+        <br> <br>
+    </form>
+
+
+    <form action="{% url 'barcodeScan:add_to_inventory' barcode %}" method="post" class="center">
+        <!-- csrf_token to protect against XSS attacks -->
+        {% csrf_token %}
+        <!-- pass back the food's name so it can be added to the db -->
+        <input type="hidden" name="food_name" value="{{ food_name }}">
+        <input type="submit" value="Add to inventory" />
+        <br> <br>
+        <input type="button" onclick="window.location.href ='{% url 'barcodeScan:index' %}'
+                                     ;return false;" value="Cancel" />
+    </form>
+
+</article>
+
+{% endblock %}

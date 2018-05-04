@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+table, th, td {
+  border: 2px solid black;
+  border-collapse: collapse;
+}
+</style>
+<article id='small-panel'>
+{% if stats_list %}
+  <h1 style="text-align:center;">
+    Here's how you have been eating. </h1>
+    <p>This table keeps track of all the food you've consumed in the past 4 days,
+       and works as follows...</p>
+       <ul>
+         <li>Green means you didn't have alot</li>
+         <li>Yellow means you had some</li>
+         <li>Red means you had alot.</li>
+       </ul>
+  <table style="width:100%;" align="center">
+    <tr bgcolor="orange">
+      <th>Food Item</th>
+      <th>{{ value|date:"m/j"}}</th>
+      <th>{{ value2|date:"m/j"}}</th>
+      <th>{{ value3|date:"m/j"}}</th>
+      <th>{{ value4|date:"m/j"}}</th>
+    </tr>
+
+    {% for item in stats_list %}
+      <tr>
+        <td bgcolor="aqua">{{item.food.name}}</td>
+        {% if item.count1 < 5 %}
+          <td bgcolor="lawngreen">{{ item.count1 }}</td>
+        {% elif item.count1 < 10 %}
+          <td bgcolor="yellow">{{ item.count1 }}</td>
+        {% else %}
+          <td bgcolor="red">{{ item.count1 }}</td>
+        {% endif %}
+
+        {% if item.count2 < 5 %}
+          <td bgcolor="lawngreen">{{ item.count2 }}</td>
+        {% elif item.count2 < 10 %}
+          <td bgcolor="yellow">{{ item.count2 }}</td>
+        {% else %}
+          <td bgcolor="red">{{ item.count2 }}</td>
+        {% endif %}
+
+        {% if item.count3 < 5 %}
+          <td bgcolor="lawngreen">{{ item.count3 }}</td>
+        {% elif item.count3 < 10 %}
+          <td bgcolor="yellow">{{ item.count3 }}</td>
+        {% else %}
+          <td bgcolor="red">{{ item.count3 }}</td>
+        {% endif %}
+
+        {% if item.count4 < 5 %}
+          <td bgcolor="lawngreen">{{ item.count4 }}</td>
+        {% elif item.count4 < 10 %}
+          <td bgcolor="yellow">{{ item.count4 }}</td>
+        {% else %}
+          <td bgcolor="red">{{ item.count4 }}</td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+    </table>
+
+
+{% else %}
+    <h2 style="text-align:center;">Sorry, we don't have anything to show you
+      right now.</h2>
+      <h4 style="text-align:center;">Try reducing the quantity in your inventory
+         to start producing results in your stats.</h4>
+{% endif %}
+
+</article>
+
+{% endblock %}

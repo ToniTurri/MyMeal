@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+    <header>
+        <h3>Recipe Finder</h3>
+    </header>
+
+    <br>
+
+    <!-- debug -->
+    {% if criteria.maxResults %}
+    <center> <p> Displaying up to {{criteria.maxResults}} search results
+        {% if criteria.terms %}
+        for "
+        {% for term in criteria.terms %}
+            {{term}}
+            {% if not forloop.last %}
+                 +
+            {% endif %}
+        {% endfor %}
+        "
+        {% endif %}
+    </p> </center>
+    <br>
+    {% endif %}
+
+    <!-- display all matched recipes -->
+    {% for match in matches %}
+    <table style="margin: 0 auto;">
+        <tr>
+            <td>
+            <!-- display first thumbnail if available -->
+            {% if match.smallImageUrls %}
+                <br>
+                <img src = {{match.smallImageUrls.0}} class = "center" >
+                <br>
+            {% endif %}
+                {% if match.attributes.course.0 %}
+                    <a href = "{% url 'recipeFinder:recipe_detail' match.id match.attributes.course.0 %}">{{match.recipeName}}</a>
+                {% else %}
+                    <a href = "{% url 'recipeFinder:recipe_detail' match.id %}">{{match.recipeName}}</a>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    <br>
+
+    <form action="{% url 'recipeFinder:index' %}" method="get">
+		<!-- csrf_token not required in a GET form -->
+		<input type="submit" value="Back to Recipe Finder" />
+	</form>
+
+</article>
+
+{% endblock %}
