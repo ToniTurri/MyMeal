@@ -140,8 +140,8 @@ def collect_stats(item, quantity):
             reinitStats(time_diff)
         try:
             stat_item = Consumed_Stats.objects.get(food=item)
-            stat_item.count1 += quantity
-            stat_item.total += quantity
+            stat_item.count1 += difference
+            stat_item.total += difference
             stat_item.save()
         except Consumed_Stats.DoesNotExist:
             stat_item = Consumed_Stats(food=item, count1=difference, count2=0,
