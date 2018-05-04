@@ -7,8 +7,11 @@
     <h3>Pick ingredients from your inventory!</h3>
   </header>
 
-
+  {% if search_saved %}
+  <form action="{% url 'recipeFinder:search-saved' %}" method="post">
+  {% else %}
   <form action="{% url 'recipeFinder:inventory-check' %}" method="post">
+  {% endif %}
     {% csrf_token %}
     {% for item in inventory_items %}
     <input type="checkbox" name="checked" id="item{{ forloop.counter }}"
@@ -16,7 +19,7 @@
     <label for="item{{ forloop.counter }}">{{ item.name }}</label> <br />
     {% endfor %}
     <br>
-    <input type="submit" value="Get recipe!" />
+    <input type="submit" value="Get recipes!" />
   </form>
 
   {% endblock %}

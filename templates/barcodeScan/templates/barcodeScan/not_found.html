@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id="small-panel">
+	<header>
+		<h3>Barcode Scanner - Item Not Found</h3>
+		<p>
+			Sorry, no product data could be obtained for this item.
+    	</p>
+	</header>
+
+	<form action="{% url 'barcodeScan:index' %}" method="get">
+		<!-- csrf_token not required in a GET form -->
+		<input type="submit" value="Back to scanner" />
+	</form>
+</article>
+
+{% endblock %}

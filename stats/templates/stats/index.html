@@ -19,12 +19,12 @@ table, th, td {
          <li>Red means you had alot.</li>
        </ul>
   <table style="width:100%;" align="center">
-    <tr bgcolor="orange">
+    <tr bgcolor="#f76707">
       <th>Food Item</th>
-      <th>{{ value|date:"m/j"}}</th>
-      <th>{{ value2|date:"m/j"}}</th>
-      <th>{{ value3|date:"m/j"}}</th>
-      <th>{{ value4|date:"m/j"}}</th>
+      <th>{{ value|date:"m/d"}}</th>
+      <th>{{ value2|date:"m/d"}}</th>
+      <th>{{ value3|date:"m/d"}}</th>
+      <th>{{ value4|date:"m/d"}}</th>
     </tr>
 
     {% for item in stats_list %}
@@ -66,11 +66,13 @@ table, th, td {
     </table>
 
 
+
 {% else %}
     <h2 style="text-align:center;">Sorry, we don't have anything to show you
       right now.</h2>
-      <h4 style="text-align:center;">Try reducing the quantity in your inventory
-         to start producing results in your stats.</h4>
+      <p style="text-align:center;">Either you just started the app or you
+        haven't eaten anything in awhile. Try reducing the quantity in your inventory
+         to start producing results in your stats.</p>
 {% endif %}
 
 </article>

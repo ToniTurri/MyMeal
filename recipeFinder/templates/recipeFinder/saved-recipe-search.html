@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article>
+    <header>
+        <div style="display: block;">
+        <span>My Recipes</span>
+        <input type="button" onclick="window.location.href ='{% url 'recipes:new_recipe' %}'; return false;" value="Add New Recipe"
+            style=" float: right;
+                height: 35px;
+                border-radius: 5px;
+                background-color: #f76707;
+                border: none;
+                color: #f2f2f2;
+                font-size: .7em;
+                clear:left;"
+                />
+        <input type="button" onclick="window.location.href ='{% url 'recipeFinder:index' %}'; return false;" value="Find New Recipes"
+            style=" float: right;
+                height: 35px;
+                border-radius: 5px;
+                background-color: #e9ecef;
+                border: none;
+                color: #000;
+                font-size: .7em;
+                clear:left;
+                margin-right:15px;"
+                />
+            </div>
+    </header>
+
+    {% if all_recipes %}
+    <section>
+        <div style="display: block; margin: 0 auto;">
+        {% for recipe in all_recipes %}
+            <div class="recipe-preview">
+                <h4>{{ recipe.name }}</h4>
+                <div class="recipe-image" style="height:125px">
+                {% if recipe.image %}
+                    <img src="{{ recipe.image.url }}" />
+                {% elif recipe.imageUrl %}
+                    <img src="{{ recipe.imageUrl }}" />
+                {% else %}
+                    <div class="no-image">
+                    <p>No Image</p>
+                    <i class="fas fa-camera fa-2x" style="margin:0 auto;"></i>
+                    </div>
+                {% endif %}
+                </div>
+                <div style="margin-top: 5px">
+                    <a href="{% url 'recipes:detail' recipe.id %}">View Recipe</a>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <section>
+        <p>
+        <center>
+            You have no recipes available.<br>
+            Try <a href="{% url 'recipes:new_recipe' %}">adding a new recipe</a> or <a href="/search">searching</a> for one!<br><br>
+        </center>
+        </p>
+    </section>
+    {% endif %}
+
+</article>
+
+{% endblock %}
