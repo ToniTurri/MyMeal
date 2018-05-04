@@ -6,6 +6,9 @@ from django.db.models import F
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from inventory.forms import AddItemToInventoryForm
+from django.db.models.functions import Lower
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.views.decorators.csrf import csrf_exempt
 
 # populate global list of generic food items
 generic_foods = []
@@ -17,18 +20,35 @@ with open('generic-foods.csv', encoding='utf-8') as csvfile:
 
 # @login_required(login_url='/accounts/login/')
 def index(request):
-    # method is POST
-    if request.method == 'POST':
-        # no POST requests to this URL
-        raise Http404
-    else:
-        # display the inventory
-        context = {
-            'add_item_form': AddItemToInventoryForm(),
-            'inventoryitems': InventoryItem.objects.all(),
-            'generic_foods': generic_foods
-        }
-    return render(request, 'inventory/index.html', context)
+	# method is POST
+	if request.method == 'POST':
+		# no POST requests to this URL
+		raise Http404
+	else:
+		# alphabetize the inventory items
+		inventory_items = InventoryItem.objects.all().order_by(Lower('name'))
+
+		# set up the first page for pagination
+		page = request.GET.get('page', 1)
+
+		# display 10 items per page
+		paginator = Paginator(inventory_items, 10)
+
+		try:
+			displayed_inv_items = paginator.page(page)
+		except PageNotAnInteger:
+			displayed_inv_items = paginator.page(1)
+		except EmptyPage:
+			displayed_inv_items = paginator.page(paginator.num_pages)
+
+		# display the inventory
+		context = {
+		    'add_item_form': AddItemToInventoryForm(),
+		    'inventoryitems': displayed_inv_items,
+		    'generic_foods': generic_foods
+		}
+
+	return render(request, 'inventory/index.html', context)
 
 
 def add_view(request):
@@ -56,7 +76,7 @@ def add(name, barcode=None):
     else:
         item.save()
 
-
+@csrf_exempt
 def remove_view(request, pk):
     # method is POST
     if request.method == 'POST':
@@ -67,24 +87,25 @@ def remove_view(request, pk):
     return redirect('inventory:index')
 
 
+@csrf_exempt
 def update_view(request, pk, quantity):
     # method is POST
     if request.method == 'POST':
         # parse int from the arg string
         quantity = int(quantity)
-        # only allowed qty parameters are 1 and -1
-        if (quantity != 1 and quantity != -1):
-            return redirect('inventory:index')
 
         # get the item to update
         item = InventoryItem.objects.get(pk=pk)
 
-        # don't decrement if we're already at 0
-        if quantity == -1 and item.quantity == 0:
-            return redirect('inventory:index')
-
-        # update the qty
-        update(item, quantity)
+        # we want to distinguish between saving the quantity
+        # amount from the inventory view vs updating the 
+        # quantity from the grocery list view
+        if 'inventory-view' in request.POST:
+        	item.quantity = quantity
+        	item.save()
+        else:
+        	# update the qty
+        	update(item, quantity)
     else:
         # no GET requests to this URL
         raise Http404
