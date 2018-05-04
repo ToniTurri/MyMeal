@@ -181,7 +181,6 @@ def confirm_item(request, pk, id):
             else:
                 InventoryItem.objects.create(name=grocery_item.name,
                                              quantity=quantity,
-                                             barcode=None,
                                              date=timezone.now())
 
     return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))

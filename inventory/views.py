@@ -47,7 +47,7 @@ def add_view(request):
     return redirect('inventory:index')
 
 
-def add(name, barcode=None):
+def add(name, barcode=''):
     item = InventoryItem(name=name, quantity=1, barcode=barcode, date=timezone.now())
     existing_item = InventoryItem.objects.filter(name=name, barcode=barcode).first()
     # if the item is in the db already, update its quantity by 1
