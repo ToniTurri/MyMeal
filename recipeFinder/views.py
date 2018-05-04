@@ -3,6 +3,7 @@ import json
 import string
 import re
 import nltk
+import csv
 nltk.download('stopwords')
 nltk.download('punkt')
 from nltk.corpus import stopwords
@@ -22,6 +23,14 @@ api_key = ''
 # set to True to use mock JSON files instead of API query
 DEBUGGING = False
 
+# populate global list of generic food items
+generic_and_inventory_foods = []
+with open('generic-foods.csv', encoding='utf-8') as csvfile:
+    foodreader = csv.reader(csvfile, delimiter="\n", quotechar='|')
+    for row in foodreader:
+        generic_and_inventory_foods.append(''.join(row))
+
+
 # initial view & search results
 def index(request):
 	# method is POST
@@ -40,7 +49,15 @@ def index(request):
 		# method is GET
 		# it's a fresh new search - clear the previous results held in session
 		cleanSearch(request)
-		return render(request, 'recipeFinder/index.html')
+
+		# add inventory items to the search box food list
+		inventoryItems = InventoryItem.objects.all()
+		for item in inventoryItems:
+			if not (item.name in generic_and_inventory_foods):
+				generic_and_inventory_foods.append(item.name)
+
+		return render(request, 'recipeFinder/index.html', 
+			{'generic_and_inventory_foods': generic_and_inventory_foods})
 
 def cleanSearch(request):
 	if 'matches' in request.session:

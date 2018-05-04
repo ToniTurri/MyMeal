@@ -39,6 +39,11 @@ article#small-panel label {
 	font-size: 1.1em;
 }
 
+.helptext {
+	font-size: .9em;
+	color: #868e96;
+}
+
 article#small-panel .helptext, li {
 	font-size: .9em;
 	color: #868e96;
