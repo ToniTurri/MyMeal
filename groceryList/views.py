@@ -9,6 +9,7 @@ from django.db.models import F
 from django.views.generic.edit import CreateView
 from . import forms
 from inventory.models import InventoryItem
+from inventory.views import generic_foods
 from groceryList.models import GroceryItems, GroceryList
 from django.forms.formsets import formset_factory
 
@@ -44,7 +45,7 @@ class GroceryListView(DetailView):
         context['item_form'] = forms.AddItemToListForm
         context['grocery_list'] = self.get_object()
         context['grocery_items'] = GroceryItems.objects.filter(groceryList=self.kwargs.get('pk'))
-        context['inventory_items'] = list(InventoryItem.objects.values_list('name', flat=True))
+        context['inventory_items'] = generic_foods + list(InventoryItem.objects.values_list('name', flat=True))
         return context
 
 def add(request):
@@ -148,7 +149,7 @@ def confirm_item(request, pk, id):
     if request.method == 'GET':
         grocery_list = get_object_or_404(GroceryList, pk = pk)
         try:
-            grocery_item = GroceryItems.objects.get(pk=id,groceryList=grocery_list)
+            grocery_item = GroceryItems.objects.get(pk=id,groceryList=grocery_list,)
         except GroceryItems.DoesNotExist:
             grocery_item = None
         quantity = request.GET['quantity']
@@ -165,7 +166,8 @@ def confirm_item(request, pk, id):
             # item directly
             if grocery_item.inventoryItem:
                 try:
-                    inventory_item = InventoryItem.objects.get(pk=grocery_item.inventoryItem.id)
+                    inventory_item = InventoryItem.objects.get(pk=grocery_item.inventoryItem.id,
+                                                               barcode=grocery_item.inventoryItem.barcode)
                 except InventoryItem.DoesNotExist:
                     inventory_item = None
 
@@ -191,7 +193,8 @@ def confirm_item(request, pk, id):
             # the same name first and update that to avoid duplicates where necessary
             else:
                 try:
-                    inventory_item = InventoryItem.objects.get(name=grocery_item.name)
+                    inventory_item = InventoryItem.objects.get(name=grocery_item.name,
+                                                               barcode=grocery_item.barcode)
                 except InventoryItem.DoesNotExist:
                     inventory_item = None
 
