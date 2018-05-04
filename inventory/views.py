@@ -2,13 +2,14 @@ import csv
 from django.shortcuts import render, redirect
 from django.http import Http404
 from inventory.models import InventoryItem
-from django.db.models import F
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from inventory.forms import AddItemToInventoryForm
 from django.db.models.functions import Lower
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
+from stats.models import Consumed_Stats
+from stats.views import reinitStats, timeCheck
 
 # populate global list of generic food items
 generic_foods = []
@@ -89,30 +90,55 @@ def remove_view(request, pk):
 
 @csrf_exempt
 def update_view(request, pk, quantity):
+
     # method is POST
     if request.method == 'POST':
         # parse int from the arg string
         quantity = int(quantity)
 
         # get the item to update
-        item = InventoryItem.objects.get(pk=pk)
+        try:
+            item = InventoryItem.objects.get(pk=pk)
+        except InventoryItem.DoesNotExist:
+            item = None
+
+        # something went wrong
+        if not item:
+            raise Http404
 
         # we want to distinguish between saving the quantity
-        # amount from the inventory view vs updating the 
+        # amount from the inventory view vs updating the
         # quantity from the grocery list view
         if 'inventory-view' in request.POST:
-        	item.quantity = quantity
-        	item.save()
+            collect_stats(item, quantity)
+            # update the qty
+            update(item, quantity)
         else:
-        	# update the qty
-        	update(item, quantity)
+            # update the qty
+            update(item, quantity)
     else:
         # no GET requests to this URL
         raise Http404
     return redirect('inventory:index')
 
-
 def update(item, quantity):
     # update the qty
-    item.quantity = F('quantity') + quantity
+    item.quantity = quantity
     item.save()
+
+def collect_stats(item, quantity):
+    # for stats
+    if quantity < item.quantity:
+        difference = item.quantity - quantity
+        time_diff = timeCheck()
+        if time_diff > 0:
+            reinitStats(time_diff)
+        try:
+            stat_item = Consumed_Stats.objects.get(food=item)
+            stat_item.count1 += quantity
+            stat_item.total += quantity
+            stat_item.save()
+        except Consumed_Stats.DoesNotExist:
+            stat_item = Consumed_Stats(food=item, count1=difference, count2=0,
+                                       count3=0, count4=0, total=difference)
+            stat_item.save()

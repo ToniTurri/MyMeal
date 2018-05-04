@@ -1,5 +1,6 @@
 from django.db import models
 from inventory.models import InventoryItem
+from django.utils import timezone
 
 # Create your models here.
 
@@ -11,9 +12,7 @@ class Consumed_Stats(models.Model):
     count4 = models.IntegerField(default = 0)
     total = models.IntegerField(default = 1)
 
-'''
-Need to save the last date person consumed something, or accessed stats
-class Time_Stamp(models.Model):
-    time = models.TimeField(default = datetime.now())
 
-'''
+# Need to save the last date person consumed something, or accessed stats
+class Time_Stamp(models.Model):
+    time = models.TimeField(default = timezone.now())

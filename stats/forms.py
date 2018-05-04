@@ -1,8 +1,8 @@
-'''from django import forms
-from django.forms import ModelChoiceField'''
+from django import forms
+from django.forms import ChoiceField
 
-
-class FilterForm(forms.form):
+'''
+class FilterForm(forms.Form):
     choices = ['Name', 'Most Consumed', 'Least Consumed']
-    select = forms.ModelChoiceField(queryset=choices,
-     required=False, label='Filter')
+    select = forms.ChoiceField(choices,
+     required=False, label='Filter')'''

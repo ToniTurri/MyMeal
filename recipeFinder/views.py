@@ -39,13 +39,16 @@ def index(request):
 	else:
 		# method is GET
 		# it's a fresh new search - clear the previous results held in session
-		if 'matches' in request.session:
-			request.session.pop('matches')
-		if 'ingredients' in request.session:
-			request.session.pop('ingredients')
-		if 'search_phrase' in request.session:
-			request.session.pop('search_phrase')
+		cleanSearch(request)
 		return render(request, 'recipeFinder/index.html')
+
+def cleanSearch(request):
+	if 'matches' in request.session:
+		request.session.pop('matches')
+	if 'ingredients' in request.session:
+		request.session.pop('ingredients')
+	if 'search_phrase' in request.session:
+		request.session.pop('search_phrase')
 
 # recipe detail view
 def recipe_detail(request, id, course=None):
@@ -271,9 +274,14 @@ def query_API(url):
 
 # Shows inventory with checkboxes to select ingredients
 def inventoryCheck(request):
+
+	cleanSearch(request)
+
 	if request.method == 'GET' :
 		inventory_items = InventoryItem.objects.all()
-		context = {'inventory_items': inventory_items}
+		search_saved = True
+		context = {'inventory_items': inventory_items,
+				    'search_saved':search_saved}
 		return render(request, 'recipeFinder/inventory-check.html', context)
 
 	# This isn't supposed to actually do anything, but this is where the data is
@@ -291,6 +299,8 @@ def inventoryCheck(request):
 
 # Almsot there
 def freeSelect(request):
+
+	cleanSearch(request)
 
 	IngredientFormSet = formset_factory(IngredientInputForm, max_num=20, min_num=1, validate_min=True, extra=0)
 	if request.method == 'POST':
@@ -318,7 +328,7 @@ def freeSelect(request):
 		return render(request, 'recipeFinder/free-select.html', context)
 
 
-#
+# Suggestions based on stats
 def suggestions(request):
 	stats_list = Consumed_Stats.objects.order_by('-total')
 	search_phrase = '' # temp test phrase until better thing comes
@@ -352,3 +362,37 @@ def resolveCount(count):
 	elif count > 5:
 		return 4
 	return count
+
+def searchSaved(request):
+	cleanSearch(request)
+
+	if request.method == "POST":
+		ingredients = request.POST.getlist('checked')
+		recipes = [] # recipes that will be displayed
+		test_recipes = [] # start of recipes to see if valid recipe to add
+		firstRound = True # check to add to test_recipes or recipes
+
+		# go through the desired ingredients
+		for ingredient in ingredients:
+			# get all recipe ingredients connected to that item
+			ingredient = InventoryItem.objects.get(name=ingredient)
+			recipeIngredient = RecipeIngredients.objects.filter(inventoryItem=ingredient)
+
+			# go through all the recipes connected to that item and add it if
+			# it is in previous recipes
+			for r_i in recipeIngredient:
+				recipe = Recipe.objects.filter(Recipe=r_i.recipe)
+				if not firstRound:
+					if recipe in test_recipes and recipe not in recipes:
+						recipes.append(recipe)
+				else:
+					test_recipes.append(recipe)
+			# Narrow the amount of recipes since it's not first round
+			if not firstRound:
+				test_recipes = list(recipes)
+			firstRound = False
+
+		if not recipes:
+			return render(request, 'recipeFinder/not_found.html')
+		context = {'recipes':recipes}
+		return render(request, 'recipeFinder/saved-recipe-search.html', context)
