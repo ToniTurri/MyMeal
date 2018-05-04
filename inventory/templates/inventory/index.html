@@ -2,81 +2,21 @@
 
 {% block content %}
 
-<article>
+<article id="small-panel">
     <header>
-        <div style="display: block;">
-        <span>Inventory</span>
-        <input type="button" onclick="window.location.href ='{% url 'barcodeScan:index' %}'; return false;" value="Scan New Items" 
-            style=" float: right;
-                height: 35px;
-                border-radius: 5px;
-                background-color: #f76707;
-                border: none;
-                color: #f2f2f2;
-                font-size: .7em;
-                clear:left;"
-                />
-		</div>
+    	<h3>My Inventory</h3>
     </header>
 
-    <section>
-	{% if inventoryitems %}
-		<div style="display: block; margin: 0 auto;">
-    	{% for item in inventoryitems %}
-    		<div data-role="inventory_item" class="recipe-preview">
-            	
-            	<h4>{{ item.name }}</h4>
-            	
-            	{% if item.barcode %}
-            	<center>
-            		<label>Barcode:</label><br> 
-            		{{ item.barcode }}
-            	</center>
-            	{% endif %}
+    <span class="helptext" style="text-align: center;">
+        Manage your inventory by adding and 
+        <a href="{% url 'barcodeScan:index' %}">scanning items</a> and updating their quantities.
+    </span>
 
-	            <input data-role="quantity" 
-	                type="number" 
-	                required 
-	                style="text-align: right;" 
-	                min="0" 
-	                max="100" 
-	                value="{{ item.quantity }}" 
-	                name="quantity_item_{{ item.id }}"
-	                id="quantity_item_{{ item.id }}" /><br>
-	
-	            <div>
-	            	<div style="text-align: center; display: block; float: left; width: 50%; margin-top: 10px;color:#c92a2a;">
-		                <i aria-hidden="true" 
-		                   data-action="delete" 
-		                   data-item-id="{{ item.id }}"
-		                   class="far fa-trash-alt fa-lg" >       
-		                </i>
-	                </div>
-
-	                <div style="text-align: center; display: block; float: left; width: 50%; margin-top: 10px;color:#2f9e44;">
-		                <i aria-hidden="true" 
-		                   data-action="confirm" 
-		                   data-item-id="{{ item.id }}"
-		                   class="fas fa-check fa-lg">
-		                    
-		                </i>
-	            	</div>
-	            </div>
-			</div>
-    	{% endfor %}
-    	</div>
-    {% else %}
-		<p>
-        <center>
-            You have no items in your inventory.<br>
-            Try <a href="{% url 'barcodeScan:index' %}">scanning barcodes</a> or <a href="/">adding items</a> to fill it up!<br><br>
-        </center>
-        </p>
-	{% endif %}
-		<form action="{% url 'inventory:add' %}" method="post">
+    <p>
+    <form action="{% url 'inventory:add' %}" method="post">
         <!-- csrf_token to protect against XSS attacks -->
         {% csrf_token %}
-        {{ add_item_form }}
+        {{ add_item_form }}<br><br>
         <input type="submit" value="Add item" style = " float: right;
                 height: 35px;
                 border-radius: 5px;
@@ -86,13 +26,91 @@
                 font-size: .7em;
                 clear:left;"  />
     </form>
-	</section>
+    </p>
+
+    <br><br><hr>
+
+    {% if inventoryitems.has_other_pages %}
+    <div class="pagination">
+		{% if inventoryitems.has_previous %}
+		<a href="?page={{ inventoryitems.previous_page_number }}">&laquo;</a>
+		{% else %}
+		<span>&laquo;</span>
+		{% endif %}
+	
+		{% for i in inventoryitems.paginator.page_range %}
+			{% if inventoryitems.number == i %}
+			<span>{{ i }} <span class="sr-only">(current)</span></span>
+			{% else %}
+			<a href="?page={{ i }}">{{ i }}</a>
+			{% endif %}
+		{% endfor %}
+	
+		{% if inventoryitems.has_next %}
+		<a href="?page={{ inventoryitems.next_page_number }}">&raquo;</a>
+		{% else %}
+		<span>&raquo;</span>
+		{% endif %}
+	</div>
+
+	<hr>
+	{% endif %}
+
+	<br>
+	{% if inventoryitems %}
+    	{% for item in inventoryitems %}
+    		<div data-role="inventory_item">
+    			{% csrf_token %}
+
+            	<label>{{ item.name }}</label><br>
+            	{% if item.barcode %}
+            		<label>Barcode:</label> {{ item.barcode }}
+            	{% endif %}
+
+	            <input data-role="quantity" 
+	                type="number" 
+	                required 
+	                style="width:75%; text-align: right;" 
+	                min="0" 
+	                max="100" 
+	                value="{{ item.quantity }}" 
+	                name="quantity_item_{{ item.id }}"
+	                id="quantity_item_{{ item.id }}" />
+	
+	            <div style="float:right;">
+	                <i aria-hidden="true" 
+	                   data-action="update" 
+	                   data-item-id="{{ item.id }}"
+	                   name="update_item_{{ item.id }}"
+	                   id="update_item_{{ item.id }}"
+	                   style="margin-right: 10px; margin-top: 10px; color:#2f9e44;"
+	                   class="fas fa-check fa-lg">
+	                </i>
+	               	<i aria-hidden="true" 
+	                   data-action="delete" 
+	                   data-item-id="{{ item.id }}"
+	                   name="delete_item_{{ item.id }}"
+	                   id="delete_item_{{ item.id }}"
+	                   style="margin-right: 10px; margin-top: 10px; color:#c92a2a;"
+	                   class="far fa-trash-alt fa-lg" >       
+	                </i>
+	            </div>
+			</div>
+    	{% endfor %}
+    {% else %}
+		<p>
+        <center>
+            You have no items in your inventory.<br>
+            Try <a href="{% url 'barcodeScan:index' %}">scanning barcodes</a> or adding items to fill it up!<br><br>
+        </center>
+        </p>
+	{% endif %}
 
 </article>
 
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
     $( function() {
@@ -113,6 +131,33 @@
 
     });
     } );
+</script>
+<script>
+$(document).ready(function() {
+    $('[data-role=inventory_item]').on('click', '[data-action=delete]', function(e){
+        var $inventory_item = $(e.delegateTarget);
+        var $delete = $(e.currentTarget);
+
+        var inventory_item_id = $delete.data("item-id");
+        var delete_path = "/inventory/remove/" + inventory_item_id
+      
+        $.post(delete_path, function(data) {
+            $inventory_item.remove();
+        });
+    });
+});
+
+$(document).ready(function() {
+    $('[data-role=inventory_item]').on('click', '[data-action=update]', function(e){
+        var $inventory_item = $(e.delegateTarget);
+        var $update = $(e.currentTarget);
+
+        var inventory_item_id = $update.data("item-id");
+        var $quantity = $inventory_item.find('[data-role=quantity]'); 
+        var update_path = "/inventory/update/" + inventory_item_id + "/" + $quantity.val()
+       
+    });
+});
 </script>
 
 {% endblock %}
