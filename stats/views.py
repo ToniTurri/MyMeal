@@ -1,15 +1,17 @@
 from django.shortcuts import render
-from django.http import HttpResponse
-from .models import Consumed_Stats
-from datetime import datetime, timedelta
+from .models import Consumed_Stats, Time_Stamp
+from django.utils import timezone
+from datetime import timedelta
 #from .forms import FilterForm
 
 # Create your views here.
 def statsHandler(request):
     # Check if we want to show the stats table
     if request.method == 'POST':
+
         '''
         form = forms.FilterForm(request.POST)
+        choice = None
         if form.is_valid():
             choice = form.cleaned_data['select']
 
@@ -19,18 +21,20 @@ def statsHandler(request):
             stats_list = Consumed_Stats.objects.order_by('-total')
         elif choice is 'Least Consumed':
             stats_list = Consumed_Stats.objects.order_by('total')
-        '''
+            '''
 
     else :
         stats_list = Consumed_Stats.objects.all()
 
     if stats_list:
+        time_diff = timeCheck()
+        if time_diff > 0:
+            reinitStats(time_diff)
         context = {'stats_list': stats_list,
-        'value':datetime.now(),
-        'value2':datetime.now() - timedelta(days=1),
-        'value3':datetime.now() - timedelta(days=2),
-        'value4':datetime.now() - timedelta(days=3),
-        'form': FilterForm()}
+        'value':timezone.now(),
+        'value2':timezone.now() - timedelta(days=1),
+        'value3':timezone.now() - timedelta(days=2),
+        'value4':timezone.now() - timedelta(days=3)}
         return render(request, 'stats/index.html', context)
 
     stats_list = False
@@ -83,11 +87,11 @@ def reinitStats(day_diff):
             # else it's just what's in the first array
             else:
                 stats_list[i].count4 = temp_count_array[i]
-            stats_list[i].save()
         else:
             stats_list[i].count4 = 0
-            stats_list[i].save()
-
+        stats_list[i].total = (stats_list[i].count2 + stats_list[i].count3 +
+                                stats_list[i].count4)
+        stats_list[i].save()
     # Now cleanup
     cleanup()
 
@@ -105,11 +109,13 @@ def cleanup():
 # Checks if the last day a food item was consumed or stat page accessed is
 # different than the current day to reinitStats
 def timeCheck():
-    date = datetime.now()
-    stat_time = None # Placeholder for now
+    date = timezone.now()
+    try:
+        stat_time = Time_Stamp.objects.get(pk=1)
+    except Time_Stamp.DoesNotExist:
+        stat_time = Time_Stamp()
     # return false if same day (so don't reinit) and true otherwise
-    if ((date.month is stat_time.month) and (date.year is stat_time.year)
-        and (date.day is stat_time.day)):
-            return False
+    if abs((date - stat_time.time).days) is 0:
+            return 0
     else:
-        return True
+        return abs((date - stat_time.time).days)
