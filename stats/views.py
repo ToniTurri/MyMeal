@@ -118,4 +118,6 @@ def timeCheck():
     if abs((date - stat_time.time).days) is 0:
             return 0
     else:
+        stat_time.time = timezone.now()
+        stat_time.save()
         return abs((date - stat_time.time).days)
