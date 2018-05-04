@@ -279,7 +279,7 @@ def inventoryCheck(request):
 
 	if request.method == 'GET' :
 		inventory_items = InventoryItem.objects.all()
-		search_saved = True
+		search_saved = False
 		context = {'inventory_items': inventory_items,
 				    'search_saved':search_saved}
 		return render(request, 'recipeFinder/inventory-check.html', context)
@@ -396,3 +396,9 @@ def searchSaved(request):
 			return render(request, 'recipeFinder/not_found.html')
 		context = {'recipes':recipes}
 		return render(request, 'recipeFinder/saved-recipe-search.html', context)
+	else:
+		inventory_items = InventoryItem.objects.all()
+		search_saved = True
+		context = {'inventory_items': inventory_items,
+					'search_saved':search_saved}
+		return render(request, 'recipeFinder/inventory-check.html', context)
