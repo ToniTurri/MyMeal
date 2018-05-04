@@ -278,7 +278,7 @@ def inventoryCheck(request):
 	cleanSearch(request)
 
 	if request.method == 'GET' :
-		inventory_items = InventoryItem.objects.all()
+		inventory_items = InventoryItem.objects.values_list('name', flat=True).distinct()
 		search_saved = False
 		context = {'inventory_items': inventory_items,
 				    'search_saved':search_saved}
