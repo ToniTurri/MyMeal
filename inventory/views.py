@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from inventory.forms import AddItemToInventoryForm
 from django.db.models.functions import Lower
+from django.db.models import F
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
 from stats.models import Consumed_Stats
@@ -46,7 +47,7 @@ def index(request):
 		context = {
 		    'add_item_form': AddItemToInventoryForm(),
 		    'inventoryitems': displayed_inv_items,
-		    'generic_foods': generic_foods
+		    'generic_foods': generic_foods + (list(InventoryItem.objects.values_list('name', flat=True)))
 		}
 
 	return render(request, 'inventory/index.html', context)
@@ -110,9 +111,10 @@ def update_view(request, pk, quantity):
         # amount from the inventory view vs updating the
         # quantity from the grocery list view
         if 'inventory-view' in request.POST:
-            collect_stats(item, quantity)
+            #collect_stats(item, quantity)
             # update the qty
-            update(item, quantity)
+            item.quantity = quantity
+            item.save()
         else:
             # update the qty
             update(item, quantity)
@@ -123,7 +125,7 @@ def update_view(request, pk, quantity):
 
 def update(item, quantity):
     # update the qty
-    item.quantity = quantity
+    item.quantity = F('quantity') + quantity
     item.save()
 
 def collect_stats(item, quantity):
