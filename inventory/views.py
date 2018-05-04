@@ -111,7 +111,7 @@ def update_view(request, pk, quantity):
         # amount from the inventory view vs updating the
         # quantity from the grocery list view
         if 'inventory-view' in request.POST:
-            #collect_stats(item, quantity)
+            collect_stats(item, quantity)
             # update the qty
             item.quantity = quantity
             item.save()
