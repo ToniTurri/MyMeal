@@ -177,11 +177,18 @@ def confirm_item(request, pk, id):
                                                  barcode=grocery_item.barcode,
                                                  date=timezone.now())
             # Straight up add a new inventory item without barcode, because it was not 
-            # organized/linked to any other model types
+            # organized/linked to any other model types. Check if there is an item with
+            # the same name first and update that to avoid duplicates where necessary
             else:
-                InventoryItem.objects.create(name=grocery_item.name,
-                                             quantity=quantity,
-                                             date=timezone.now())
+                inventory_item = InventoryItem.objects.get(name=grocery_item.name)
+
+                if inventory_item:
+                    inventory_item.quantity += grocery_item.quantity
+                    inventory_item.save()
+                else:
+                    InventoryItem.objects.create(name=grocery_item.name,
+                                                 quantity=quantity,
+                                                 date=timezone.now())
 
     return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 

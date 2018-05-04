@@ -359,3 +359,17 @@ p .warning {
 .recipe-preview img {
 	height: 125px;
 }
+
+.pagination {
+	text-align: center; 
+	font-size: 1.2em;
+}
+
+.pagination a {
+	border-bottom: none; 
+	margin: 5px;
+}
+
+.pagination span {
+	margin: 5px;
+}
