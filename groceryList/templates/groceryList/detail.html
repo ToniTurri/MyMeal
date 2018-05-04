@@ -39,14 +39,14 @@
                 name="quantity_item_{{ item.id }}"
                 id="quantity_item_{{ item.id }}">
             <div style="float:right;">
-                
-                <i aria-hidden="true" 
-                   data-action="confirm" 
-                   data-actionable="{{ item.confirmed|yesno:'False,True' }}" 
-                   data-list-id="{{ grocery_list.id }}" 
+
+                <i aria-hidden="true"
+                   data-action="confirm"
+                   data-actionable="{{ item.confirmed|yesno:'False,True' }}"
+                   data-list-id="{{ grocery_list.id }}"
                    data-grocery-item-id="{{ item.id }}"
                    style="margin-right: 10px; margin-top: 10px;
-                    {% if item.confirmed %} 
+                    {% if item.confirmed %}
                     color:#adb5bd;
                     {% else %}
                     color:#2f9e44;
@@ -54,25 +54,25 @@
                    class="fas fa-check fa-lg">
                 </i>
 
-                <i aria-hidden="true" 
-                   data-action="delete" 
-                   data-actionable="{{ item.confirmed|yesno:'False,True' }}" 
-                   data-list-id="{{ grocery_list.id }}" 
-                   data-grocery-item-id="{{ item.id }}" 
+                <i aria-hidden="true"
+                   data-action="delete"
+                   data-actionable="{{ item.confirmed|yesno:'False,True' }}"
+                   data-list-id="{{ grocery_list.id }}"
+                   data-grocery-item-id="{{ item.id }}"
                    style="margin-right: 10px; margin-top: 10px;
-                    {% if item.confirmed %} 
+                    {% if item.confirmed %}
                     color:#adb5bd;
                     {% else %}
                     color:#c92a2a;
                     {% endif %}"
-                   class="far fa-trash-alt fa-lg" >       
+                   class="far fa-trash-alt fa-lg" >
                 </i>
             </div>
             <br><br>
         </div>
         {% endfor %}
         {% endif %}
-    
+
         <hr>
         <p><label>Item:</label><br>
             <span class="helptext">
@@ -138,7 +138,7 @@ $(document).ready(function() {
                 $confirm.attr("data-actionable", "False");
                 $delete.attr("data-actionable", "False");
 
-                // updates the color of the trash and check mark icon since a full 
+                // updates the color of the trash and check mark icon since a full
                 // postback doesn't happen
                 $confirm.css('color', '#adb5bd');
                 $delete.css('color', '#adb5bd');
