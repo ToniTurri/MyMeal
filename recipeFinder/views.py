@@ -375,7 +375,11 @@ def searchSaved(request):
 		# go through the desired ingredients
 		for ingredient in ingredients:
 			# get all recipe ingredients connected to that item
-			ingredient = InventoryItem.objects.get(name=ingredient)
+			try:
+				ingredient = InventoryItem.objects.get(name=ingredient)
+			except InventoryItem.DoesNotExist:
+				continue
+
 			recipeIngredient = RecipeIngredients.objects.filter(inventoryItem=ingredient)
 
 			# go through all the recipes connected to that item and add it if
