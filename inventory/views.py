@@ -47,7 +47,7 @@ def index(request):
 		context = {
 		    'add_item_form': AddItemToInventoryForm(),
 		    'inventoryitems': displayed_inv_items,
-		    'generic_foods': generic_foods + (list(InventoryItem.objects.values_list('name', flat=True)))
+		    'generic_foods': generic_foods + (list(InventoryItem.objects.values_list('name', flat=True).distinct()))
 		}
 
 	return render(request, 'inventory/index.html', context)
