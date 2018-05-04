@@ -82,7 +82,10 @@ def add(name, barcode=''):
 def remove_view(request, pk):
     # method is POST
     if request.method == 'POST':
-        InventoryItem.objects.get(pk=pk).delete()
+        try:
+            InventoryItem.objects.get(pk=pk).delete()
+        except InventoryItem.DoesNotExist:
+            raise Http404
     else:
         # no GET requests to this URL
         raise Http404
