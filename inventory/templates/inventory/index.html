@@ -95,6 +95,7 @@
 	                   class="far fa-trash-alt fa-lg" >       
 	                </i>
 	            </div>
+	            <br><br>
 			</div>
     	{% endfor %}
     {% else %}
@@ -156,6 +157,7 @@ $(document).ready(function() {
         var $quantity = $inventory_item.find('[data-role=quantity]'); 
         var update_path = "/inventory/update/" + inventory_item_id + "/" + $quantity.val()
        
+        $.post(update_path, {'inventory-view': true});
     });
 });
 </script>
