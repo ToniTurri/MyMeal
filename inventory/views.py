@@ -15,7 +15,7 @@ from stats.views import reinitStats, timeCheck
 # populate global list of generic food items
 generic_foods = []
 with open('generic-foods.csv', encoding='utf-8') as csvfile:
-    foodreader = csv.reader(csvfile, delimiter="\n", quotechar='|')
+    foodreader = csv.reader(csvfile, delimiter=",", quotechar='|')
     for row in foodreader:
         generic_foods.append(''.join(row))
 
@@ -47,7 +47,9 @@ def index(request):
 		context = {
 		    'add_item_form': AddItemToInventoryForm(),
 		    'inventoryitems': displayed_inv_items,
-		    'generic_foods': generic_foods + (list(InventoryItem.objects.values_list('name', flat=True).distinct()))
+		    'generic_foods': generic_foods + \
+                             [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+                              if x not in generic_foods]
 		}
 
 	return render(request, 'inventory/index.html', context)
