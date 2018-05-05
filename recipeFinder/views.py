@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.db import IntegrityError, transaction
 from django.forms.formsets import formset_factory
 from .forms import IngredientInputForm
-from django.db.models.functions import Lower
+from inventory.views import generic_foods
 
 app_id = ''
 api_key = ''
@@ -323,7 +323,11 @@ def freeSelect(request):
 
 	else:
 		ingredient_formset = IngredientFormSet()
-		context = {'ingredient_formset': ingredient_formset}
+		context = {'ingredient_formset': ingredient_formset,
+				   'inventory_items': generic_foods + \
+									  [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+									   if x not in generic_foods]
+		}
 		return render(request, 'recipeFinder/free-select.html', context)
 
 
