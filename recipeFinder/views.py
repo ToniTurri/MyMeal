@@ -280,9 +280,7 @@ def inventoryCheck(request):
 
 	if request.method == 'GET' :
 		inventory_items = InventoryItem.objects.values_list('name', flat=True).distinct()
-		search_saved = False
-		context = {'inventory_items': inventory_items,
-				    'search_saved':search_saved}
+		context = {'inventory_items': inventory_items}
 		return render(request, 'recipeFinder/inventory-check.html', context)
 
 	# This isn't supposed to actually do anything, but this is where the data is
@@ -363,7 +361,7 @@ def resolveCount(count):
 	elif count > 5:
 		return 4
 	return count
-
+'''
 def searchSaved(request):
 	cleanSearch(request)
 
@@ -403,7 +401,6 @@ def searchSaved(request):
 		return render(request, 'recipeFinder/saved-recipe-search.html', context)
 	else:
 		inventory_items = InventoryItem.objects.all()
-		search_saved = True
-		context = {'inventory_items': inventory_items,
-					'search_saved':search_saved}
+		context = {'inventory_items': inventory_items}
 		return render(request, 'recipeFinder/inventory-check.html', context)
+	'''
