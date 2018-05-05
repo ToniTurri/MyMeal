@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from inventory.forms import AddItemToInventoryForm
 from django.db.models.functions import Lower
+from django.db.models import F
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
 from stats.models import Consumed_Stats
@@ -46,7 +47,7 @@ def index(request):
 		context = {
 		    'add_item_form': AddItemToInventoryForm(),
 		    'inventoryitems': displayed_inv_items,
-		    'generic_foods': generic_foods
+		    'generic_foods': generic_foods + (list(InventoryItem.objects.values_list('name', flat=True).distinct()))
 		}
 
 	return render(request, 'inventory/index.html', context)
@@ -81,7 +82,10 @@ def add(name, barcode=''):
 def remove_view(request, pk):
     # method is POST
     if request.method == 'POST':
-        InventoryItem.objects.get(pk=pk).delete()
+        try:
+            InventoryItem.objects.get(pk=pk).delete()
+        except InventoryItem.DoesNotExist:
+            raise Http404
     else:
         # no GET requests to this URL
         raise Http404
@@ -112,7 +116,8 @@ def update_view(request, pk, quantity):
         if 'inventory-view' in request.POST:
             collect_stats(item, quantity)
             # update the qty
-            update(item, quantity)
+            item.quantity = quantity
+            item.save()
         else:
             # update the qty
             update(item, quantity)
@@ -123,7 +128,7 @@ def update_view(request, pk, quantity):
 
 def update(item, quantity):
     # update the qty
-    item.quantity = quantity
+    item.quantity = F('quantity') + quantity
     item.save()
 
 def collect_stats(item, quantity):
@@ -135,8 +140,8 @@ def collect_stats(item, quantity):
             reinitStats(time_diff)
         try:
             stat_item = Consumed_Stats.objects.get(food=item)
-            stat_item.count1 += quantity
-            stat_item.total += quantity
+            stat_item.count1 += difference
+            stat_item.total += difference
             stat_item.save()
         except Consumed_Stats.DoesNotExist:
             stat_item = Consumed_Stats(food=item, count1=difference, count2=0,

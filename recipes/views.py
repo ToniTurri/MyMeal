@@ -56,12 +56,16 @@ def add_recipe(request, pk=0):
 
 	if pk:
 		is_edit = True
-		recipe = Recipe.objects.get(pk=pk)
-		ingredients = RecipeIngredients.objects.filter(recipe=pk)
-		ingredient_data = [{'value': i.ingredient, 'inventoryItem': i.inventoryItem}
-							for i in ingredients]
+		try:
+			recipe = Recipe.objects.get(pk=pk)
+			ingredients = RecipeIngredients.objects.filter(recipe=pk)
+			ingredient_data = [{'value': i.ingredient, 'inventoryItem': i.inventoryItem}
+							   for i in ingredients]
 
-		ingredient_formset = IngredientFormSet(initial=ingredient_data)
+			ingredient_formset = IngredientFormSet(initial=ingredient_data)
+		except Recipe.DoesNotExist:
+			recipe = Recipe()
+			ingredient_formset = IngredientFormSet()
 	else:
 		recipe = Recipe()
 		ingredient_formset = IngredientFormSet()
