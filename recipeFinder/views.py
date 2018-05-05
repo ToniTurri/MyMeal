@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.db import IntegrityError, transaction
 from django.forms.formsets import formset_factory
 from .forms import IngredientInputForm
+from django.db.models.functions import Lower
 
 app_id = '6fd6322a'
 api_key = '3ea09467f568742e613075b1305e2eb2'
@@ -313,7 +314,7 @@ def freeSelect(request):
 				ingredient = ingredient_form.cleaned_data.get('item')
 				# make sure it's not empty
 				if ingredient:
-					ingredients.append(ingredient)
+					ingredients.append(ingredient.lower())
 
 			search_phrase = ''
 			context = get_search_results(request, ingredients, search_phrase)
