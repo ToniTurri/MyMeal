@@ -24,7 +24,7 @@ def statsHandler(request):
             '''
 
     else :
-        stats_list = Consumed_Stats.objects.all()
+        stats_list = Consumed_Stats.objects.order_by('food__name')
 
     if stats_list:
         time_diff = timeCheck()
