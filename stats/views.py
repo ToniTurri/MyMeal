@@ -28,8 +28,9 @@ def statsHandler(request):
 
     if stats_list:
         time_diff = timeCheck()
+        print(time_diff)
         if time_diff > 0:
-            reinitStats(time_diff)
+            reinitStats(day_diff)
         context = {'stats_list': stats_list,
         'value':timezone.now(),
         'value2':timezone.now() - timedelta(days=1),
@@ -114,6 +115,7 @@ def timeCheck():
         stat_time = Time_Stamp.objects.get(pk=1)
     except Time_Stamp.DoesNotExist:
         stat_time = Time_Stamp()
+        stat_time.save()
     # return false if same day (so don't reinit) and true otherwise
     if abs((date - stat_time.time).days) is 0:
             return 0
