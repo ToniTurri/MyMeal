@@ -29,12 +29,49 @@
 </article>
 
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="/static/scripts/jquery.formset.js"></script>
 <script>
+    // add an autocomplete handler to a form
+    function attachAutocomplete(form) {
+
+        form.autocomplete({
+            formatItem: function(row) {
+                return row[1];
+            },
+            autoFocus: true,
+            minLength: 1,
+            delay: 0,
+            source: function (request, response) {
+                var resultLimit = 8;
+                var results = $.map({{ inventory_items|safe }}, function (food) {
+                    if (food.toUpperCase().indexOf(request.term.toUpperCase()) === 0) {
+                        return food;
+                    }
+                });
+            response(results.slice(0, resultLimit));
+            }
+        });
+    }
+    // initialize the very first autocomplete handler
+    $(function() {
+    attachAutocomplete($('.autocomplete'));
+    })
+
     $('.ingredient-formset').formset({
         addText: 'Add Ingredient',
-        deleteText: 'Remove Ingredient'
+        deleteText: 'Remove Ingredient',
+        added: function(row) {
+            var form = row.find('.autocomplete');
+            // unbind previous autocomplete handlers
+            form.unbind();
+
+            // add new autocomplete handler
+            attachAutocomplete(form);
+        }
     });
 </script>
 

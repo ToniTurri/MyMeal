@@ -1,19 +1,17 @@
 from django.http import HttpResponseRedirect, HttpResponse
-from django.template import RequestContext
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.generic import DetailView, ListView
 from django.utils import timezone
 from django.contrib import messages
-from django.db.models import F
 from django.views.generic.edit import CreateView
 from .models import Recipe, RecipeIngredients
 from inventory.models import InventoryItem
+from inventory.views import generic_foods
 from .forms import IngredientForm
 from . import forms
 from django.forms.formsets import formset_factory
 from django.db import IntegrityError, transaction
-from django.core.exceptions import ValidationError
    
 #from django.contrib.auth.decorators import login_required
 #@login_required(login_url='/accounts/login/')
@@ -163,7 +161,9 @@ def add_recipe(request, pk=0):
 	    'ingredient_formset': ingredient_formset,
 	    'is_edit': is_edit,
 	    'id': recipe.id,
-	    'inventory_items': list(InventoryItem.objects.values_list('name', flat=True))
+	    'inventory_items': generic_foods + \
+						   [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+							if x not in generic_foods]
 	}
 
 	return render(request, 'recipes/new_recipe.html', context)
