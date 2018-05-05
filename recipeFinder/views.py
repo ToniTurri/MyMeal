@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.db import IntegrityError, transaction
 from django.forms.formsets import formset_factory
 from .forms import IngredientInputForm
+from django.db.models.functions import Lower
 
 app_id = '6fd6322a'
 api_key = '3ea09467f568742e613075b1305e2eb2'
@@ -279,9 +280,7 @@ def inventoryCheck(request):
 
 	if request.method == 'GET' :
 		inventory_items = InventoryItem.objects.values_list('name', flat=True).distinct()
-		search_saved = False
-		context = {'inventory_items': inventory_items,
-				    'search_saved':search_saved}
+		context = {'inventory_items': inventory_items}
 		return render(request, 'recipeFinder/inventory-check.html', context)
 
 	# This isn't supposed to actually do anything, but this is where the data is
@@ -313,7 +312,7 @@ def freeSelect(request):
 				ingredient = ingredient_form.cleaned_data.get('item')
 				# make sure it's not empty
 				if ingredient:
-					ingredients.append(ingredient)
+					ingredients.append(ingredient.lower())
 
 			search_phrase = ''
 			context = get_search_results(request, ingredients, search_phrase)
@@ -362,7 +361,7 @@ def resolveCount(count):
 	elif count > 5:
 		return 4
 	return count
-
+'''
 def searchSaved(request):
 	cleanSearch(request)
 
@@ -402,7 +401,6 @@ def searchSaved(request):
 		return render(request, 'recipeFinder/saved-recipe-search.html', context)
 	else:
 		inventory_items = InventoryItem.objects.all()
-		search_saved = True
-		context = {'inventory_items': inventory_items,
-					'search_saved':search_saved}
+		context = {'inventory_items': inventory_items}
 		return render(request, 'recipeFinder/inventory-check.html', context)
+	'''

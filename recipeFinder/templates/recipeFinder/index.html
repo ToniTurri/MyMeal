@@ -14,13 +14,6 @@
 
 	<br>
 
-	<h4>Or pick from your inventory to search saved recipes!</h4>
-	<form action"{% url 'recipeFinder:search-saved' %}" method ="get">
-		<input type="submit" value="Search saved recipes!" />
-	</form>
-
-	<br>
-
 	<h4>Find recipes on anything you want!</h4>
 	<form action="{% url 'recipeFinder:free-select' %}" method="get">
 		<input type="submit" value="Search for recipes!" />

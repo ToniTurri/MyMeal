@@ -9,6 +9,5 @@ urlpatterns = [
     path('detail/<str:id>', views.recipe_detail, name='recipe_detail'),
     path('inventory-check', views.inventoryCheck, name='inventory-check'),
     path('free-select', views.freeSelect, name='free-select'),
-    path('suggestions', views.suggestions, name='suggestions'),
-    path('search-saved', views.searchSaved, name='search-saved')
+    path('suggestions', views.suggestions, name='suggestions')
 ]
