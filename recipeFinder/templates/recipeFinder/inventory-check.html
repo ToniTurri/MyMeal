@@ -98,9 +98,10 @@
             var form = row.find('.autocomplete');
             // unbind previous autocomplete handlers
             form.unbind();
-
             // add new autocomplete handler
             attachAutocomplete(form);
+            // set focus to new form
+            form.focus();
         }
     });
 
