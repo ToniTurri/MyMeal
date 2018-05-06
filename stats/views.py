@@ -114,7 +114,7 @@ def timeCheck():
         stat_time = Time_Stamp()
         stat_time.save()
     # return false if same day (so don't reinit) and true otherwise
-    day_diff = abs(date.day - stat_time.time.day)
+    day_diff = abs((date - stat_time.time).days)
     print(day_diff)
     print(stat_time.time.day)
     if day_diff is 0:
