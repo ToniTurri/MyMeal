@@ -137,9 +137,7 @@ def collect_stats(item, quantity):
     # for stats
     if quantity < item.quantity:
         difference = item.quantity - quantity
-        time_diff = timeCheck()
-        if time_diff > 0:
-            reinitStats(time_diff)
+        timeCheck()
         try:
             stat_item = Consumed_Stats.objects.get(food=item)
             stat_item.count1 += difference
