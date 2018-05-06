@@ -7,15 +7,8 @@
 		<h3>Recipe Finder</h3>
 	</header>
 
-	<h4>Choose items from your inventory to get a recipe!</h4>
-	<form action="{% url 'recipeFinder:inventory-check' %}" method="get">
-		<input type="submit" value="Pick from your inventory!" />
-	</form>
-
-	<br>
-
-	<h4>Find recipes on anything you want!</h4>
-	<form action="{% url 'recipeFinder:free-select' %}" method="get">
+	<h4>Discover new recipes!</h4>
+	<form action="{% url 'recipeFinder:recipe_search' %}" method="get">
 		<input type="submit" value="Search for recipes!" />
 	</form>
 

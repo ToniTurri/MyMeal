@@ -8,7 +8,7 @@
         <h3>Select items from your inventory.</h3>
     </header>
     {% endif %}
-    <form action="{% url 'recipeFinder:inventory-check' %}" method="post">
+    <form action="{% url 'recipeFinder:recipe_search' %}" method="post">
         {% csrf_token %}
         {% for item in inventory_items %}
         <input type="checkbox" name="checked" id="item{{ forloop.counter }}"
