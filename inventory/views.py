@@ -47,9 +47,9 @@ def index(request):
 		context = {
 		    'add_item_form': AddItemToInventoryForm(),
 		    'inventoryitems': displayed_inv_items,
-		    'generic_foods': generic_foods + \
-                             [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
-                              if x not in generic_foods]
+		    'food_suggestions': generic_foods + \
+                                [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+                                 if x not in generic_foods]
 		}
 
 	return render(request, 'inventory/index.html', context)

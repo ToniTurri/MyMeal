@@ -307,7 +307,9 @@ def inventoryCheck(request):
        inventory_items = InventoryItem.objects.values_list('name', flat=True).distinct()
        context = {'ingredient_formset': ingredient_formset,
                   'inventory_items': inventory_items,
-                  'generic_foods': generic_foods
+                  'food_suggestions': generic_foods + \
+									  [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+									   if x not in generic_foods]
 		}
        
        return render(request, 'recipeFinder/inventory-check.html', context)

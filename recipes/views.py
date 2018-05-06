@@ -164,9 +164,9 @@ def add_recipe(request, pk=0):
 	    'ingredient_formset': ingredient_formset,
 	    'is_edit': is_edit,
 	    'id': recipe.id,
-	    'inventory_items': generic_foods + \
-						   [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
-							if x not in generic_foods]
+	    'food_suggestions': generic_foods + \
+							[x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+							 if x not in generic_foods]
 	}
 
 	return render(request, 'recipes/new_recipe.html', context)
