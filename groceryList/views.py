@@ -94,9 +94,12 @@ def update(request, pk):
 
         if form.is_valid():
             item = form.cleaned_data['name']
+            # lowercase the name if its a generic food item
+            if item.lower() in generic_foods:
+                item = item.lower()
             # try and link the ingredient to an inventory item
             try:
-                inventory_item = InventoryItem.objects.filter(name__exact=item)[:1].get()
+                inventory_item = InventoryItem.objects.filter(name=item)[:1].get()
             except InventoryItem.DoesNotExist:
                 inventory_item = None
             #inventory_item = form.cleaned_data['inventory_item']
