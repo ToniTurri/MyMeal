@@ -231,15 +231,23 @@ def findInventoryItem(ingredientLine):
 
 	# check cleaned string for a match in the InventoryItem db
 	inventoryItems = None
-	try:
-		if not inventoryItems:
+	if not inventoryItems:
+		# first, try query as is--case sensitive for brands
+		# (e.g. Cento Crushed Tomatoes has precedence over 'tomatoes')
+		query = "SELECT * FROM inventory_inventoryitem " \
+				"WHERE %s LIKE '%%' || name || '%%'" \
+				" ORDER BY LENGTH(name) DESC LIMIT 1"
+		inventoryItems = InventoryItem.objects.raw(query, [ingredientLine])
+	if not first(inventoryItems):
+			# no brand found? try another query, this time lowercasing generic food items
+			# (e.g. Tomatoes->tomatoes)
+			tokens = word_tokenize(ingredientLine)
+			potentialIngredients = [w.lower() for w in tokens if w.lower() in generic_foods]
+			ingredientLine = ' '.join(str(w) for w in potentialIngredients)
 			query = "SELECT * FROM inventory_inventoryitem " \
 					"WHERE %s LIKE '%%' || name || '%%'" \
 					" ORDER BY LENGTH(name) DESC LIMIT 1"
 			inventoryItems = InventoryItem.objects.raw(query, [ingredientLine])
-	except InventoryItem.DoesNotExist:
-		if not inventoryItems:
-			inventoryItems = None
 
 	# return the first match (if none found, first() returns None)
 	return first(inventoryItems)

@@ -8,6 +8,7 @@ from django.views.generic.edit import CreateView
 from .models import Recipe, RecipeIngredients
 from inventory.models import InventoryItem
 from inventory.views import generic_foods
+from recipeFinder.views import findInventoryItem
 from .forms import IngredientForm
 from . import forms
 from django.forms.formsets import formset_factory
@@ -127,21 +128,15 @@ def add_recipe(request, pk=0):
 					linked_recipe = new_recipe
 
 				for ingredient_form in ingredient_formset:
-					ingredient = ingredient_form.cleaned_data['value']
+					ingredient_line = ingredient_form.cleaned_data['value']
 					# try and link the ingredient to an inventory item
-					if ingredient:
-						if ingredient.lower() in generic_foods:
-							ingredient = ingredient.lower()
-					try:
-						inventory_item = InventoryItem.objects.filter(name=ingredient)[:1].get()
-					except InventoryItem.DoesNotExist:
-						inventory_item = None
+					inventory_item = findInventoryItem(ingredient_line)
 					#inventory_item = ingredient_form.cleaned_data['inventoryItem']
 
-					if ingredient:
+					if ingredient_line:
 						new_ingredient_link = RecipeIngredients(
 							recipe=linked_recipe, 
-							ingredient=ingredient,
+							ingredient=ingredient_line,
 							inventoryItem=inventory_item)
 
 						new_ingredients.append(new_ingredient_link)
