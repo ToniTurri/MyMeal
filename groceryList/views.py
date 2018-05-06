@@ -119,12 +119,11 @@ def update(request, pk):
             # at this point in time too
             else:
                 update_quantities(request, grocery_items)
-                new_grocery_item = GroceryItems.objects.create(
-                            groceryList=grocery_list,
-                            name=item,
-                            quantity=quantity,
-                            date=timezone.now(),
-                            inventoryItem=inventory_item)
+                GroceryItems.objects.create(groceryList=grocery_list, 
+                                            name=item, 
+                                            quantity=quantity, 
+                                            date=timezone.now(),
+                                            inventoryItem=inventory_item)
 
                 return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 
@@ -213,6 +212,11 @@ def confirm_item(request, pk, id):
 
     return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 
+def delete_list(request, pk):
+	if request.method == 'POST':
+		GroceryList.objects.filter(id=pk).delete()
+		return HttpResponseRedirect(reverse('groceryList:index'))
+     
 def delete_item(request, pk, id):
 
     if request.method == 'GET':
