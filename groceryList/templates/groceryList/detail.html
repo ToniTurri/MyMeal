@@ -4,7 +4,7 @@
 
 <article id="small-panel">
 
-    <form action="" method="post">
+    <form action="{% url 'groceryList:delete_list' grocery_list.id %}" method="post"
         <!-- csrf_token to protect against XSS attacks -->
         {% csrf_token %}
         {% load static %}
