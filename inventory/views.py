@@ -61,9 +61,6 @@ def add_view(request):
         form = AddItemToInventoryForm(request.POST)
         if form and form.is_valid():
             name = (form.cleaned_data['name'])
-            # lowercase the name if its a generic food item
-            if name.lower() in generic_foods:
-                name = name.lower()
             add(name)
     else:
         # no GET requests to this URL
@@ -72,6 +69,9 @@ def add_view(request):
 
 
 def add(name, barcode=''):
+    # lowercase the name if its a generic food item
+    if name.lower() in generic_foods:
+        name = name.lower()
     item = InventoryItem(name=name, quantity=1, barcode=barcode, date=timezone.now())
     existing_item = InventoryItem.objects.filter(name=name, barcode=barcode).first()
     # if the item is in the db already, update its quantity by 1

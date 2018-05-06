@@ -296,7 +296,7 @@ def inventoryCheck(request):
 		# display the data as results
 		return render(request, 'recipeFinder/results.html', context)
 
-# Almsot there
+# Almost there
 def freeSelect(request):
 
 	cleanSearch(request)
@@ -312,7 +312,9 @@ def freeSelect(request):
 				ingredient = ingredient_form.cleaned_data.get('item')
 				# make sure it's not empty
 				if ingredient:
-					ingredients.append(ingredient.lower())
+					if ingredient.lower() in generic_foods:
+						ingredient = ingredient.lower()
+					ingredients.append(ingredient)
 
 			search_phrase = ''
 			context = get_search_results(request, ingredients, search_phrase)

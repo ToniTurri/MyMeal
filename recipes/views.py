@@ -129,8 +129,11 @@ def add_recipe(request, pk=0):
 				for ingredient_form in ingredient_formset:
 					ingredient = ingredient_form.cleaned_data['value']
 					# try and link the ingredient to an inventory item
+					if ingredient:
+						if ingredient.lower() in generic_foods:
+							ingredient = ingredient.lower()
 					try:
-						inventory_item = InventoryItem.objects.filter(name__exact=ingredient)[:1].get()
+						inventory_item = InventoryItem.objects.filter(name=ingredient)[:1].get()
 					except InventoryItem.DoesNotExist:
 						inventory_item = None
 					#inventory_item = ingredient_form.cleaned_data['inventoryItem']
