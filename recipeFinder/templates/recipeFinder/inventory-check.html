@@ -7,7 +7,7 @@
     <header>
         <h3>Select items from your inventory.</h3>
     </header>
-
+    {% endif %}
     <form action="{% url 'recipeFinder:inventory-check' %}" method="post">
         {% csrf_token %}
         {% for item in inventory_items %}
@@ -16,7 +16,6 @@
         <label for="item{{ forloop.counter }}">{{ item }}</label> <br/>
         {% endfor %}
         <br>
-    {% endif %}
     {% if inventory_items %}
         <header>
             <h3>Enter additional ingredients below.</h3>
