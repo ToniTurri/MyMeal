@@ -275,26 +275,28 @@ def query_API(url):
 
 # Shows inventory with checkboxes to select ingredients
 def inventoryCheck(request):
-
-	cleanSearch(request)
-
-	if request.method == 'GET' :
-		inventory_items = InventoryItem.objects.values_list('name', flat=True).distinct()
-		context = {'inventory_items': inventory_items}
-		return render(request, 'recipeFinder/inventory-check.html', context)
-
-	# This isn't supposed to actually do anything, but this is where the data is
-	if request.method == 'POST':
-		ingredients = request.POST.getlist('checked')
-		search_phrase = ''
-
-		# populate our context with the json response data
-		context = get_search_results(request, ingredients, search_phrase)
-		# make sure that matches were found
-		if context is None:
-			return render(request, 'recipeFinder/not_found.html')
-		# display the data as results
-		return render(request, 'recipeFinder/results.html', context)
+   cleanSearch(request)
+   
+   if request.method == 'GET' :
+       inventory_items = InventoryItem.objects.values_list('name', flat=True).distinct()
+       context = {'inventory_items': inventory_items}
+       
+       return render(request, 'recipeFinder/inventory-check.html', context)
+    
+   # This isn't supposed to actually do anything, but this is where the data is   
+   if request.method == 'POST':
+      ingredients = request.POST.getlist('checked')
+      search_phrase = request.POST.get('search_phrase')
+      
+      # populate our context with the json response data
+      context = get_search_results(request, ingredients, search_phrase)
+      
+      # make sure that matches were found
+      if context is None:
+         return render(request, 'recipeFinder/not_found.html')
+      
+      # display the data as results
+      return render(request, 'recipeFinder/results.html', context)
 
 # Almost there
 def freeSelect(request):
@@ -316,7 +318,7 @@ def freeSelect(request):
 						ingredient = ingredient.lower()
 					ingredients.append(ingredient)
 
-			search_phrase = ''
+			search_phrase = request.POST.get('search_phrase')
 			context = get_search_results(request, ingredients, search_phrase)
 			if context is None:
 				return render(request, 'recipeFinder/not_found.html')
