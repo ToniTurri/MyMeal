@@ -102,10 +102,24 @@
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script src="/static/scripts/jquery.formset.js"></script>
 <script>
+    function split(val) {
+      return val.split(" ");
+    }
+    function lastTerm(term) {
+      return split(term).pop();
+    }
     // add an autocomplete handler to a form
     function attachAutocomplete(form) {
 
-        form.autocomplete({
+        form
+        // don't leave form field on tab-selecting an item
+        .on("keydown", function(event) {
+            if (event.keyCode === $.ui.keyCode.TAB &&
+                $(this).autocomplete("instance").menu.active) {
+                    event.preventDefault();
+                }
+        })
+        .autocomplete({
             formatItem: function(row) {
                 return row[1];
             },
@@ -114,14 +128,34 @@
             delay: 0,
             source: function (request, response) {
                 var resultLimit = 8;
-                var results = $.map({{ inventory_items|safe }}, function (food) {
-                    if (food.toUpperCase().indexOf(request.term.toUpperCase()) === 0) {
+                // filter out 'starting with' terms
+                var results = $.map({{ food_suggestions|safe }}, function (food) {
+                    if (food.toUpperCase().indexOf(lastTerm(request.term).toUpperCase()) === 0) {
                         return food;
                     }
                 });
-            response(results.slice(0, resultLimit));
-            }
-        });
+                // limit results to resultLimit
+                results = results.slice(0, resultLimit);
+                //delegate back to autocomplete, for last term only
+                response( $.ui.autocomplete.filter(
+                results, lastTerm(request.term)));
+                },
+                focus: function() {
+                    // prevent value inserted on focus
+                    return false;
+                },
+                select: function(event, ui) {
+                    var terms = split(this.value);
+                    // remove the current input
+                    terms.pop();
+                    // add the selected item
+                    terms.push(ui.item.value);
+                    // add placeholder to get the comma-and-space at the end
+                    terms.push("");
+                    this.value = terms.join(" ");
+                    return false;
+                }
+            });
     }
     // initialize the very first autocomplete handler
     $(function() {

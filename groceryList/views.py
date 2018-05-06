@@ -45,9 +45,9 @@ class GroceryListView(DetailView):
         context['item_form'] = forms.AddItemToListForm
         context['grocery_list'] = self.get_object()
         context['grocery_items'] = GroceryItems.objects.filter(groceryList=self.kwargs.get('pk'))
-        context['inventory_items'] = generic_foods + \
-                                     [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
-                                      if x not in generic_foods]
+        context['food_suggestions'] = generic_foods + \
+                                      [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+                                       if x not in generic_foods]
         return context
 
 def add(request):
