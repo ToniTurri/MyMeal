@@ -35,6 +35,7 @@ class NewGroceryListView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(NewGroceryListView, self).get_context_data(**kwargs)
         context['food_name'] = self.kwargs.get("food_name")
+        context['barcode'] = self.kwargs.get("barcode")
 
         return context
 
@@ -63,6 +64,7 @@ def add(request):
             # create a new list from the barcodeScan app and add the scanned item
             # to it automatically.
             scanned_food_name = request.POST.get("food_name")
+            scanned_food_barcode = request.POST.get("barcode")
 
             if GroceryList.objects.filter(name=text).exists():
                 messages.warning(request, "Grocery list already exists")
@@ -75,7 +77,8 @@ def add(request):
 
                 # *if we are making a list from the barcodeScan app, add the food item too
                 if scanned_food_name is not None:
-                    new_food = GroceryItems(groceryList=new_list,name=scanned_food_name, date=timezone.now())
+                    new_food = GroceryItems(groceryList=new_list, name=scanned_food_name,
+                                            barcode=scanned_food_barcode, date=timezone.now())
                     new_food.save()
 
                 return HttpResponseRedirect(reverse('groceryList:detail', args = (new_list.id,)))
