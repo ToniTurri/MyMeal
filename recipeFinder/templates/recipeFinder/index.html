@@ -7,33 +7,8 @@
 		<h3>Recipe Finder</h3>
 	</header>
 
-	<p>
-		<span style="font-size: .9em; color: #868e96;">
-		Search for recipes with generic food items or items from your inventory!
-		</span>
-	</p>
-	<div>
-		<h3>Recipes with:</h3>
-		<input type="text" id="recipe-search-box">
-
-	</div>
-
-	<h4>Choose items from your inventory to get a recipe!</h4>
-	<form action="{% url 'recipeFinder:inventory-check' %}" method="get">
-		<input type="submit" value="Pick from your inventory!" />
-	</form>
-
-	<br>
-
-	<h4>Or pick from your inventory to search saved recipes!</h4>
-	<form action"{% url 'recipeFinder:search-saved' %}" method ="get">
-		<input type="submit" value="Search saved recipes!" />
-	</form>
-
-	<br>
-
-	<h4>Find recipes on anything you want!</h4>
-	<form action="{% url 'recipeFinder:free-select' %}" method="get">
+	<h4>Discover new recipes!</h4>
+	<form action="{% url 'recipeFinder:recipe_search' %}" method="get">
 		<input type="submit" value="Search for recipes!" />
 	</form>
 
@@ -46,26 +21,4 @@
 
 </article>
 
-<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-
-<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script>
-$( function() {
-    $( "#recipe-search-box" ).autocomplete({
-      autoFocus: true,
-      minLength: 1,
-      delay: 0,
-      source: function (request, response) {
-             var resultLimit = 8;
-             var results = $.map({{ generic_and_inventory_foods|safe }}, function (food) {
-                 if (food.toUpperCase().indexOf(request.term.toUpperCase()) === 0) {
-                     return food;
-                 }
-             });
-       	    response(results.slice(0, resultLimit));
-       }
-    });
-});
-</script>
 {% endblock %}

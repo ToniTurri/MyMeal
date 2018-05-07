@@ -1,19 +1,18 @@
 from django.http import HttpResponseRedirect, HttpResponse
-from django.template import RequestContext
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.views.generic import DetailView, ListView
 from django.utils import timezone
 from django.contrib import messages
-from django.db.models import F
 from django.views.generic.edit import CreateView
 from .models import Recipe, RecipeIngredients
 from inventory.models import InventoryItem
+from inventory.views import generic_foods
+from recipeFinder.views import findInventoryItem
 from .forms import IngredientForm
 from . import forms
 from django.forms.formsets import formset_factory
 from django.db import IntegrityError, transaction
-from django.core.exceptions import ValidationError
    
 #from django.contrib.auth.decorators import login_required
 #@login_required(login_url='/accounts/login/')
@@ -129,18 +128,15 @@ def add_recipe(request, pk=0):
 					linked_recipe = new_recipe
 
 				for ingredient_form in ingredient_formset:
-					ingredient = ingredient_form.cleaned_data['value']
+					ingredient_line = ingredient_form.cleaned_data['value']
 					# try and link the ingredient to an inventory item
-					try:
-						inventory_item = InventoryItem.objects.filter(name__exact=ingredient)[:1].get()
-					except InventoryItem.DoesNotExist:
-						inventory_item = None
+					inventory_item = findInventoryItem(ingredient_line)
 					#inventory_item = ingredient_form.cleaned_data['inventoryItem']
 
-					if ingredient:
+					if ingredient_line:
 						new_ingredient_link = RecipeIngredients(
 							recipe=linked_recipe, 
-							ingredient=ingredient,
+							ingredient=ingredient_line,
 							inventoryItem=inventory_item)
 
 						new_ingredients.append(new_ingredient_link)
@@ -163,7 +159,9 @@ def add_recipe(request, pk=0):
 	    'ingredient_formset': ingredient_formset,
 	    'is_edit': is_edit,
 	    'id': recipe.id,
-	    'inventory_items': list(InventoryItem.objects.values_list('name', flat=True))
+	    'food_suggestions': generic_foods + \
+							[x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+							 if x not in generic_foods]
 	}
 
 	return render(request, 'recipes/new_recipe.html', context)

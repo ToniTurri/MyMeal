@@ -45,7 +45,9 @@ class GroceryListView(DetailView):
         context['item_form'] = forms.AddItemToListForm
         context['grocery_list'] = self.get_object()
         context['grocery_items'] = GroceryItems.objects.filter(groceryList=self.kwargs.get('pk'))
-        context['inventory_items'] = generic_foods + list(InventoryItem.objects.values_list('name', flat=True).distinct())
+        context['food_suggestions'] = generic_foods + \
+                                      [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+                                       if x not in generic_foods]
         return context
 
 def add(request):
@@ -92,9 +94,12 @@ def update(request, pk):
 
         if form.is_valid():
             item = form.cleaned_data['name']
+            # lowercase the name if its a generic food item
+            if item.lower() in generic_foods:
+                item = item.lower()
             # try and link the ingredient to an inventory item
             try:
-                inventory_item = InventoryItem.objects.filter(name__exact=item)[:1].get()
+                inventory_item = InventoryItem.objects.filter(name=item)[:1].get()
             except InventoryItem.DoesNotExist:
                 inventory_item = None
             #inventory_item = form.cleaned_data['inventory_item']
@@ -114,12 +119,11 @@ def update(request, pk):
             # at this point in time too
             else:
                 update_quantities(request, grocery_items)
-                new_grocery_item = GroceryItems.objects.create(
-                            groceryList=grocery_list,
-                            name=item,
-                            quantity=quantity,
-                            date=timezone.now(),
-                            inventoryItem=inventory_item)
+                GroceryItems.objects.create(groceryList=grocery_list, 
+                                            name=item, 
+                                            quantity=quantity, 
+                                            date=timezone.now(),
+                                            inventoryItem=inventory_item)
 
                 return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 
@@ -208,6 +212,11 @@ def confirm_item(request, pk, id):
 
     return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 
+def delete_list(request, pk):
+	if request.method == 'POST':
+		GroceryList.objects.filter(id=pk).delete()
+		return HttpResponseRedirect(reverse('groceryList:index'))
+     
 def delete_item(request, pk, id):
 
     if request.method == 'GET':

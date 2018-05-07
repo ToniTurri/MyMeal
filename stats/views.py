@@ -24,12 +24,12 @@ def statsHandler(request):
             '''
 
     else :
-        stats_list = Consumed_Stats.objects.all()
+        stats_list = Consumed_Stats.objects.order_by('food__name')
 
     if stats_list:
-        time_diff = timeCheck()
-        if time_diff > 0:
-            reinitStats(time_diff)
+        if timeCheck():
+            # Need to re-get the list
+            stats_list = Consumed_Stats.objects.order_by('food__name')
         context = {'stats_list': stats_list,
         'value':timezone.now(),
         'value2':timezone.now() - timedelta(days=1),
@@ -114,10 +114,16 @@ def timeCheck():
         stat_time = Time_Stamp.objects.get(pk=1)
     except Time_Stamp.DoesNotExist:
         stat_time = Time_Stamp()
+        stat_time.save()
     # return false if same day (so don't reinit) and true otherwise
-    if abs((date - stat_time.time).days) is 0:
-            return 0
+    day_diff = abs((date - stat_time.time).days)
+    print(day_diff)
+    print(stat_time.time.day)
+    if day_diff is 0:
+        return
     else:
         stat_time.time = timezone.now()
         stat_time.save()
-        return abs((date - stat_time.time).days)
+        if day_diff > 0:
+            reinitStats(day_diff)
+        return True

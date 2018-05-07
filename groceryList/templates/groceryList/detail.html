@@ -4,7 +4,7 @@
 
 <article id="small-panel">
 
-    <form action="" method="post">
+    <form action="{% url 'groceryList:delete_list' grocery_list.id %}" method="post"
         <!-- csrf_token to protect against XSS attacks -->
         {% csrf_token %}
         {% load static %}
@@ -149,23 +149,32 @@ $(document).ready(function() {
 </script>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 
-<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
     $( function() {
-    $( "#{{ item_form.name.id_for_label }}" ).autocomplete({
-      autoFocus: true,
-      minLength: 1,
-      delay: 0,
-      source: function (request, response) {
-             var resultLimit = 8;
-             var results = $.map({{ inventory_items|safe }}, function (food) {
-                 if (food.toUpperCase().indexOf(request.term.toUpperCase()) === 0) {
-                     return food;
-                 }
-             });
-            response(results.slice(0, resultLimit));
-       }
+    $( "#{{ item_form.name.id_for_label }}" )
+		// don't leave form field on tab-selecting an item
+        .on("keydown", function(event) {
+            if (event.keyCode === $.ui.keyCode.TAB &&
+                $(this).autocomplete("instance").menu.active) {
+                    event.preventDefault();
+                }
+        })
+        .autocomplete({
+
+			autoFocus: true,
+			minLength: 1,
+			delay: 0,
+			source: function (request, response) {
+				var resultLimit = 8;
+				var results = $.map({{ food_suggestions|safe }}, function (food) {
+				if (food.toUpperCase().indexOf(request.term.toUpperCase()) === 0) {
+					return food;
+				}
+			});
+		response(results.slice(0, resultLimit));
+		}
     });
     } );
 </script>
