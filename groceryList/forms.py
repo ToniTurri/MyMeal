@@ -14,5 +14,5 @@ class AddGroceryListForm(forms.ModelForm):
     
 class AddItemToListForm(Form):
     name = forms.CharField(label = 'Item', max_length = 100, required=False)
-    quantity = forms.IntegerField(max_value=100, min_value=1, required=False)
+    quantity = forms.IntegerField(max_value=100, min_value=1, required=False, initial = 1)
     inventory_item = forms.ModelChoiceField(queryset=InventoryItem.objects.all(), required=False)
