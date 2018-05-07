@@ -3,6 +3,7 @@ import json
 import string
 import re
 import nltk
+import random
 nltk.download('stopwords')
 nltk.download('punkt')
 from nltk.corpus import stopwords
@@ -323,28 +324,44 @@ def recipe_search(request):
 
 # Suggestions based on stats
 def suggestions(request):
-	stats_list = Consumed_Stats.objects.order_by('-total')
-	search_phrase = '' # temp test phrase until better thing comes
-
-	# get number of ingredients to use ( might need work)
-	count = resolveCount(len(stats_list))
-	if count is None:
-		return render(request, 'recipeFinder/not_found.html')
-	# Get top values
-	ingredients = []
-	for i in range(0, count):
-		ingredients.append(stats_list[i].food.name)
-	context = None
-	# make sure that matches were found and keep trying if not
-	while context is None and count >= 2:
-		context = get_search_results(request, ingredients, search_phrase)
-		ingredients = ingredients[:-1]
-		count -=1
-
-	if context is None:
-		return render(request, 'recipeFinder/not_found.html')
-	# display the data as results
-	return render(request, 'recipeFinder/results.html', context)
+   # there's probably a way of doing this that will return the maximum (or at least a large)
+   # number of recipe matches; as it stands right now, this will return a single match
+   if request.method == 'GET':
+      cleanSearch(request)
+      
+   inventory_items = list(InventoryItem.objects.values_list('name', flat=True).distinct())
+   search_phrase = ''
+   n = len(inventory_items)
+   
+   # if the user has too few ingredients, don't bother searching. this number could
+   # probably be bigger. it isn't strictly necessarily, but if the only thing in their 
+   # inventory is eggs, whatever results it returns aren't going to be helpful
+   if (n < 3):
+      context = {'too_few' : True}
+      return render(request, 'recipeFinder/not_found.html', context)
+   
+   context = None
+   tries = 0
+   while (context is None and tries < 20):
+      tries += 1
+      
+      # continually sample three random items from the user's inventory until
+      # get_search_results returns something valid, or the iteration limit is reached
+      index = random.sample(range(0, n), 3)
+      ingredients = []
+      
+      for i in index:
+         ingredients.append(inventory_items[i])
+         
+      context = get_search_results(request, ingredients, search_phrase)
+   
+   # if the search hasn't returned anything in 20 tries, the user probably only has
+   # a handfull of ingredients that aren't typically used together
+   if (context is None):
+      context = {'too_few' : True}
+      return render(request, 'recipeFinder/not_found.html', context)
+   
+   return render(request, 'recipeFinder/results.html', context)
 
 # helper function determines the inital number of ingredients to use
 def resolveCount(count):
