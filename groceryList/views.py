@@ -169,6 +169,7 @@ def confirm_item(request, pk, id):
             # if the grocery item was linked to an inventory item update that
             # item directly
             if grocery_item.inventoryItem:
+                print(1)
                 try:
                     inventory_item = InventoryItem.objects.get(pk=grocery_item.inventoryItem.id,
                                                                barcode=grocery_item.inventoryItem.barcode)
@@ -181,12 +182,16 @@ def confirm_item(request, pk, id):
             # if the grocery item was added view the barcode scanner update the inventory
             # item that has that same barcode or create a new inventory item for it
             elif grocery_item.barcode:
-                inventory_item = InventoryItem.objects.filter(name=grocery_list.name, 
-                                                              barcode=grocery_item.barcode).first()
+                print(2)
+                try:
+                    inventory_item = InventoryItem.objects.get(name=grocery_item.name,
+                                                               barcode=grocery_item.barcode)
+                except InventoryItem.DoesNotExist:
+                    inventory_item = None
 
                 if inventory_item:
                     inventory_item.quantity += int(grocery_item.quantity)
-                    inventory_item.save()    
+                    inventory_item.save()
                 else:
                     InventoryItem.objects.create(name=grocery_item.name,
                                                  quantity=quantity,
@@ -196,6 +201,7 @@ def confirm_item(request, pk, id):
             # organized/linked to any other model types. Check if there is an item with
             # the same name first and update that to avoid duplicates where necessary
             else:
+                print(3)
                 try:
                     inventory_item = InventoryItem.objects.get(name=grocery_item.name,
                                                                barcode=grocery_item.barcode)
