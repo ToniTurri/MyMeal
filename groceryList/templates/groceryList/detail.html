@@ -14,7 +14,14 @@
     <header>
         <h3>{{ grocery_list.name }}</h3>
     </header>
-
+    
+    {% if messages %}
+       {% for message in messages %}
+          <div {% if message.tags %} style="color: #c92a2a;" class="{{ message.tags }}"{% endif %}>{{ message }}
+          </div><br>
+       {% endfor %}
+    {% endif %}
+    
     <span class="helptext" style="text-align: center;">
         Manage your grocery list by adding items, deleting items, and marking items as added to your inventory.
     </span>
@@ -83,12 +90,7 @@
         </p>
         <p><label>Quantity:</label>{{ item_form.quantity }}</p>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div {% if message.tags %} style="color: #c92a2a;" class="{{ message.tags }}"{% endif %}>{{ message }}
-                </div><br>
-            {% endfor %}
-        {% endif %}
+        
 
         <input type="submit" value="Save" />
     </form>
