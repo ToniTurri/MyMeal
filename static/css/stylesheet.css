@@ -373,3 +373,40 @@ p .warning {
 .pagination span {
 	margin: 5px;
 }
+
+table {
+    width: 100%; 
+    border: none;
+    background-color: white;
+    border-collapse:collapse;
+    text-align: center;
+    font-size: 1.1em;
+}
+
+td, th {
+    padding: 5px; 
+    border: none;
+}
+
+th.stats-date {
+    border-left: 2px solid #dee2e6;
+}
+
+table tr td.stats-green {
+	background-color: #69db7c;
+	border: none;
+}
+
+table tr td.stats-yellow {
+	background-color: #ffd43b;
+	border: none;
+}
+
+table tr td.stats-red {
+	background-color: #ff8787;
+	border: none;
+}
+
+td:first-child, th:first-child {
+     border-bottom: 2px solid #dee2e6;
+}
