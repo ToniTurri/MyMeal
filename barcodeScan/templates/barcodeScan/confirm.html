@@ -37,7 +37,7 @@
             <input type="submit" value="Add to grocery list" />
         {% else %}
         <center>No grocery lists found</center> <br>
-            <input type="button" onclick="window.location.href ='{% url 'groceryList:new' food_name %}'
+            <input type="button" onclick="window.location.href ='{% url 'groceryList:new' food_name barcode %}'
                                           ;return false;"
                    value="Create a new list" />
         {% endif %}
