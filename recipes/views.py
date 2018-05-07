@@ -128,31 +128,32 @@ def add_recipe(request, pk=0):
 					linked_recipe = new_recipe
 
 				for ingredient_form in ingredient_formset:
-					ingredient_line = ingredient_form.cleaned_data['value']
-					# try and link the ingredient to an inventory item
-					inventory_item = findInventoryItem(ingredient_line)
-					#inventory_item = ingredient_form.cleaned_data['inventoryItem']
+					if ingredient_form.is_valid():
 
-					if ingredient_line:
-						new_ingredient_link = RecipeIngredients(
-							recipe=linked_recipe, 
-							ingredient=ingredient_line,
-							inventoryItem=inventory_item)
+						ingredient_line = ingredient_form.cleaned_data['value']
 
-						new_ingredients.append(new_ingredient_link)
-				
-				try:
-					with transaction.atomic():
-						if is_edit:
-							# drop and recreate ingredients for ease
-							ingredients.delete()
+						if ingredient_line:
+							# try and link the ingredient to an inventory item
+							inventory_item = findInventoryItem(ingredient_line)
+							new_ingredient_link = RecipeIngredients(
+								recipe=linked_recipe,
+								ingredient=ingredient_line,
+								inventoryItem=inventory_item)
 
-						RecipeIngredients.objects.bulk_create(new_ingredients)
+							new_ingredients.append(new_ingredient_link)
 
-						return HttpResponseRedirect(reverse('recipes:detail', args = (linked_recipe.id,)))
-				except IntegrityError:
-					messages.warning(request, "There was an error saving your recipe")
-					return HttpResponseRedirect(reverse('recipes:new_recipe'))
+					try:
+						with transaction.atomic():
+							if is_edit:
+								# drop and recreate ingredients for ease
+								ingredients.delete()
+
+							RecipeIngredients.objects.bulk_create(new_ingredients)
+
+							return HttpResponseRedirect(reverse('recipes:detail', args = (linked_recipe.id,)))
+					except IntegrityError:
+						messages.warning(request, "There was an error saving your recipe")
+						return HttpResponseRedirect(reverse('recipes:new_recipe'))
 
 	context = {
 	    'form': form,
