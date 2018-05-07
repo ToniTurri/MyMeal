@@ -56,7 +56,9 @@
 	{% endif %}
 
 	{% if recipe.instructions %}
-		<p>{{ recipe.instructions }}
+		<div style="white-space: pre-line; text-indent: 0;">
+			{{ recipe.instructions }}
+		</div>
 	{% endif %}
 
 	{% if recipe.externalLink %}
@@ -67,8 +69,8 @@
 				instructions on how to make this recipe!
 			</span>
 			{% endif %}
-			<a href="{{ recipe.externalLink }}">{{ recipe.externalLink }}</a></p>
-			
+			<a href="{{ recipe.externalLink }}">{{ recipe.externalLink }}</a>
+		</p>	
 	{% endif %}	
 
 	{% if not recipe.yummlyId %}
