@@ -15,4 +15,4 @@ class Consumed_Stats(models.Model):
 
 # Need to save the last date person consumed something, or accessed stats
 class Time_Stamp(models.Model):
-    time = models.TimeField(default = timezone.now())
+    time = models.DateTimeField(default=timezone.now)

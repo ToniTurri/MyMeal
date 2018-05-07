@@ -24,6 +24,7 @@
         {% if food_name %}
             <!-- Used to add items from the barcode scanner to the grocery list -->
             <input type="hidden" name="food_name" value="{{ food_name }}">
+            <input type="hidden" name="barcode" value="{{ barcode }}">
         {% endif %}
         {{ form }}
         <br>

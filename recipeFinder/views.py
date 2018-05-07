@@ -3,6 +3,7 @@ import json
 import string
 import re
 import nltk
+import random
 nltk.download('stopwords')
 nltk.download('punkt')
 from nltk.corpus import stopwords
@@ -15,6 +16,7 @@ from django.utils import timezone
 from django.db import IntegrityError, transaction
 from django.forms.formsets import formset_factory
 from .forms import IngredientInputForm
+from inventory.views import generic_foods
 
 app_id = ''
 api_key = ''
@@ -230,15 +232,23 @@ def findInventoryItem(ingredientLine):
 
 	# check cleaned string for a match in the InventoryItem db
 	inventoryItems = None
-	try:
-		if not inventoryItems:
+	if not inventoryItems:
+		# first, try query as is--case sensitive for brands
+		# (e.g. Cento Crushed Tomatoes has precedence over 'tomatoes')
+		query = "SELECT * FROM inventory_inventoryitem " \
+				"WHERE %s LIKE '%%' || name || '%%'" \
+				" ORDER BY LENGTH(name) DESC LIMIT 1"
+		inventoryItems = InventoryItem.objects.raw(query, [ingredientLine])
+	if not first(inventoryItems):
+			# no brand found? try another query, this time lowercasing generic food items
+			# (e.g. Tomatoes->tomatoes)
+			tokens = word_tokenize(ingredientLine)
+			potentialIngredients = [w.lower() for w in tokens if w.lower() in generic_foods]
+			ingredientLine = ' '.join(str(w) for w in potentialIngredients)
 			query = "SELECT * FROM inventory_inventoryitem " \
 					"WHERE %s LIKE '%%' || name || '%%'" \
 					" ORDER BY LENGTH(name) DESC LIMIT 1"
 			inventoryItems = InventoryItem.objects.raw(query, [ingredientLine])
-	except InventoryItem.DoesNotExist:
-		if not inventoryItems:
-			inventoryItems = None
 
 	# return the first match (if none found, first() returns None)
 	return first(inventoryItems)
@@ -272,86 +282,86 @@ def query_API(url):
 	except ValueError:
 		return None
 
-# Shows inventory with checkboxes to select ingredients
-def inventoryCheck(request):
-
-	cleanSearch(request)
-
-	if request.method == 'GET' :
-		inventory_items = InventoryItem.objects.values_list('name', flat=True).distinct()
-		search_saved = False
-		context = {'inventory_items': inventory_items,
-				    'search_saved':search_saved}
-		return render(request, 'recipeFinder/inventory-check.html', context)
-
-	# This isn't supposed to actually do anything, but this is where the data is
-	if request.method == 'POST':
-		ingredients = request.POST.getlist('checked')
-		search_phrase = ''
-
-		# populate our context with the json response data
-		context = get_search_results(request, ingredients, search_phrase)
-		# make sure that matches were found
-		if context is None:
-			return render(request, 'recipeFinder/not_found.html')
-		# display the data as results
-		return render(request, 'recipeFinder/results.html', context)
-
-# Almsot there
-def freeSelect(request):
-
-	cleanSearch(request)
-
-	IngredientFormSet = formset_factory(IngredientInputForm, max_num=20, min_num=1, validate_min=True, extra=0)
-	if request.method == 'POST':
-		ingredient_formset = IngredientFormSet(request.POST)
-		if ingredient_formset.is_valid():
-
-			ingredients = []
-
-			for ingredient_form in ingredient_formset:
-				ingredient = ingredient_form.cleaned_data.get('item')
-				# make sure it's not empty
-				if ingredient:
-					ingredients.append(ingredient)
-
-			search_phrase = ''
-			context = get_search_results(request, ingredients, search_phrase)
-			if context is None:
-				return render(request, 'recipeFinder/not_found.html')
-
-			return render(request, 'recipeFinder/results.html', context)
-
-	else:
-		ingredient_formset = IngredientFormSet()
-		context = {'ingredient_formset': ingredient_formset}
-		return render(request, 'recipeFinder/free-select.html', context)
-
+def recipe_search(request):
+   cleanSearch(request)
+   IngredientFormSet = formset_factory(IngredientInputForm, max_num=20, min_num=1, validate_min=True, extra=0)
+   
+   if request.method == 'GET' :
+       ingredient_formset = IngredientFormSet()
+       inventory_items = InventoryItem.objects.values_list('name', flat=True).distinct()
+       context = {'ingredient_formset': ingredient_formset,
+                  'inventory_items': inventory_items,
+                  'food_suggestions': generic_foods + \
+									  [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+									   if x not in generic_foods]
+		}
+       
+       return render(request, 'recipeFinder/recipe_search.html', context)
+    
+   # Request is POST, process the form and return search results
+   if request.method == 'POST':
+      ingredients = request.POST.getlist('checked')
+      search_phrase = request.POST.get('search_phrase')
+      ingredient_formset = IngredientFormSet(request.POST)
+      
+      if ingredient_formset.is_valid():
+         for ingredient_form in ingredient_formset:
+            ingredient = ingredient_form.cleaned_data.get('item')
+            
+            # make sure it's not empty
+            if ingredient:
+				# make lowercase if it's generic
+               if ingredient.lower() in generic_foods:
+                  ingredient = ingredient.lower()
+            ingredients.append(ingredient)
+            
+      context = get_search_results(request, ingredients, search_phrase)
+      
+      if context is None:
+         return render(request, 'recipeFinder/not_found.html')
+      
+      return render(request, 'recipeFinder/results.html', context)
 
 # Suggestions based on stats
 def suggestions(request):
-	stats_list = Consumed_Stats.objects.order_by('-total')
-	search_phrase = '' # temp test phrase until better thing comes
-
-	# get number of ingredients to use ( might need work)
-	count = resolveCount(len(stats_list))
-	if count is None:
-		return render(request, 'recipeFinder/not_found.html')
-	# Get top values
-	ingredients = []
-	for i in range(0, count):
-		ingredients.append(stats_list[i].food.name)
-	context = None
-	# make sure that matches were found and keep trying if not
-	while context is None and count >= 2:
-		context = get_search_results(request, ingredients, search_phrase)
-		ingredients = ingredients[:-1]
-		count -=1
-
-	if context is None:
-		return render(request, 'recipeFinder/not_found.html')
-	# display the data as results
-	return render(request, 'recipeFinder/results.html', context)
+   # there's probably a way of doing this that will return the maximum (or at least a large)
+   # number of recipe matches; as it stands right now, this will return a single match
+   if request.method == 'GET':
+      cleanSearch(request)
+      
+   inventory_items = list(InventoryItem.objects.values_list('name', flat=True).distinct())
+   search_phrase = ''
+   n = len(inventory_items)
+   
+   # if the user has too few ingredients, don't bother searching. this number could
+   # probably be bigger. it isn't strictly necessarily, but if the only thing in their 
+   # inventory is eggs, whatever results it returns aren't going to be helpful
+   if (n < 3):
+      context = {'too_few' : True}
+      return render(request, 'recipeFinder/not_found.html', context)
+   
+   context = None
+   tries = 0
+   while (context is None and tries < 20):
+      tries += 1
+      
+      # continually sample three random items from the user's inventory until
+      # get_search_results returns something valid, or the iteration limit is reached
+      index = random.sample(range(0, n), 3)
+      ingredients = []
+      
+      for i in index:
+         ingredients.append(inventory_items[i])
+         
+      context = get_search_results(request, ingredients, search_phrase)
+   
+   # if the search hasn't returned anything in 20 tries, the user probably only has
+   # a handfull of ingredients that aren't typically used together
+   if (context is None):
+      context = {'too_few' : True}
+      return render(request, 'recipeFinder/not_found.html', context)
+   
+   return render(request, 'recipeFinder/results.html', context)
 
 # helper function determines the inital number of ingredients to use
 def resolveCount(count):
@@ -362,7 +372,7 @@ def resolveCount(count):
 	elif count > 5:
 		return 4
 	return count
-
+'''
 def searchSaved(request):
 	cleanSearch(request)
 
@@ -402,7 +412,6 @@ def searchSaved(request):
 		return render(request, 'recipeFinder/saved-recipe-search.html', context)
 	else:
 		inventory_items = InventoryItem.objects.all()
-		search_saved = True
-		context = {'inventory_items': inventory_items,
-					'search_saved':search_saved}
-		return render(request, 'recipeFinder/inventory-check.html', context)
+		context = {'inventory_items': inventory_items}
+		return render(request, 'recipeFinder/recipe_search.html', context)
+	'''

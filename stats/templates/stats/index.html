@@ -1,12 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<style>
-table, th, td {
-  border: 2px solid black;
-  border-collapse: collapse;
-}
-</style>
+
 <article id='small-panel'>
 {% if stats_list %}
   <h1 style="text-align:center;">
@@ -14,52 +9,52 @@ table, th, td {
     <p>This table keeps track of all the food you've consumed in the past 4 days,
        and works as follows...</p>
        <ul>
-         <li>Green means you didn't have alot</li>
-         <li>Yellow means you had some</li>
+         <li>Green means you didn't have a lot.</li>
+         <li>Yellow means you had some.</li>
          <li>Red means you had alot.</li>
        </ul>
-  <table style="width:100%;" align="center">
-    <tr bgcolor="#f76707">
+  <table>
+    <tr>
       <th>Food Item</th>
-      <th>{{ value|date:"m/d"}}</th>
-      <th>{{ value2|date:"m/d"}}</th>
-      <th>{{ value3|date:"m/d"}}</th>
-      <th>{{ value4|date:"m/d"}}</th>
+      <th class="stats-date">{{ value|date:"m/d"}}</th>
+      <th class="stats-date">{{ value2|date:"m/d"}}</th>
+      <th class="stats-date">{{ value3|date:"m/d"}}</th>
+      <th class="stats-date">{{ value4|date:"m/d"}}</th>
     </tr>
 
     {% for item in stats_list %}
       <tr>
-        <td bgcolor="aqua">{{item.food.name}}</td>
+        <td>{{item.food.name}}</td>
         {% if item.count1 < 5 %}
-          <td bgcolor="lawngreen">{{ item.count1 }}</td>
+          <td class="stats-green">{{ item.count1 }}</td>
         {% elif item.count1 < 10 %}
-          <td bgcolor="yellow">{{ item.count1 }}</td>
+          <td class="stats-yellow">{{ item.count1 }}</td>
         {% else %}
-          <td bgcolor="red">{{ item.count1 }}</td>
+          <td class="stats-red">{{ item.count1 }}</td>
         {% endif %}
 
         {% if item.count2 < 5 %}
-          <td bgcolor="lawngreen">{{ item.count2 }}</td>
+          <td class="stats-green">{{ item.count2 }}</td>
         {% elif item.count2 < 10 %}
-          <td bgcolor="yellow">{{ item.count2 }}</td>
+          <td class="stats-yellow">{{ item.count2 }}</td>
         {% else %}
-          <td bgcolor="red">{{ item.count2 }}</td>
+          <td class="stats-red">{{ item.count2 }}</td>
         {% endif %}
 
         {% if item.count3 < 5 %}
-          <td bgcolor="lawngreen">{{ item.count3 }}</td>
+          <td class="stats-green">{{ item.count3 }}</td>
         {% elif item.count3 < 10 %}
-          <td bgcolor="yellow">{{ item.count3 }}</td>
+          <td class="stats-yellow">{{ item.count3 }}</td>
         {% else %}
-          <td bgcolor="red">{{ item.count3 }}</td>
+          <td class="stats-red">{{ item.count3 }}</td>
         {% endif %}
 
         {% if item.count4 < 5 %}
-          <td bgcolor="lawngreen">{{ item.count4 }}</td>
+          <td class="stats-green">{{ item.count4 }}</td>
         {% elif item.count4 < 10 %}
-          <td bgcolor="yellow">{{ item.count4 }}</td>
+          <td class="stats-yellow">{{ item.count4 }}</td>
         {% else %}
-          <td bgcolor="red">{{ item.count4 }}</td>
+          <td class="stats-red">{{ item.count4 }}</td>
         {% endif %}
       </tr>
     {% endfor %}

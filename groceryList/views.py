@@ -10,6 +10,8 @@ from django.views.generic.edit import CreateView
 from . import forms
 from inventory.models import InventoryItem
 from inventory.views import generic_foods
+from inventory.views import add as add_to_inventory
+from inventory.views import update as update_inventory
 from groceryList.models import GroceryItems, GroceryList
 from django.forms.formsets import formset_factory
 
@@ -33,6 +35,7 @@ class NewGroceryListView(CreateView):
     def get_context_data(self, **kwargs):
         context = super(NewGroceryListView, self).get_context_data(**kwargs)
         context['food_name'] = self.kwargs.get("food_name")
+        context['barcode'] = self.kwargs.get("barcode")
 
         return context
 
@@ -45,7 +48,9 @@ class GroceryListView(DetailView):
         context['item_form'] = forms.AddItemToListForm
         context['grocery_list'] = self.get_object()
         context['grocery_items'] = GroceryItems.objects.filter(groceryList=self.kwargs.get('pk'))
-        context['inventory_items'] = generic_foods + list(InventoryItem.objects.values_list('name', flat=True).distinct())
+        context['food_suggestions'] = generic_foods + \
+                                      [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+                                       if x not in generic_foods]
         return context
 
 def add(request):
@@ -59,6 +64,7 @@ def add(request):
             # create a new list from the barcodeScan app and add the scanned item
             # to it automatically.
             scanned_food_name = request.POST.get("food_name")
+            scanned_food_barcode = request.POST.get("barcode")
 
             if GroceryList.objects.filter(name=text).exists():
                 messages.warning(request, "Grocery list already exists")
@@ -71,7 +77,8 @@ def add(request):
 
                 # *if we are making a list from the barcodeScan app, add the food item too
                 if scanned_food_name is not None:
-                    new_food = GroceryItems(groceryList=new_list,name=scanned_food_name, date=timezone.now())
+                    new_food = GroceryItems(groceryList=new_list, name=scanned_food_name,
+                                            barcode=scanned_food_barcode, date=timezone.now())
                     new_food.save()
 
                 return HttpResponseRedirect(reverse('groceryList:detail', args = (new_list.id,)))
@@ -92,9 +99,12 @@ def update(request, pk):
 
         if form.is_valid():
             item = form.cleaned_data['name']
+            # lowercase the name if its a generic food item
+            if item.lower() in generic_foods:
+                item = item.lower()
             # try and link the ingredient to an inventory item
             try:
-                inventory_item = InventoryItem.objects.filter(name__exact=item)[:1].get()
+                inventory_item = InventoryItem.objects.filter(name=item)[:1].get()
             except InventoryItem.DoesNotExist:
                 inventory_item = None
             #inventory_item = form.cleaned_data['inventory_item']
@@ -114,12 +124,11 @@ def update(request, pk):
             # at this point in time too
             else:
                 update_quantities(request, grocery_items)
-                new_grocery_item = GroceryItems.objects.create(
-                            groceryList=grocery_list,
-                            name=item,
-                            quantity=quantity,
-                            date=timezone.now(),
-                            inventoryItem=inventory_item)
+                GroceryItems.objects.create(groceryList=grocery_list, 
+                                            name=item, 
+                                            quantity=quantity, 
+                                            date=timezone.now(),
+                                            inventoryItem=inventory_item)
 
                 return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 
@@ -162,52 +171,33 @@ def confirm_item(request, pk, id):
             grocery_item.confirmed = True
             grocery_item.save()
 
-            # if the grocery item was linked to an inventory item update that
-            # item directly
-            if grocery_item.inventoryItem:
-                try:
-                    inventory_item = InventoryItem.objects.get(pk=grocery_item.inventoryItem.id,
-                                                               barcode=grocery_item.inventoryItem.barcode)
-                except InventoryItem.DoesNotExist:
-                    inventory_item = None
-
-                if inventory_item:
-                    inventory_item.quantity += int(grocery_item.quantity)
-                    inventory_item.save()
-            # if the grocery item was added view the barcode scanner update the inventory
-            # item that has that same barcode or create a new inventory item for it
-            elif grocery_item.barcode:
-                inventory_item = InventoryItem.objects.filter(name=grocery_list.name, 
-                                                              barcode=grocery_item.barcode).first()
-
-                if inventory_item:
-                    inventory_item.quantity += int(grocery_item.quantity)
-                    inventory_item.save()    
+            if grocery_item.barcode:
+                # if the grocery item was linked to an inventory item update that
+                # item directly
+                if grocery_item.inventoryItem:
+                    update_inventory(grocery_item, grocery_item.quantity)
+                    # add barcode as well if it the linked item does not have one
+                    if not grocery_item.inventoryItem.barcode:
+                        grocery_item.inventoryItem.barcode = grocery_item.barcode
                 else:
-                    InventoryItem.objects.create(name=grocery_item.name,
-                                                 quantity=quantity,
-                                                 barcode=grocery_item.barcode,
-                                                 date=timezone.now())
-            # Straight up add a new inventory item without barcode, because it was not 
-            # organized/linked to any other model types. Check if there is an item with
-            # the same name first and update that to avoid duplicates where necessary
+                    # otherwise just add it to the inventory
+                    add_to_inventory(grocery_item.name, grocery_item.barcode, grocery_item.quantity)
             else:
-                try:
-                    inventory_item = InventoryItem.objects.get(name=grocery_item.name,
-                                                               barcode=grocery_item.barcode)
-                except InventoryItem.DoesNotExist:
-                    inventory_item = None
-
-                if inventory_item:
-                    inventory_item.quantity += int(grocery_item.quantity)
-                    inventory_item.save()
+                # if the grocery item was linked to an inventory item update that
+                # item directly
+                if grocery_item.inventoryItem:
+                    update_inventory(grocery_item.inventoryItem, grocery_item.quantity)
                 else:
-                    InventoryItem.objects.create(name=grocery_item.name,
-                                                 quantity=quantity,
-                                                 date=timezone.now())
+                    # otherwise just add it to the inventory
+                    add_to_inventory(grocery_item.name, '', grocery_item.quantity)
 
     return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 
+def delete_list(request, pk):
+	if request.method == 'POST':
+		GroceryList.objects.filter(id=pk).delete()
+		return HttpResponseRedirect(reverse('groceryList:index'))
+     
 def delete_item(request, pk, id):
 
     if request.method == 'GET':

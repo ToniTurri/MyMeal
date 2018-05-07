@@ -15,7 +15,7 @@ from stats.views import reinitStats, timeCheck
 # populate global list of generic food items
 generic_foods = []
 with open('generic-foods.csv', encoding='utf-8') as csvfile:
-    foodreader = csv.reader(csvfile, delimiter="\n", quotechar='|')
+    foodreader = csv.reader(csvfile, delimiter=",", quotechar='|')
     for row in foodreader:
         generic_foods.append(''.join(row))
 
@@ -47,7 +47,9 @@ def index(request):
 		context = {
 		    'add_item_form': AddItemToInventoryForm(),
 		    'inventoryitems': displayed_inv_items,
-		    'generic_foods': generic_foods + (list(InventoryItem.objects.values_list('name', flat=True).distinct()))
+		    'food_suggestions': generic_foods + \
+                                [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+                                 if x not in generic_foods]
 		}
 
 	return render(request, 'inventory/index.html', context)
@@ -59,9 +61,6 @@ def add_view(request):
         form = AddItemToInventoryForm(request.POST)
         if form and form.is_valid():
             name = (form.cleaned_data['name'])
-            # lowercase the name if its a generic food item
-            if name.lower() in generic_foods:
-                name = name.lower()
             add(name)
     else:
         # no GET requests to this URL
@@ -69,12 +68,26 @@ def add_view(request):
     return redirect('inventory:index')
 
 
-def add(name, barcode=''):
-    item = InventoryItem(name=name, quantity=1, barcode=barcode, date=timezone.now())
-    existing_item = InventoryItem.objects.filter(name=name, barcode=barcode).first()
+def add(name, barcode='', quantity=1):
+    # lowercase the name if its a generic food item
+    if name.lower() in generic_foods:
+        name = name.lower()
+    item = InventoryItem(name=name, quantity=quantity, barcode=barcode, date=timezone.now())
+    possible_items = InventoryItem.objects.filter(name=name)
+    existing_item = None
+    # prefer items with barcodes
+    for item in possible_items:
+        if item.barcode:
+            existing_item = item
+    # otherwise it's got no barcode
+    if not existing_item:
+        existing_item = InventoryItem.objects.filter(name=name).first()
     # if the item is in the db already, update its quantity by 1
     if existing_item:
-        update(existing_item, 1)
+        # if this item had a barcode and the previous item did not, add the barcode to the previous item
+        if not existing_item.barcode and barcode:
+            existing_item.barcode = barcode
+        update(existing_item, quantity)
     else:
         item.save()
 
@@ -135,9 +148,7 @@ def collect_stats(item, quantity):
     # for stats
     if quantity < item.quantity:
         difference = item.quantity - quantity
-        time_diff = timeCheck()
-        if time_diff > 0:
-            reinitStats(time_diff)
+        timeCheck()
         try:
             stat_item = Consumed_Stats.objects.get(food=item)
             stat_item.count1 += difference
