@@ -124,7 +124,8 @@ def update_view(request, pk, quantity):
     else:
         # no GET requests to this URL
         raise Http404
-    return redirect('inventory:index')
+
+    return render(request, 'inventory/index.html', {"successfulUpdate": True})
 
 def update(item, quantity):
     # update the qty

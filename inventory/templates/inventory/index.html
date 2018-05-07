@@ -57,6 +57,17 @@
 	{% endif %}
 
 	<br>
+
+	{% if successfulUpdate %}
+	<div class='alert alert-warning alert-dismissible' role='alert' 
+		style='background-color: #d3f9d8; padding: 5px; border-radius: 5px;'>
+		<strong>Success!</strong> Your inventory has been updated.
+		<span style='float:right;' type='button' class='close' data-dismiss='alert' aria-label='Close'>
+			<b><span aria-hidden='true'>&times;</span></b>
+		</span>
+	</div><br>
+	{% endif %}
+
 	{% if inventoryitems %}
     	{% for item in inventoryitems %}
     		<div data-role="inventory_item">
