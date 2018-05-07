@@ -7,6 +7,7 @@ from datetime import timedelta
 # Create your views here.
 def statsHandler(request):
     # Check if we want to show the stats table
+
     if request.method == 'POST':
 
         '''
@@ -22,6 +23,7 @@ def statsHandler(request):
         elif choice is 'Least Consumed':
             stats_list = Consumed_Stats.objects.order_by('total')
             '''
+
 
     else :
         stats_list = Consumed_Stats.objects.order_by('food__name')
@@ -109,21 +111,23 @@ def cleanup():
 # Checks if the last day a food item was consumed or stat page accessed is
 # different than the current day to reinitStats
 def timeCheck():
-    date = timezone.now()
+    date = timezone.now() - timedelta(hours=4)
     try:
         stat_time = Time_Stamp.objects.get(pk=1)
     except Time_Stamp.DoesNotExist:
         stat_time = Time_Stamp()
         stat_time.save()
     # return false if same day (so don't reinit) and true otherwise
-    day_diff = abs((date - stat_time.time).days)
+    print(stat_time.time)
+    day_diff = abs(( (date - timedelta(hours=date.hour)) - (stat_time.time - timedelta(hours=stat_time.time.hour))).days)
+    print(date)
     print(day_diff)
-    print(stat_time.time.day)
+    print(stat_time.time)
     if day_diff is 0:
         return
     else:
-        stat_time.time = timezone.now()
+        stat_time.time = timezone.now() - timedelta(hours=4)
         stat_time.save()
-        if day_diff > 0:
+        if day_diff != 0:
             reinitStats(day_diff)
         return True
