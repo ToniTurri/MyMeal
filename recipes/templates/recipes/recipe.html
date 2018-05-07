@@ -73,6 +73,8 @@
 		</p>	
 	{% endif %}	
 
+	<br>
+
 	{% if not recipe.yummlyId %}
 	<form action="{% url 'recipes:edit_recipe' recipe.id %}">
 		<input type="submit" value="Edit Recipe" /><br></br>
