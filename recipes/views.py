@@ -9,6 +9,7 @@ from .models import Recipe, RecipeIngredients
 from inventory.models import InventoryItem
 from inventory.views import generic_foods
 from recipeFinder.views import findInventoryItem
+from groceryList.models import GroceryList, GroceryItems
 from .forms import IngredientForm
 from . import forms
 from django.forms.formsets import formset_factory
@@ -166,3 +167,26 @@ def add_recipe(request, pk=0):
 
 	return render(request, 'recipes/new_recipe.html', context)
 
+def create_grocery_list(request, pk):
+   recipe = Recipe.objects.get(id=pk)
+   new_name = "For Recipe: " + str(recipe)
+   
+   if GroceryList.objects.filter(name=new_name).exists():
+      messages.warning(request, "Grocery List Already Exists!")
+      list_id = GroceryList.objects.get(name=new_name).pk
+      return HttpResponseRedirect(reverse('groceryList:detail', args = (list_id,)))
+   
+   ingredients = RecipeIngredients.objects.filter(recipe=pk)
+   new_list = GroceryList.objects.create(name=new_name, date=timezone.now())
+   
+#   ingredient_data = [{'value': i.ingredient, 'inventoryItem': i.inventoryItem}
+#       for i in ingredients]
+   
+   for i in ingredients:
+      new_food = GroceryItems(groceryList = new_list,
+                              name = i.ingredient,
+                              date = timezone.now(),
+                              inventoryItem = i.inventoryItem)
+      new_food.save()
+   
+   return HttpResponseRedirect(reverse('groceryList:detail', args = (new_list.id,)))

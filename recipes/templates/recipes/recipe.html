@@ -76,6 +76,12 @@
 		<input type="submit" value="Edit Recipe" /><br></br>
 	</form>
 	{% endif %}
+	
+	<form action="{% url 'recipes:create_grocery_list' recipe.id %}">
+		<input type="submit" value="Create Grocery List" /><br></br>
+	</form>
+	
+
 
 	<input type="button" onclick="window.location.href ='{% url 'recipes:index' %}'; return false;" value="Back" />
 
