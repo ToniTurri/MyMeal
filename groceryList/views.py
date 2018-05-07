@@ -10,6 +10,8 @@ from django.views.generic.edit import CreateView
 from . import forms
 from inventory.models import InventoryItem
 from inventory.views import generic_foods
+from inventory.views import add as add_to_inventory
+from inventory.views import update as update_inventory
 from groceryList.models import GroceryItems, GroceryList
 from django.forms.formsets import formset_factory
 
@@ -166,55 +168,25 @@ def confirm_item(request, pk, id):
             grocery_item.confirmed = True
             grocery_item.save()
 
-            # if the grocery item was linked to an inventory item update that
-            # item directly
-            if grocery_item.inventoryItem:
-                print(1)
-                try:
-                    inventory_item = InventoryItem.objects.get(pk=grocery_item.inventoryItem.id,
-                                                               barcode=grocery_item.inventoryItem.barcode)
-                except InventoryItem.DoesNotExist:
-                    inventory_item = None
-
-                if inventory_item:
-                    inventory_item.quantity += int(grocery_item.quantity)
-                    inventory_item.save()
-            # if the grocery item was added view the barcode scanner update the inventory
-            # item that has that same barcode or create a new inventory item for it
-            elif grocery_item.barcode:
-                print(2)
-                try:
-                    inventory_item = InventoryItem.objects.get(name=grocery_item.name,
-                                                               barcode=grocery_item.barcode)
-                except InventoryItem.DoesNotExist:
-                    inventory_item = None
-
-                if inventory_item:
-                    inventory_item.quantity += int(grocery_item.quantity)
-                    inventory_item.save()
+            if grocery_item.barcode:
+                # if the grocery item was linked to an inventory item update that
+                # item directly
+                if grocery_item.inventoryItem:
+                    update_inventory(grocery_item, 1)
+                    # add barcode as well if it the linked item does not have one
+                    if not grocery_item.inventoryItem.barcode:
+                        grocery_item.inventoryItem.barcode = grocery_item.barcode
                 else:
-                    InventoryItem.objects.create(name=grocery_item.name,
-                                                 quantity=quantity,
-                                                 barcode=grocery_item.barcode,
-                                                 date=timezone.now())
-            # Straight up add a new inventory item without barcode, because it was not 
-            # organized/linked to any other model types. Check if there is an item with
-            # the same name first and update that to avoid duplicates where necessary
+                    # otherwise just add it to the inventory
+                    add_to_inventory(grocery_item.name, grocery_item.barcode)
             else:
-                print(3)
-                try:
-                    inventory_item = InventoryItem.objects.get(name=grocery_item.name,
-                                                               barcode=grocery_item.barcode)
-                except InventoryItem.DoesNotExist:
-                    inventory_item = None
-
-                if inventory_item:
-                    inventory_item.quantity += int(grocery_item.quantity)
-                    inventory_item.save()
+                # if the grocery item was linked to an inventory item update that
+                # item directly
+                if grocery_item.inventoryItem:
+                    update_inventory(grocery_item, 1)
                 else:
-                    InventoryItem.objects.create(name=grocery_item.name,
-                                                 quantity=quantity,
-                                                 date=timezone.now())
+                    # otherwise just add it to the inventory
+                    add_to_inventory(grocery_item.name)
 
     return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 
