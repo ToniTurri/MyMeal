@@ -73,9 +73,20 @@ def add(name, barcode=''):
     if name.lower() in generic_foods:
         name = name.lower()
     item = InventoryItem(name=name, quantity=1, barcode=barcode, date=timezone.now())
-    existing_item = InventoryItem.objects.filter(name=name, barcode=barcode).first()
+    possible_items = InventoryItem.objects.filter(name=name)
+    existing_item = None
+    # prefer items with barcodes
+    for item in possible_items:
+        if item.barcode:
+            existing_item = item
+    # otherwise it's got no barcode
+    if not existing_item:
+        existing_item = InventoryItem.objects.filter(name=name).first()
     # if the item is in the db already, update its quantity by 1
     if existing_item:
+        # if this item had a barcode and the previous item did not, add the barcode to the previous item
+        if not existing_item.barcode and barcode:
+            existing_item.barcode = barcode
         update(existing_item, 1)
     else:
         item.save()
