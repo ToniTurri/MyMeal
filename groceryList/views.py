@@ -172,21 +172,21 @@ def confirm_item(request, pk, id):
                 # if the grocery item was linked to an inventory item update that
                 # item directly
                 if grocery_item.inventoryItem:
-                    update_inventory(grocery_item, 1)
+                    update_inventory(grocery_item, grocery_item.quantity)
                     # add barcode as well if it the linked item does not have one
                     if not grocery_item.inventoryItem.barcode:
                         grocery_item.inventoryItem.barcode = grocery_item.barcode
                 else:
                     # otherwise just add it to the inventory
-                    add_to_inventory(grocery_item.name, grocery_item.barcode)
+                    add_to_inventory(grocery_item.name, grocery_item.barcode, grocery_item.quantity)
             else:
                 # if the grocery item was linked to an inventory item update that
                 # item directly
                 if grocery_item.inventoryItem:
-                    update_inventory(grocery_item, 1)
+                    update_inventory(grocery_item.inventoryItem, grocery_item.quantity)
                 else:
                     # otherwise just add it to the inventory
-                    add_to_inventory(grocery_item.name)
+                    add_to_inventory(grocery_item.name, '', grocery_item.quantity)
 
     return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 

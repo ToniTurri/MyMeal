@@ -68,11 +68,11 @@ def add_view(request):
     return redirect('inventory:index')
 
 
-def add(name, barcode=''):
+def add(name, barcode='', quantity=1):
     # lowercase the name if its a generic food item
     if name.lower() in generic_foods:
         name = name.lower()
-    item = InventoryItem(name=name, quantity=1, barcode=barcode, date=timezone.now())
+    item = InventoryItem(name=name, quantity=quantity, barcode=barcode, date=timezone.now())
     possible_items = InventoryItem.objects.filter(name=name)
     existing_item = None
     # prefer items with barcodes
@@ -87,7 +87,7 @@ def add(name, barcode=''):
         # if this item had a barcode and the previous item did not, add the barcode to the previous item
         if not existing_item.barcode and barcode:
             existing_item.barcode = barcode
-        update(existing_item, 1)
+        update(existing_item, quantity)
     else:
         item.save()
 
