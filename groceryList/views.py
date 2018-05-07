@@ -8,6 +8,7 @@ from django.contrib import messages
 from django.db.models import F
 from django.views.generic.edit import CreateView
 from . import forms
+from recipes.models import Recipe, RecipeIngredients
 from inventory.models import InventoryItem
 from inventory.views import generic_foods
 from inventory.views import add as add_to_inventory
@@ -87,7 +88,7 @@ def add(request):
     else:
         form = forms.AddGroceryListForm()
     return render(request, 'groceryList:index', {'form':form})
-
+ 
 def update(request, pk):
 
     form = forms.AddItemToListForm()
