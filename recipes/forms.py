@@ -6,9 +6,8 @@ from django.forms.formsets import formset_factory, BaseFormSet
 
 
 class IngredientForm(forms.Form):
-    value = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'autocomplete'}),
+    value = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'autocomplete', 'required': 'required'}),
                             required=True)
-    inventoryItem = forms.ModelChoiceField(queryset=InventoryItem.objects.all(), required=False)
 
     def __init__(self, *arg, **kwarg):
         super(IngredientForm, self).__init__(*arg, **kwarg)

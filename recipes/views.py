@@ -129,18 +129,19 @@ def add_recipe(request, pk=0):
 					linked_recipe = new_recipe
 
 				for ingredient_form in ingredient_formset:
-					ingredient_line = ingredient_form.cleaned_data['value']
-					# try and link the ingredient to an inventory item
-					inventory_item = findInventoryItem(ingredient_line)
-					#inventory_item = ingredient_form.cleaned_data['inventoryItem']
+					if ingredient_form.is_valid():
+						ingredient_line = ingredient_form.cleaned_data['value']
+						# try and link the ingredient to an inventory item
+						inventory_item = findInventoryItem(ingredient_line)
+						#inventory_item = ingredient_form.cleaned_data['inventoryItem']
 
-					if ingredient_line:
-						new_ingredient_link = RecipeIngredients(
-							recipe=linked_recipe, 
-							ingredient=ingredient_line,
-							inventoryItem=inventory_item)
+						if ingredient_line:
+							new_ingredient_link = RecipeIngredients(
+								recipe=linked_recipe, 
+								ingredient=ingredient_line,
+								inventoryItem=inventory_item)
 
-						new_ingredients.append(new_ingredient_link)
+							new_ingredients.append(new_ingredient_link)
 				
 				try:
 					with transaction.atomic():
@@ -186,6 +187,7 @@ def create_grocery_list(request, pk):
       new_food = GroceryItems(groceryList = new_list,
                               name = i.ingredient,
                               date = timezone.now(),
+                              barcode = i.barcode,
                               inventoryItem = i.inventoryItem)
       new_food.save()
    
