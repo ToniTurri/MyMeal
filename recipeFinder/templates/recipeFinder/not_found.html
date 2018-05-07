@@ -3,12 +3,14 @@
 {% block content %}
 
 <article id="small-panel">
-	<header>
-		<h3>Recipe Finder - Item Not Found</h3>
-		<p>
-			Sorry, no recipes could be obtained for this item.
-    	</p>
-	</header>
+   <header>
+      <h3>Sorry, we couldn't find any recipes for you.</h3>
+      {% if too_few %}
+         <p> Try adding more items to your inventory.</p>
+      {% else %}
+         <p> Try broadening your search by selecting fewer ingredients.</p>
+      {% endif %}
+   </header>
 
 	<form action="{% url 'recipeFinder:index' %}" method="get">
 		<!-- csrf_token not required in a GET form -->
