@@ -5,6 +5,7 @@ from inventory.models import InventoryItem
 from django.contrib.auth.models import User
 
 class GroceryList(models.Model):
+    user = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     date = models.DateTimeField(null=True, blank=True)
 
