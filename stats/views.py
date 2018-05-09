@@ -2,31 +2,11 @@ from django.shortcuts import render
 from .models import Consumed_Stats, Time_Stamp
 from django.utils import timezone
 from datetime import timedelta
-#from .forms import FilterForm
 
 # Create your views here.
 def statsHandler(request):
     # Check if we want to show the stats table
-
-    if request.method == 'POST':
-
-        '''
-        form = forms.FilterForm(request.POST)
-        choice = None
-        if form.is_valid():
-            choice = form.cleaned_data['select']
-
-        if choice is 'Name':
-            stats_list = Consumed_Stats.objects.order_by('-food__name')
-        elif choice is 'Most Consumed':
-            stats_list = Consumed_Stats.objects.order_by('-total')
-        elif choice is 'Least Consumed':
-            stats_list = Consumed_Stats.objects.order_by('total')
-            '''
-
-
-    else :
-        stats_list = Consumed_Stats.objects.order_by('food__name')
+    stats_list = Consumed_Stats.objects.order_by('food__name')
 
     if stats_list:
         if timeCheck():
@@ -115,14 +95,12 @@ def timeCheck():
     try:
         stat_time = Time_Stamp.objects.get(pk=1)
     except Time_Stamp.DoesNotExist:
-        stat_time = Time_Stamp()
+        stat_time = Time_Stamp(timezone.now() - timedelta(hours=4))
         stat_time.save()
-    # return false if same day (so don't reinit) and true otherwise
-    print(stat_time.time)
-    day_diff = abs(( (date - timedelta(hours=date.hour)) - (stat_time.time - timedelta(hours=stat_time.time.hour))).days)
-    print(date)
-    print(day_diff)
-    print(stat_time.time)
+    # find difference in days
+    day_diff = abs(( (date - timedelta(hours=date.hour,minutes=date.minute,seconds=date.second,microseconds=date.microsecond))
+    - (stat_time.time - timedelta(hours=stat_time.time.hour,minutes=stat_time.time.minute,seconds=stat_time.time.second,microseconds=stat_time.time.microsecond))).days)
+
     if day_diff is 0:
         return
     else:
