@@ -2,10 +2,8 @@ from django.shortcuts import render
 from .models import Consumed_Stats, Time_Stamp
 from django.utils import timezone
 from datetime import timedelta
-from django.contrib.auth.decorators import login_required
 
 # Create your views here.
-@login_required(login_url='/accounts/login/')
 def statsHandler(request):
     # Check if we want to show the stats table
     stats_list = Consumed_Stats.objects.order_by('food__name')

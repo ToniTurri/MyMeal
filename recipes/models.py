@@ -4,8 +4,7 @@ from django.urls import reverse
 from inventory.models import InventoryItem
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
-#from django.utils import timezone
-#import datetime
+from django.contrib.auth.models import User
 
 CATEGORY_CHOICES = (
 	('', ''),
