@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<article id='small-panel'>
+{% if stats_list %}
+  <h1 style="text-align:center;">
+    Here's how you have been eating. </h1>
+    <p>This table keeps track of all the food you've consumed in the past 4 days,
+       and works as follows...</p>
+       <ul>
+         <li>Green means you didn't have a lot.</li>
+         <li>Yellow means you had some.</li>
+         <li>Red means you had alot.</li>
+       </ul>
+  <table>
+    <tr>
+      <th>Food Item</th>
+      <th class="stats-date">{{ value|date:"m/d"}}</th>
+      <th class="stats-date">{{ value2|date:"m/d"}}</th>
+      <th class="stats-date">{{ value3|date:"m/d"}}</th>
+      <th class="stats-date">{{ value4|date:"m/d"}}</th>
+    </tr>
+
+    {% for item in stats_list %}
+      <tr>
+        <td>{{item.food.name}}</td>
+        {% if item.count1 < 3 %}
+          <td class="stats-green">{{ item.count1 }}</td>
+        {% elif item.count1 < 7 %}
+          <td class="stats-yellow">{{ item.count1 }}</td>
+        {% else %}
+          <td class="stats-red">{{ item.count1 }}</td>
+        {% endif %}
+
+        {% if item.count2 < 3 %}
+          <td class="stats-green">{{ item.count2 }}</td>
+        {% elif item.count2 < 7 %}
+          <td class="stats-yellow">{{ item.count2 }}</td>
+        {% else %}
+          <td class="stats-red">{{ item.count2 }}</td>
+        {% endif %}
+
+        {% if item.count3 < 3 %}
+          <td class="stats-green">{{ item.count3 }}</td>
+        {% elif item.count3 < 7 %}
+          <td class="stats-yellow">{{ item.count3 }}</td>
+        {% else %}
+          <td class="stats-red">{{ item.count3 }}</td>
+        {% endif %}
+
+        {% if item.count4 < 3 %}
+          <td class="stats-green">{{ item.count4 }}</td>
+        {% elif item.count4 < 7 %}
+          <td class="stats-yellow">{{ item.count4 }}</td>
+        {% else %}
+          <td class="stats-red">{{ item.count4 }}</td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+    </table>
+
+
+{% else %}
+    <h2 style="text-align:center;">Sorry, we don't have anything to show you
+      right now.</h2>
+      <p style="text-align:center;">Either you just started the app or you
+        haven't eaten anything in awhile. Try reducing the quantity in your inventory
+         to start producing results in your stats.</p>
+{% endif %}
+
+</article>
+
+{% endblock %}
