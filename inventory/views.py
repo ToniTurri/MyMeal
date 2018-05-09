@@ -11,7 +11,6 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
 from stats.models import Consumed_Stats
 from stats.views import reinitStats, timeCheck
-from django.contrib.auth.decorators import login_required
 
 # populate global list of generic food items
 generic_foods = []
@@ -20,8 +19,6 @@ with open('generic-foods.csv', encoding='utf-8') as csvfile:
     for row in foodreader:
         generic_foods.append(''.join(row))
 
-
-@login_required(login_url='/accounts/login/')
 def index(request):
 	# method is POST
 	if request.method == 'POST':
@@ -55,7 +52,6 @@ def index(request):
 
 	return render(request, 'inventory/index.html', context)
 
-@login_required(login_url='/accounts/login/')
 def add_view(request):
     # method is POST
     if request.method == 'POST':
@@ -68,7 +64,6 @@ def add_view(request):
         raise Http404
     return redirect('inventory:index')
 
-@login_required(login_url='/accounts/login/')
 def add(name, barcode='', quantity=1):
     # lowercase the name if its a generic food item
     if name.lower() in generic_foods:
@@ -93,7 +88,6 @@ def add(name, barcode='', quantity=1):
         item.save()
 
 @csrf_exempt
-@login_required(login_url='/accounts/login/')
 def remove_view(request, pk):
     # method is POST
     if request.method == 'POST':
@@ -108,7 +102,6 @@ def remove_view(request, pk):
 
 
 @csrf_exempt
-@login_required(login_url='/accounts/login/')
 def update_view(request, pk, quantity):
 
     # method is POST
@@ -142,13 +135,11 @@ def update_view(request, pk, quantity):
         raise Http404
     return redirect('inventory:index')
 
-@login_required(login_url='/accounts/login/')
 def update(item, quantity):
     # update the qty
     item.quantity = F('quantity') + quantity
     item.save()
 
-@login_required(login_url='/accounts/login/')
 def collect_stats(item, quantity):
     # for stats
     if quantity < item.quantity:
