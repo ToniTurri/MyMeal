@@ -15,10 +15,9 @@ from inventory.views import add as add_to_inventory
 from inventory.views import update as update_inventory
 from groceryList.models import GroceryItems, GroceryList
 from django.forms.formsets import formset_factory
+from django.contrib.auth.decorators import login_required
 
-
-#from django.contrib.auth.decorators import login_required
-#@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/login/')
 class IndexView(ListView):
     model = GroceryList
     template_name = 'groceryList/index.html'
@@ -28,6 +27,7 @@ class IndexView(ListView):
         context['all_grocery_lists'] = GroceryList.objects.all()
         return context
 
+@login_required(login_url='/accounts/login/')
 class NewGroceryListView(CreateView):
     model = GroceryList
     template_name = 'groceryList/new.html'
@@ -40,6 +40,7 @@ class NewGroceryListView(CreateView):
 
         return context
 
+@login_required(login_url='/accounts/login/')
 class GroceryListView(DetailView):
     model = GroceryList
     template_name = 'groceryList/detail.html'
@@ -54,6 +55,7 @@ class GroceryListView(DetailView):
                                        if x not in generic_foods]
         return context
 
+@login_required(login_url='/accounts/login/')
 def add(request):
     if request.method == "POST":
         form = forms.AddGroceryListForm(request.POST)
@@ -89,6 +91,7 @@ def add(request):
         form = forms.AddGroceryListForm()
     return render(request, 'groceryList:index', {'form':form})
  
+@login_required(login_url='/accounts/login/') 
 def update(request, pk):
 
     form = forms.AddItemToListForm()
@@ -141,6 +144,7 @@ def update(request, pk):
 
     return render(request, 'groceryList/detail.html', context)
 
+@login_required(login_url='/accounts/login/')
 def update_quantities(request, grocery_items=None):
     if not grocery_items:
         return
@@ -154,6 +158,7 @@ def update_quantities(request, grocery_items=None):
             grocery_item.quantity = grocery_item_amount
             grocery_item.save()
 
+@login_required(login_url='/accounts/login/')
 def confirm_item(request, pk, id):
 
     if request.method == 'GET':
@@ -194,11 +199,13 @@ def confirm_item(request, pk, id):
 
     return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 
+@login_required(login_url='/accounts/login/')
 def delete_list(request, pk):
 	if request.method == 'POST':
 		GroceryList.objects.filter(id=pk).delete()
 		return HttpResponseRedirect(reverse('groceryList:index'))
-     
+
+@login_required(login_url='/accounts/login/')
 def delete_item(request, pk, id):
 
     if request.method == 'GET':

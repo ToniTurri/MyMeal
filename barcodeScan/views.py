@@ -8,8 +8,10 @@ from .forms import BarcodeForm
 from django.db.models import F
 from inventory.views import add as inv_add
 from groceryList.models import GroceryList, GroceryItems
+from django.contrib.auth.decorators import login_required
 
 # initial view - prompt for barcode / do processing
+@login_required(login_url='/accounts/login/')
 def index(request):
 	# if the method is POST, do some processing
 	if request.method == 'POST':
@@ -56,6 +58,7 @@ def index(request):
 	return render(request, 'barcodeScan/index.html', {'form': form})
 
 # when a user wants to add an item to a grocery list, go here
+@login_required(login_url='/accounts/login/')
 def add_to_list(request, barcode):
 	# if the method is POST, do some processing
 	if request.method == "POST":
@@ -102,6 +105,7 @@ def add_to_list(request, barcode):
 		raise Http404
 
 # when a user wants to add an item to their inventory, go here
+@login_required(login_url='/accounts/login/')
 def add_to_inventory(request, barcode):
 	# if the method is POST, do some processing
 	if request.method == "POST":
