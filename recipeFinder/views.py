@@ -18,6 +18,7 @@ from django.db import IntegrityError, transaction
 from django.forms.formsets import formset_factory
 from .forms import IngredientInputForm
 from inventory.views import generic_foods
+from django.contrib.auth.decorators import login_required
 
 app_id = '6fd6322a'
 api_key = '3ea09467f568742e613075b1305e2eb2'
@@ -27,6 +28,7 @@ DEBUGGING = False
 
 
 # initial view & search results
+@login_required(login_url='/accounts/login/')
 def index(request):
     # method is POST
     # go back to previous search results
@@ -46,7 +48,7 @@ def index(request):
         cleanSearch(request)
         return render(request, 'recipeFinder/index.html')
 
-
+@login_required(login_url='/accounts/login/')
 def cleanSearch(request):
     if 'matches' in request.session:
         request.session.pop('matches')
@@ -57,6 +59,7 @@ def cleanSearch(request):
 
 
 # recipe detail view
+@login_required(login_url='/accounts/login/')
 def recipe_detail(request, id, course=None):
     # if the method is POST, then try and save the recipe
     if request.method == 'POST':
@@ -102,6 +105,7 @@ def recipe_detail(request, id, course=None):
 
 
 # get search data from the Yummly json response and return it
+@login_required(login_url='/accounts/login/')
 def get_search_results(request, ingredients, search_phrase):
     # if we already did a search, use those results
     if (request.session.get('matches')):
@@ -166,6 +170,7 @@ def get_recipe_details(id):
 
 
 # try to save the recipe to the recipes app
+@login_required(login_url='/accounts/login/')
 def save_recipe(request, context):
     yummlyId = context.get('id')
     name = context.get('name')
@@ -292,7 +297,7 @@ def query_API(url):
     except ValueError:
         return None
 
-
+@login_required(login_url='/accounts/login/')
 def recipe_search(request):
     cleanSearch(request)
     IngredientFormSet = formset_factory(IngredientInputForm, max_num=20, min_num=1, validate_min=True, extra=0)
@@ -335,6 +340,7 @@ def recipe_search(request):
 
 
 # Suggestions based on stats
+@login_required(login_url='/accounts/login/')
 def suggestions(request):
     # there's probably a way of doing this that will return the maximum (or at least a large)
     # number of recipe matches; as it stands right now, this will return a single match

@@ -14,9 +14,9 @@ from .forms import IngredientForm
 from . import forms
 from django.forms.formsets import formset_factory
 from django.db import IntegrityError, transaction
+from django.contrib.auth.decorators import login_required
    
-#from django.contrib.auth.decorators import login_required
-#@login_required(login_url='/accounts/login/')
+@login_required(login_url='/accounts/login/')
 class IndexView(ListView):
     model = Recipe
     template_name = 'recipes/index.html'
@@ -27,6 +27,7 @@ class IndexView(ListView):
         
         return context
 
+@login_required(login_url='/accounts/login/')
 class NewRecipeView(CreateView):
     model = Recipe
     form_class = forms.AddRecipeForm
@@ -34,6 +35,7 @@ class NewRecipeView(CreateView):
 
     template_name = 'recipes/new_recipe.html'
 
+@login_required(login_url='/accounts/login/')
 class RecipeView(DetailView):
     model = Recipe
     template_name = 'recipes/recipe.html'   
@@ -44,11 +46,13 @@ class RecipeView(DetailView):
             
         return context
 
+@login_required(login_url='/accounts/login/')
 def delete_recipe(request, pk):
 	if request.method == 'POST':
 		Recipe.objects.filter(id=pk).delete()
 		return HttpResponseRedirect(reverse('recipes:index'))
 
+@login_required(login_url='/accounts/login/')
 def add_recipe(request, pk=0):
 
 	is_edit = False
@@ -168,6 +172,7 @@ def add_recipe(request, pk=0):
 
 	return render(request, 'recipes/new_recipe.html', context)
 
+@login_required(login_url='/accounts/login/')
 def create_grocery_list(request, pk):
    recipe = Recipe.objects.get(id=pk)
    new_name = "For Recipe: " + str(recipe)
@@ -179,9 +184,6 @@ def create_grocery_list(request, pk):
    
    ingredients = RecipeIngredients.objects.filter(recipe=pk)
    new_list = GroceryList.objects.create(name=new_name, date=timezone.now())
-   
-#   ingredient_data = [{'value': i.ingredient, 'inventoryItem': i.inventoryItem}
-#       for i in ingredients]
    
    for i in ingredients:
       new_food = GroceryItems(groceryList = new_list,
