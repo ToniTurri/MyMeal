@@ -7,16 +7,15 @@
         <h3>Grocery Lists</h3>
     </header>
 
-    <center>Here are your grocery lists:</center>
-
     {% if all_grocery_lists %}
+        <center>Here are your grocery lists:</center>
         <ul>
         {% for list in all_grocery_lists %}
             <li><a href="{% url 'groceryList:detail' list.id %}">{{ list.name }}</a></li>
         {% endfor %}
         </ul>
     {% else %}
-        <p>No grocery lists are available.</p>
+        <center>No grocery lists are available.</center><br>
     {% endif %}
 
     <input type="submit" onclick="window.location.href ='{% url 'groceryList:new' %}'; return false;" value="Add New Grocery List" /> 

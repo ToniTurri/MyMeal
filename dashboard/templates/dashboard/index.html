@@ -3,76 +3,134 @@
 {% block content %}
 
 <article>
-	<header>
-		<div style="display: block;">
-		<span>My Recipes</span>
-		<button 
-		style="	float: right;
-				height: 35px;
-				border-radius: 5px;
-				background-color: #f76707;
-				border: none;
-				color: #f2f2f2;
-				font-size: .7em;
-				clear:left;"
-				>View All Recipes</button>
-			</div>
-	</header>
-	<section>
-		<div style="display: block; margin: 0 auto;">
-		<div class="recipe-preview" style="text-align:center; display:inline-block; height: 225px; width: 250px; margin-right: 10px;">
-			<h4> Sweet Potato Lentil Curry </h4>
-			<div class="recipe-image" style="height:125px">
-				<img src="http://www.slimmingeats.com/blog/wp-content/uploads/2013/11/DSC_2135-2.jpg" height="125px" />
-			</div>
-			<div style="margin-top: 5px">
-				<a href="#">View Recipe</a>
-			</div>
-		</div>
-		<div class="recipe-preview" style="text-align:center; display:inline-block; height: 225px; width: 250px; margin-right: 10px;">
-			<h4> Spaghetti Carbonara </h4>
-			<div class="recipe-image" style="height:125px">
-				<div class="no-image">
-					<p>No Image</p>
-					<i class="fas fa-camera fa-2x" style="margin:0 auto;"></i>
-				</div>
-			</div>
-			<div style="margin-top: 5px">
-				<a href="#">View Recipe</a>
-			</div>
-		</div>
-		<div class="recipe-preview" style="text-align:center; display:inline-block; height: 225px; width: 250px; margin-right: 10px;">
-			<h4> Sweet Potato Lentil Curry </h4>
-			<div class="recipe-image" style="height:125px">
-				<img src="http://www.slimmingeats.com/blog/wp-content/uploads/2013/11/DSC_2135-2.jpg" height="125px" />
-			</div>
-			<div style="margin-top: 5px">
-				<a href="#">View Recipe</a>
-			</div>
-		</div>
-		<div class="recipe-preview" style="text-align:center; display:inline-block; height: 225px; width: 250px; margin-right: 10px;">
-			<h4> Spaghetti Carbonara sfdfsdfs adsfsdfs asfsdfsd</h4>
-			<div class="recipe-image" style="height:125px">
-				<div class="no-image">
-					<p>No Image</p>
-					<i class="fas fa-camera fa-2x" style="margin:0 auto;"></i>
-				</div>
-			</div>
-			<div style="margin-top: 5px">
-				<a href="#">View Recipe</a>
-			</div>
-		</div>
-		<div class="recipe-preview" style="text-align:center; display:inline-block; height: 225px; width: 250px; margin-right: 10px;">
-			<h4> Sweet Potato Lentil Curry </h4>
-			<div class="recipe-image" style="height:125px">
-				<img src="http://www.slimmingeats.com/blog/wp-content/uploads/2013/11/DSC_2135-2.jpg" height="125px" />
-			</div>
-			<div style="margin-top: 5px">
-				<a href="#">View Recipe</a>
-			</div>
-		</div>
-	</div>
-	</section>
+    <header>
+        <div style="display: block;">
+        <span>Recent Recipes</span>
+        <input type="button" onclick="window.location.href ='{% url 'recipes:index' %}'; return false;" value="View All Recipes" 
+            style=" float: right;
+                height: 35px;
+                border-radius: 5px;
+                background-color: #f76707;
+                border: none;
+                color: #f2f2f2;
+                font-size: .7em;
+                clear:left;"
+                />
+            </div>
+    </header>
+
+    {% if recent_recipes %}
+    <section>
+        <div style="display: block; margin: 0 auto;">
+        {% for recipe in recent_recipes %}
+            <div class="recipe-preview">
+                <h4>{{ recipe.name }}</h4>
+                <div class="recipe-image" style="height:125px">
+                {% if recipe.image %}
+                    <img src="{{ recipe.image.url }}" />
+                {% elif recipe.imageUrl %}
+                    <img src="{{ recipe.imageUrl }}" />
+                {% else %}
+                    <div class="no-image">
+                    <p>No Image</p>
+                    <i class="fas fa-camera fa-2x" style="margin:0 auto;"></i>
+                    </div>
+                {% endif %}
+                </div>
+                <div style="margin-top: 5px">
+                    <a href="{% url 'recipes:detail' recipe.id %}">View Recipe</a>
+                </div>
+            </div>
+        {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <section>
+        <p>
+        <center>
+            You have no recipes available.<br>
+            Try <a href="{% url 'recipes:new_recipe' %}">adding a new recipe</a> or <a href="/search">searching</a> for new ones!<br><br>
+        </center>
+        </p>
+    </section>
+    {% endif %}
+</article>
+
+<article>
+    <header>
+        <div style="display: block;">
+        <span>Low Inventory</span>
+        <input type="button" onclick="window.location.href ='{% url 'inventory:index' %}'; return false;" value="View My Inventory" 
+            style=" float: right;
+                height: 35px;
+                border-radius: 5px;
+                background-color: #f76707;
+                border: none;
+                color: #f2f2f2;
+                font-size: .7em;
+                clear:left;"
+                />
+        <input type="button" onclick="window.location.href ='{% url 'groceryList:new' %}'; return false;" value="Create A Grocery List" 
+            style=" float: right;
+                height: 35px;
+                border-radius: 5px;
+                background-color: #e9ecef;
+                border: none;
+                color: #000;
+                font-size: .7em;
+                clear:left;
+                margin-right:15px;"
+                />
+            </div>
+    </header>
+
+    {% if low_inventory %}
+    <section>
+        <div style="display: block; margin: 0 auto;">
+        {% for item in low_inventory %}
+            <div 
+            {% if grocery_lists %} 
+            	class="inventory-preview" 
+            {% else %}
+            	class="inventory-preview-no-list"
+            {% endif %}>
+                <h4 style="width:90%;">{{ item.name }} : {{ item.quantity }}</h4>
+
+                {% if grocery_lists %}
+                <form action="{% url 'groceryList:add_inv_item' item.id %}" method="post">
+                	{% csrf_token %}
+		            <select name="selected_grocery_list" style="width:90%; float: left;">
+	                {% for list in grocery_lists %}
+	                    <option value = {{list.id}}>{{ list.name }}</option>
+	                {% endfor %}
+		            </select><br><br>
+		            <input type="submit" value="Add to List" style="width:90%;">
+		        </form>
+		    	{% endif %}
+          	</div>
+        {% endfor %}
+        {% if not grocery_lists %}
+        <section>
+        	<p>
+	        <center>
+	            You have no grocery lists.<br>
+	            Try <a href="{% url 'groceryList:new' %}">adding a new one</a> to help replenish your supplies!
+	        </center>
+	        </p>
+	    </section>
+        {% endif %}
+        </div>
+    </section>
+    {% else %}
+    <section>
+        <p>
+        <center>
+            You have nothing in your inventory.<br>
+            Try <a href="{% url 'inventory:index' %}">adding new items</a> or <a href="{% url 'barcodeScan:index' %}">scanning</a> barcodes!<br><br>
+        </center>
+        </p>
+    </section>
+    {% endif %}
 </article>
 
 {% endblock %}

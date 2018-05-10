@@ -15,6 +15,7 @@ from inventory.views import add as add_to_inventory
 from inventory.views import update as update_inventory
 from groceryList.models import GroceryItems, GroceryList
 from django.forms.formsets import formset_factory
+from django.db.models import Q
 
 class IndexView(ListView):
     model = GroceryList
@@ -91,7 +92,37 @@ def add(request):
     else:
         form = forms.AddGroceryListForm()
     return render(request, 'groceryList:index', {'form':form})
- 
+
+# pk is the pk for the inventory item to add to the grocery list
+def add_inv_item(request, pk):
+    if request.method == "POST":
+        grocery_list_id = request.POST.get('selected_grocery_list')
+        grocery_list = get_object_or_404(GroceryList, pk = grocery_list_id, user=request.user)
+        grocery_items = GroceryItems.objects.filter(groceryList=grocery_list)
+        inventory_item = InventoryItem.objects.filter(user=request.user, pk=pk).first()
+
+        if inventory_item:
+            item = grocery_items.filter(Q(inventoryItem=inventory_item) | Q(name=inventory_item.name)).first()
+            if item:
+                if item.confirmed:
+                    item.confirmed = False
+                    item.quantity = 1
+                else:
+                    item.quantity += 1
+
+                item.save()
+            else:
+                GroceryItems.objects.create(groceryList=grocery_list, 
+                                            name=inventory_item.name, 
+                                            quantity=1,
+                                            barcode=inventory_item.barcode,
+                                            date=timezone.now(),
+                                            inventoryItem=inventory_item)
+
+        return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list_id,)))
+    else:
+        raise Http404()
+
 def update(request, pk):
 
     form = forms.AddItemToListForm()

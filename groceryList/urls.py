@@ -10,6 +10,7 @@ urlpatterns = [
     path('new/', login_required(views.NewGroceryListView.as_view()), name='new'),
     path('new/<str:food_name>/<str:barcode>', login_required(views.NewGroceryListView.as_view()), name='new'),
     path('add/', login_required(views.add), name='add'),
+    path('add_inv_item/<int:pk>', login_required(views.add_inv_item), name='add_inv_item'),
     path('<int:pk>/update', login_required(views.update), name='update'),
     path('<int:pk>/<int:id>/confirm', login_required(views.confirm_item), name='confirm_item'),
     path('<int:pk>/<int:id>/delete', login_required(views.delete_item), name='delete_item'),

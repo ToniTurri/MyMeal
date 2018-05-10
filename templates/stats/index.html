@@ -4,15 +4,17 @@
 
 <article id='small-panel'>
 {% if stats_list %}
-  <h1 style="text-align:center;">
-    Here's how you have been eating. </h1>
-    <p>This table keeps track of all the food you've consumed in the past 4 days,
-       and works as follows...</p>
-       <ul>
-         <li>Green means you didn't have a lot.</li>
-         <li>Yellow means you had some.</li>
-         <li>Red means you had alot.</li>
-       </ul>
+  <header>
+    <h3> Here's how you have been eating. </h3>
+    <p>
+      This table keeps track of all the food you've consumed in the past 4  days, and works as follows...
+    </p>
+    <ul>
+     <li>Green means you didn't have a lot.</li>
+     <li>Yellow means you had some.</li>
+     <li>Red means you had a lot.</li>
+    </ul>
+  </header>
   <table>
     <tr>
       <th>Food Item</th>
@@ -60,13 +62,13 @@
     {% endfor %}
     </table>
 
-
 {% else %}
-    <h2 style="text-align:center;">Sorry, we don't have anything to show you
-      right now.</h2>
-      <p style="text-align:center;">Either you just started the app or you
-        haven't eaten anything in awhile. Try reducing the quantity in your inventory
-         to start producing results in your stats.</p>
+  <header>
+    <h3> Sorry, we don't have anything to show you right now. </h3>
+    <p>
+      Either you just started the app or you haven't eaten anything in awhile. Try reducing the quantity in your inventory to start producing results in your stats.
+    </p>
+  </header>
 {% endif %}
 
 </article>
