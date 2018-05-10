@@ -26,7 +26,7 @@
     <form action="{% url 'barcodeScan:index' %}" method="post">
         <!-- csrf_token to protect against XSS attacks -->
         {% csrf_token %}
-        {{ form }}
+        {{ form }}<br><br>
         <input type="submit" value="Scan" />
     </form>
 
