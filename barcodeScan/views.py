@@ -11,7 +11,7 @@ from groceryList.models import GroceryList, GroceryItems
 
 
 # initial view - prompt for barcode / do processing
-def index(request):
+def index(request, from_where='i'):
     # if the method is POST, do some processing
     if request.method == 'POST':
         form = BarcodeForm(request.POST)
@@ -47,14 +47,16 @@ def index(request):
             context.update({'all_grocery_lists': GroceryList.objects.filter(user=request.user)})
             # add the barcode
             context.update({'barcode': barcode})
+            # for displaying the 'back to ...' button
+            context.update({'from_where': from_where})
 
             # display the HTML page, passing the template context generated above
             return render(request, 'barcodeScan/confirm.html', context)
     else:
         # otherwise if GET, then just display a blank form
         form = BarcodeForm()
-
-    return render(request, 'barcodeScan/index.html', {'form': form})
+        context = {'from_where': from_where, 'form': form}
+    return render(request, 'barcodeScan/index.html', context)
 
 
 # when a user wants to add an item to a grocery list, go here

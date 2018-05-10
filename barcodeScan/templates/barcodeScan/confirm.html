@@ -52,7 +52,7 @@
         <input type="hidden" name="food_name" value="{{ food_name }}">
         <input type="submit" value="Add to inventory" />
         <br> <br>
-        <input type="button" onclick="window.location.href ='{% url 'barcodeScan:index' %}'
+        <input type="button" onclick="window.location.href ='{% url 'barcodeScan:index' from_where %}'
                                      ;return false;" value="Cancel" />
     </form>
 

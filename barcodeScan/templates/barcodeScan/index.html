@@ -23,11 +23,22 @@
     </p>
 	</header>
 
-    <form action="{% url 'barcodeScan:index' %}" method="post">
+    <form action="{% url 'barcodeScan:index' from_where %}" method="post">
         <!-- csrf_token to protect against XSS attacks -->
         {% csrf_token %}
         {{ form }}<br><br>
         <input type="submit" value="Scan" />
+        {% if from_where == 'i' %}
+        <br><br>
+        <input type="button" onclick="window.location.href ='{% url 'inventory:index' %}'
+                              ;return false;"
+        value="Back to Inventory" />
+        {% elif from_where == 'g' %}
+        <br><br>
+        <input type="button" onclick="window.location.href ='{% url 'groceryList:index' %}'
+                              ;return false;"
+        value="Back to Grocery List" />
+        {% endif %}
     </form>
 
 </article>
