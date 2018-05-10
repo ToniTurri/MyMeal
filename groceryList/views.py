@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.template import RequestContext
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -22,7 +22,7 @@ class IndexView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
-        context['all_grocery_lists'] = GroceryList.objects.filter(user=request.user)
+        context['all_grocery_lists'] = GroceryList.objects.filter(user=self.request.user)
         return context
 
 class NewGroceryListView(CreateView):
@@ -43,11 +43,15 @@ class GroceryListView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(GroceryListView, self).get_context_data(**kwargs)
+        grocery_list = self.get_object()
+        if grocery_list.user != self.request.user:
+            raise Http404()
+
         context['item_form'] = forms.AddItemToListForm
-        context['grocery_list'] = self.get_object()
-        context['grocery_items'] = GroceryItems.objects.filter(user=request.user, groceryList=self.kwargs.get('pk'))
+        context['grocery_list'] = grocery_list
+        context['grocery_items'] = GroceryItems.objects.filter(groceryList=grocery_list)
         context['food_suggestions'] = generic_foods + \
-                                      [x for x in list(InventoryItem.objects.filter(user=request.user).values_list('name', flat=True).distinct())
+                                      [x for x in list(InventoryItem.objects.filter(user=self.request.user).values_list('name', flat=True).distinct())
                                        if x not in generic_foods]
         return context
 
@@ -114,7 +118,7 @@ def update(request, pk):
             # the add new item form is empty, so attempt to update quantities of
             # existing items in the grocery list instead
             if not item and not quantity:
-                update_quantities(grocery_items)
+                update_quantities(request, grocery_items)
             # either item or quantity is empty which is an invalid state for adding 
             # a new item to the list. so show an error to the user
             elif not item or not quantity:
@@ -146,7 +150,6 @@ def update_quantities(request, grocery_items=None):
         return
     # confirmed items indicate they've already been added to the inventory with
     # their amounts. so we will skip them here
-    grocery_items = grocery_items.objects.filter(user=request.user)
     unconfirmed_grocery_items = (x for x in grocery_items if not x.confirmed)
     for grocery_item in unconfirmed_grocery_items:
         identifier = 'quantity_item_' + str(grocery_item.id)                 
@@ -160,7 +163,7 @@ def confirm_item(request, pk, id):
     if request.method == 'GET':
         grocery_list = get_object_or_404(GroceryList, pk = pk, user=request.user)
         try:
-            grocery_item = GroceryItems.objects.get(pk=id,groceryList=grocery_list)
+            grocery_item = GroceryItems.objects.filter(pk=id,groceryList=grocery_list).first()
         except GroceryItems.DoesNotExist:
             grocery_item = None
         quantity = request.GET['quantity']
@@ -183,7 +186,7 @@ def confirm_item(request, pk, id):
                         grocery_item.inventoryItem.barcode = grocery_item.barcode
                 else:
                     # otherwise just add it to the inventory
-                    add_to_inventory(grocery_item.name, grocery_item.barcode, grocery_item.quantity)
+                    add_to_inventory(request, grocery_item.name, grocery_item.barcode, grocery_item.quantity)
             else:
                 # if the grocery item was linked to an inventory item update that
                 # item directly

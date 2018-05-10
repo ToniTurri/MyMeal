@@ -8,10 +8,8 @@ from .forms import BarcodeForm
 from django.db.models import F
 from inventory.views import add as inv_add
 from groceryList.models import GroceryList, GroceryItems
-from django.contrib.auth.decorators import login_required
 
 # initial view - prompt for barcode / do processing
-@login_required(login_url='/accounts/login/')
 def index(request):
 	# if the method is POST, do some processing
 	if request.method == 'POST':
@@ -58,7 +56,6 @@ def index(request):
 	return render(request, 'barcodeScan/index.html', {'form': form})
 
 # when a user wants to add an item to a grocery list, go here
-@login_required(login_url='/accounts/login/')
 def add_to_list(request, barcode):
 	# if the method is POST, do some processing
 	if request.method == "POST":
@@ -91,7 +88,6 @@ def add_to_list(request, barcode):
 		else:
 			# add new GroceryItem to the grocery list
 			GroceryItems.objects.create(
-				user=request.user,
 				groceryList=grocery_list,
                 name=food,
                 quantity=1,
@@ -106,7 +102,6 @@ def add_to_list(request, barcode):
 		raise Http404
 
 # when a user wants to add an item to their inventory, go here
-@login_required(login_url='/accounts/login/')
 def add_to_inventory(request, barcode):
 	# if the method is POST, do some processing
 	if request.method == "POST":
@@ -123,7 +118,7 @@ def add_to_inventory(request, barcode):
 			return
 
 		# add the item to the inventory db
-		inv_add(food, barcode)
+		inv_add(request, food, barcode)
 
 		# take the user to their inventory to see their added item
 		return HttpResponseRedirect(reverse('inventory:index'))
