@@ -135,7 +135,7 @@ article#small-panel input[type=button] {
 
 .navbar {
   overflow: hidden;
-  background-color: #f76707;
+  background-color: #fff;
   position: fixed;
   top: 0;
   width: 100%;
@@ -144,7 +144,7 @@ article#small-panel input[type=button] {
 .navbar a {
   float: left;
   display: block;
-  color: #f1f3f5;
+  color: #000;
   text-align: center;
   padding: 12px;
   text-decoration: none;
