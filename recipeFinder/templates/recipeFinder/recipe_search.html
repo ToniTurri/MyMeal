@@ -45,7 +45,12 @@
         <input type="text" name="search_phrase" value="">
         <br>
         <br>
-        <input type="submit" value="Search!"/><br/><br/>
+        <input type="submit" value="Search!"/>
+        <br>
+        <br>
+    </form>
+    <form action="{% url 'recipeFinder:suggestions' %}" method="get">
+           <input type="submit" value="I'm feeling lucky!" />
     </form>
 </article>
 

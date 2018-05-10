@@ -392,8 +392,10 @@ def suggestions(request):
         context = {'too_few': True}
         return render(request, 'recipeFinder/not_found.html', context)
 
+    ## need this to tell /results.html whether or not it's displaying randomly
+    ## generated recipes & give the user the option to search again
+    context.update({'suggested': True})
     return render(request, 'recipeFinder/results.html', context)
-
 
 # helper function determines the inital number of ingredients to use
 def resolveCount(count):

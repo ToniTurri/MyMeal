@@ -6,7 +6,7 @@
     <header>
         <div style="display: block;">
         <span>Recipe Finder</span>
-        <input type="button" onclick="window.location.href ='{% url 'recipeFinder:index' %}'; return false;" value="Back to Recipe Finder" 
+        <input type="button" onclick="window.location.href ='{% url 'recipeFinder:recipe_search' %}'; return false;" value="Back to Recipe Finder" 
             style=" float: right;
                 height: 35px;
                 border-radius: 5px;
@@ -16,6 +16,7 @@
                 font-size: .7em;
                 clear:left;"
                 />
+        {% if suggested %}
         <input type="button" onclick="window.location ='{% url 'recipeFinder:suggestions' %}'; return false;" value="Try Again" 
             style=" float: right;
                 height: 35px;
@@ -27,6 +28,7 @@
                 font-size: .7em;
                 clear:left;"
                 />
+         {% endif %}
     </header>
 
     <!-- debug -->
