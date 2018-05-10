@@ -287,10 +287,10 @@ def first(rawquery):
 
 
 def clean_ingredientLine(ingredientLine):
-    # filter out punctuation
-    ingredientLine = re.sub('[' + string.punctuation + ']', '', ingredientLine)
+    # filter out punctuation (except apostrophes)
+    ingredientLine = re.sub('[' + string.punctuation.replace("'", "") + ']', '', ingredientLine)
     # filter out special characters
-    ingredientLine = re.sub('\W+', ' ', ingredientLine)
+    ingredientLine = re.sub("(?=.*\W)^(\w')+$", ' ', ingredientLine)
     # tokenize
     tokens = word_tokenize(ingredientLine)
     # filter out english stop words ('a', 'is', 'this', 'the', 'each', etc)
