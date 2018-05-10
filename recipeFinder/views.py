@@ -46,6 +46,7 @@ def index(request):
         cleanSearch(request)
         return render(request, 'recipeFinder/index.html')
 
+
 def cleanSearch(request):
     if 'matches' in request.session:
         request.session.pop('matches')
@@ -197,7 +198,7 @@ def save_recipe(request, context):
 
     # add other fields
     new_recipe = Recipe.objects.create(
-    	user=request.user,
+        user=request.user,
         name=name,
         date=timezone.now(),
         prepTime=prepTime,
@@ -213,7 +214,7 @@ def save_recipe(request, context):
 
     for ingredient in ingredients:
         # try to automatically link ingredient to inventory item
-        inventoryItem = findInventoryItem(ingredient)
+        inventoryItem = find_InventoryItem(ingredient, request.user)
         if ingredient:
             new_ingredient_link = RecipeIngredients(
                 recipe=new_recipe,
@@ -233,9 +234,9 @@ def save_recipe(request, context):
 # perform some NLP on the ingredient line and then check against database to see if it
 # contains any InventoryItems
 # return the first one found, or None
-def findInventoryItem(ingredientLine):
+def find_InventoryItem(ingredientLine, user):
     # try to clean the ingredient line of garbage before running the query
-    ingredientLine = cleanIngredientLine(ingredientLine)
+    ingredientLine = clean_ingredientLine(ingredientLine)
 
     # check cleaned string for a match in the InventoryItem db
     inventoryItems = None
@@ -254,11 +255,27 @@ def findInventoryItem(ingredientLine):
         ingredientLine = ' '.join(str(w) for w in potentialIngredients)
         query = "SELECT * FROM inventory_inventoryitem " \
                 "WHERE %s LIKE '%%' || name || '%%'" \
-                " ORDER BY LENGTH(name) DESC LIMIT 1"
-        inventoryItems = InventoryItem.objects.raw(query, [ingredientLine])
+                "AND user = %s " \
+                "ORDER BY LENGTH(name) DESC LIMIT 1"
+        inventoryItems = InventoryItem.objects.raw(query, [ingredientLine, user])
 
     # return the first match (if none found, first() returns None)
     return first(inventoryItems)
+
+
+# perform some NLP on the ingredient line and then check against generic foods list to see if
+# it contains a generic food item
+def find_generic_item(ingredientLine):
+    # try to clean the ingredient line of garbage before running the query
+    ingredientLine = clean_ingredientLine(ingredientLine)
+    generic_food = ''
+    # sort generic foods by length
+    sorted_generic_foods = sorted(generic_foods, key=len)
+    for food in sorted_generic_foods:
+        if food.lower() in ingredientLine.lower():
+            generic_food = food
+    # return the last (longest) generic food found, or ''
+    return generic_food
 
 
 # safely get the first element of a raw query set
@@ -269,7 +286,7 @@ def first(rawquery):
         return None
 
 
-def cleanIngredientLine(ingredientLine):
+def clean_ingredientLine(ingredientLine):
     # filter out punctuation
     ingredientLine = re.sub('[' + string.punctuation + ']', '', ingredientLine)
     # filter out special characters
@@ -292,6 +309,7 @@ def query_API(url):
     except ValueError:
         return None
 
+
 def recipe_search(request):
     cleanSearch(request)
     IngredientFormSet = formset_factory(IngredientInputForm, max_num=20, min_num=1, validate_min=True, extra=0)
@@ -302,7 +320,8 @@ def recipe_search(request):
         context = {'ingredient_formset': ingredient_formset,
                    'inventory_items': inventory_items,
                    'food_suggestions': generic_foods + \
-                                       [x for x in list(InventoryItem.objects.filter(user=request.user).values_list('name', flat=True).distinct())
+                                       [x for x in list(InventoryItem.objects.filter(user=request.user)
+                                                        .values_list('name', flat=True).distinct())
                                         if x not in generic_foods]
                    }
 
@@ -340,7 +359,8 @@ def suggestions(request):
     if request.method == 'GET':
         cleanSearch(request)
 
-    inventory_items = list(InventoryItem.objects.filter(user=request.user).values_list('name', flat=True).distinct())
+    inventory_items = list(InventoryItem.objects.filter(user=request.user)
+                           .values_list('name', flat=True).distinct())
     search_phrase = ''
     n = len(inventory_items)
 

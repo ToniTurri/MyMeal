@@ -19,38 +19,41 @@ with open('generic-foods.csv', encoding='utf-8') as csvfile:
     for row in foodreader:
         generic_foods.append(''.join(row))
 
+
 def index(request):
-	# method is POST
-	if request.method == 'POST':
-		# no POST requests to this URL
-		raise Http404
-	else:
-		# alphabetize the inventory items
-		inventory_items = InventoryItem.objects.filter(user=request.user).order_by(Lower('name'))
+    # method is POST
+    if request.method == 'POST':
+        # no POST requests to this URL
+        raise Http404
+    else:
+        # alphabetize the inventory items
+        inventory_items = InventoryItem.objects.filter(user=request.user).order_by(Lower('name'))
 
-		# set up the first page for pagination
-		page = request.GET.get('page', 1)
+        # set up the first page for pagination
+        page = request.GET.get('page', 1)
 
-		# display 10 items per page
-		paginator = Paginator(inventory_items, 10)
+        # display 10 items per page
+        paginator = Paginator(inventory_items, 10)
 
-		try:
-			displayed_inv_items = paginator.page(page)
-		except PageNotAnInteger:
-			displayed_inv_items = paginator.page(1)
-		except EmptyPage:
-			displayed_inv_items = paginator.page(paginator.num_pages)
+        try:
+            displayed_inv_items = paginator.page(page)
+        except PageNotAnInteger:
+            displayed_inv_items = paginator.page(1)
+        except EmptyPage:
+            displayed_inv_items = paginator.page(paginator.num_pages)
 
-		# display the inventory
-		context = {
-		    'add_item_form': AddItemToInventoryForm(),
-		    'inventoryitems': displayed_inv_items,
-		    'food_suggestions': generic_foods + \
-                                [x for x in list(InventoryItem.objects.filter(user=request.user).values_list('name', flat=True).distinct())
+        # display the inventory
+        context = {
+            'add_item_form': AddItemToInventoryForm(),
+            'inventoryitems': displayed_inv_items,
+            'food_suggestions': generic_foods + \
+                                [x for x in list(InventoryItem.objects.filter(user=request.user)
+                                                 .values_list('name', flat=True).distinct())
                                  if x not in generic_foods]
-		}
+        }
 
-	return render(request, 'inventory/index.html', context)
+    return render(request, 'inventory/index.html', context)
+
 
 def add_view(request):
     # method is POST
@@ -63,6 +66,7 @@ def add_view(request):
         # no GET requests to this URL
         raise Http404
     return redirect('inventory:index')
+
 
 def add(request, name, barcode='', quantity=1):
     # lowercase the name if its a generic food item
@@ -87,6 +91,7 @@ def add(request, name, barcode='', quantity=1):
     else:
         item.save()
 
+
 @csrf_exempt
 def remove_view(request, pk):
     # method is POST
@@ -103,7 +108,6 @@ def remove_view(request, pk):
 
 @csrf_exempt
 def update_view(request, pk, quantity):
-
     # method is POST
     if request.method == 'POST':
         # parse int from the arg string
@@ -135,10 +139,12 @@ def update_view(request, pk, quantity):
         raise Http404
     return redirect('inventory:index')
 
+
 def update(item, quantity):
     # update the qty
     item.quantity = F('quantity') + quantity
     item.save()
+
 
 def collect_stats(request, item, quantity):
     # for stats
