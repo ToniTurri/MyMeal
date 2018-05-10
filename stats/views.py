@@ -7,7 +7,8 @@ from inventory.models import InventoryItem
 # Create your views here.
 def statsHandler(request):
     # Check if we want to show the stats table
-    stats_list = Consumed_Stats.objects.filter(user=request.user).order_by('food__name')
+    inventory_items = InventoryItem.objects.filter(user=request.user)
+    stats_list = Consumed_Stats.objects.filter(food__in=inventory_items).order_by('food__name')
 
     if stats_list:
         if timeCheck(request):
@@ -29,7 +30,8 @@ def statsHandler(request):
 def reinitStats(request, day_diff):
     temp_count_array = [] # holds the values to be pushed to next day
     temp_count_array2 = [] #hold additional day
-    stats_list = Consumed_Stats.objects.filter(user=request.user)
+    inventory_items = InventoryItem.objects.filter(user=request.user)
+    stats_list = Consumed_Stats.objects.filter(food__in=inventory_items)
 
     # Since this function is only called when a new day is detected, by default
     # all count1 values will be zeroed.
@@ -94,20 +96,22 @@ def cleanup(request):
 # different than the current day to reinitStats
 def timeCheck(request):
     date = timezone.now() - timedelta(hours=4)
-    try:
-        stat_time = Time_Stamp.objects.filter(user=request.user).first()
-    except Time_Stamp.DoesNotExist:
+    
+    stat_time = Time_Stamp.objects.filter(user=request.user).first()
+
+    if not stat_time:
         stat_time = Time_Stamp(user=request.user, time=(timezone.now() - timedelta(hours=4)))
         stat_time.save()
-    # find difference in days
-    day_diff = abs(( (date - timedelta(hours=date.hour,minutes=date.minute,seconds=date.second,microseconds=date.microsecond))
-    - (stat_time.time - timedelta(hours=stat_time.time.hour,minutes=stat_time.time.minute,seconds=stat_time.time.second,microseconds=stat_time.time.microsecond))).days)
-
-    if day_diff is 0:
-        return
     else:
-        stat_time.time = timezone.now() - timedelta(hours=4)
-        stat_time.save()
-        if day_diff != 0:
-            reinitStats(request, day_diff)
-        return True
+        # find difference in days
+        day_diff = abs(( (date - timedelta(hours=date.hour,minutes=date.minute,seconds=date.second,microseconds=date.microsecond))
+        - (stat_time.time - timedelta(hours=stat_time.time.hour,minutes=stat_time.time.minute,seconds=stat_time.time.second,microseconds=stat_time.time.microsecond))).days)
+
+        if day_diff is 0:
+            return
+        else:
+            stat_time.time = timezone.now() - timedelta(hours=4)
+            stat_time.save()
+            if day_diff != 0:
+                reinitStats(request, day_diff)
+            return True

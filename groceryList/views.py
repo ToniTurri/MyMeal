@@ -194,7 +194,7 @@ def confirm_item(request, pk, id):
                     update_inventory(grocery_item.inventoryItem, grocery_item.quantity)
                 else:
                     # otherwise just add it to the inventory
-                    add_to_inventory(grocery_item.name, '', grocery_item.quantity)
+                    add_to_inventory(request, grocery_item.name, '', grocery_item.quantity)
 
     return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 
