@@ -146,11 +146,11 @@ def collect_stats(request, item, quantity):
         difference = item.quantity - quantity
         timeCheck(request)
         try:
-            stat_item = Consumed_Stats.objects.filter(user=request.user, food=item)
+            stat_item = Consumed_Stats.objects.get(food=item)
             stat_item.count1 += difference
             stat_item.total += difference
             stat_item.save()
         except Consumed_Stats.DoesNotExist:
-            stat_item = Consumed_Stats(user=request.user, food=item, count1=difference, count2=0,
+            stat_item = Consumed_Stats(food=item, count1=difference, count2=0,
                                        count3=0, count4=0, total=difference)
             stat_item.save()

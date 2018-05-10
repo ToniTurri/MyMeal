@@ -59,7 +59,7 @@ def add_recipe(request, pk=0):
 	if pk:
 		is_edit = True
 		try:
-			recipe = Recipe.objects.filter(user=request.user, pk=pk)
+			recipe = Recipe.objects.filter(user=request.user, pk=pk).first()
 			if recipe is None:
 				raise Http404
 			ingredients = RecipeIngredients.objects.filter(recipe=recipe.id)
@@ -174,25 +174,24 @@ def add_recipe(request, pk=0):
 	return render(request, 'recipes/new_recipe.html', context)
 
 def create_grocery_list(request, pk):
-	recipe = Recipe.objects.filter(user=request.user, id=pk)
+	recipe = Recipe.objects.filter(user=request.user, id=pk).first()
 	if recipe is None:
 		raise Http404
 
-	new_name = "For Recipe: " + str(recipe)
+	new_name = "For Recipe: " + str(recipe.name)
 
 	if GroceryList.objects.filter(user=request.user, name=new_name).exists():
 	  messages.warning(request, "Grocery List Already Exists!")
-	  list_id = GroceryList.objects.filter(user=request.user, name=new_name).pk
+	  list_id = GroceryList.objects.filter(user=request.user, name=new_name).first().id
 	  return HttpResponseRedirect(reverse('groceryList:detail', args = (list_id,)))
 
-	ingredients = RecipeIngredients.objects.filter(recipe=pk)
+	ingredients = RecipeIngredients.objects.filter(recipe=recipe)
 	new_list = GroceryList.objects.create(user=request.user, name=new_name, date=timezone.now())
 
 	for i in ingredients:
 	  new_food = GroceryItems(groceryList = new_list,
 	                          name = i.ingredient,
 	                          date = timezone.now(),
-	                          barcode = i.barcode,
 	                          inventoryItem = i.inventoryItem)
 	  new_food.save()
 
