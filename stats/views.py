@@ -2,16 +2,18 @@ from django.shortcuts import render
 from .models import Consumed_Stats, Time_Stamp
 from django.utils import timezone
 from datetime import timedelta
+from inventory.models import InventoryItem
 
 # Create your views here.
 def statsHandler(request):
     # Check if we want to show the stats table
-    stats_list = Consumed_Stats.objects.order_by('food__name')
+    inventory_items = InventoryItem.objects.filter(user=request.user)
+    stats_list = Consumed_Stats.objects.filter(food__in=inventory_items).order_by('food__name')
 
     if stats_list:
-        if timeCheck():
+        if timeCheck(request):
             # Need to re-get the list
-            stats_list = Consumed_Stats.objects.order_by('food__name')
+            stats_list = Consumed_Stats.objects.filter(user=request.user).order_by('food__name')
         context = {'stats_list': stats_list,
         'value':timezone.now(),
         'value2':timezone.now() - timedelta(days=1),
@@ -25,10 +27,11 @@ def statsHandler(request):
 
 # Re-initializes the stats table with a parameter to distinguish the number
 # of days to change
-def reinitStats(day_diff):
+def reinitStats(request, day_diff):
     temp_count_array = [] # holds the values to be pushed to next day
     temp_count_array2 = [] #hold additional day
-    stats_list = Consumed_Stats.objects.all()
+    inventory_items = InventoryItem.objects.filter(user=request.user)
+    stats_list = Consumed_Stats.objects.filter(food__in=inventory_items)
 
     # Since this function is only called when a new day is detected, by default
     # all count1 values will be zeroed.
@@ -75,12 +78,13 @@ def reinitStats(day_diff):
                                 stats_list[i].count4)
         stats_list[i].save()
     # Now cleanup
-    cleanup()
+    cleanup(request)
 
 # Cleanup fucntion remove food items in the stats table that have all counts
 # equal to 0
-def cleanup():
-    stats_list = Consumed_Stats.objects.all()
+def cleanup(request):
+    inventory_items = InventoryItem.objects.filter(user=request.user)
+    stats_list = Consumed_Stats.objects.filter(food__in=inventory_items)
 
     # Omit count1 since it's only called on new day and that day is 0
     for i in range(0, len(stats_list)):
@@ -90,22 +94,24 @@ def cleanup():
 
 # Checks if the last day a food item was consumed or stat page accessed is
 # different than the current day to reinitStats
-def timeCheck():
+def timeCheck(request):
     date = timezone.now() - timedelta(hours=4)
-    try:
-        stat_time = Time_Stamp.objects.get(pk=1)
-    except Time_Stamp.DoesNotExist:
-        stat_time = Time_Stamp(timezone.now() - timedelta(hours=4))
-        stat_time.save()
-    # find difference in days
-    day_diff = abs(( (date - timedelta(hours=date.hour,minutes=date.minute,seconds=date.second,microseconds=date.microsecond))
-    - (stat_time.time - timedelta(hours=stat_time.time.hour,minutes=stat_time.time.minute,seconds=stat_time.time.second,microseconds=stat_time.time.microsecond))).days)
+    
+    stat_time = Time_Stamp.objects.filter(user=request.user).first()
 
-    if day_diff is 0:
-        return
-    else:
-        stat_time.time = timezone.now() - timedelta(hours=4)
+    if not stat_time:
+        stat_time = Time_Stamp(user=request.user, time=(timezone.now() - timedelta(hours=4)))
         stat_time.save()
-        if day_diff != 0:
-            reinitStats(day_diff)
-        return True
+    else:
+        # find difference in days
+        day_diff = abs(( (date - timedelta(hours=date.hour,minutes=date.minute,seconds=date.second,microseconds=date.microsecond))
+        - (stat_time.time - timedelta(hours=stat_time.time.hour,minutes=stat_time.time.minute,seconds=stat_time.time.second,microseconds=stat_time.time.microsecond))).days)
+
+        if day_diff is 0:
+            return
+        else:
+            stat_time.time = timezone.now() - timedelta(hours=4)
+            stat_time.save()
+            if day_diff != 0:
+                reinitStats(request, day_diff)
+            return True

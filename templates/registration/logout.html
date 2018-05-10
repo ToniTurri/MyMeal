@@ -1,2 +1,19 @@
-<h1>Logged Out</h1>
-<p>You are now logged out.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>MyMeal | Logged Out</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="/static/css/stylesheet.css" />
+	<!-- used for importing icons -->
+	<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+</head>
+<body>
+	<article id="small-panel">
+		<header>
+			<img src="/static/img/MyMealFinal_Orange.png" style="height:70px;">
+			<h3>You are now logged out of MyMeal</h3>
+			<p>Want to log back in? <a href="{% url 'auth_login' %}">Login</a></p>
+		</header>
+	</article>
+</body>
+</html>

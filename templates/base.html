@@ -11,16 +11,17 @@
     <body>
         <div class="navbar">
         	<!-- TODO; implement collapsing navigation -->
-        	<a href= "#"><i class="fas fa-bars fas-lg"></i></a>
         	<div id="nav-left">
-        	  	<a href="{% url 'dashboard:index' %}">Home</a>
-        	  	<a href="{% url 'inventory:index' %}">Inventory</a>
-        	  	<a href="{% url 'recipes:index' %}">Recipes</a>
-        	  	<a href="{% url 'groceryList:index' %}">Grocery Lists</a>
-              <a href="{% url 'stats:index' %}">Stats</a>
+              <a class="logo" href= "{% url 'dashboard:index' %}">
+                <img src="/static/img/MyMealFinal_Orange.png" style="height:40px;">
+              </a>
+        	  	<a class="directory" href="{% url 'inventory:index' %}">Inventory</a>
+        	  	<a class="directory" href="{% url 'recipes:index' %}">Recipes</a>
+        	  	<a class="directory" href="{% url 'groceryList:index' %}">Grocery Lists</a>
+              <a class="directory" href="{% url 'stats:index' %}">Stats</a>
         	</div>
           	<div id="nav-right">
-          		<a href="{% url 'auth_logout' %}">Log out</a>
+          		<a class="directory" href="{% url 'auth_logout' %}">Log Out</a>
           		<!--<input type="text" placeholder="Search...">-->
         	</div>
         </div>

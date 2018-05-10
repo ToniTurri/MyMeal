@@ -43,7 +43,7 @@ def index(request):
 			# otherwise we are good, try and get an image url from the json dict
 			context.update({'image_front_url': json_data.get('product').get("image_front_url")})
 			# add the list of grocery lists
-			context.update({'all_grocery_lists': GroceryList.objects.all()})
+			context.update({'all_grocery_lists': GroceryList.objects.filter(user=request.user)})
 			# add the barcode
 			context.update({'barcode': barcode})
 
@@ -68,7 +68,7 @@ def add_to_list(request, barcode):
 		# get the selected grocery list's id
 		id = request.POST['selected_grocery_list']
 		# get the grocery list that was selected from the form
-		grocery_list = get_object_or_404(GroceryList, pk=id)
+		grocery_list = get_object_or_404(GroceryList, pk=id, user=request.user)
 		grocery_items = GroceryItems.objects.filter(groceryList=grocery_list)
 
 		# get the food's name string from the form
@@ -118,7 +118,7 @@ def add_to_inventory(request, barcode):
 			return
 
 		# add the item to the inventory db
-		inv_add(food, barcode)
+		inv_add(request, food, barcode)
 
 		# take the user to their inventory to see their added item
 		return HttpResponseRedirect(reverse('inventory:index'))

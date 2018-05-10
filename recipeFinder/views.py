@@ -46,7 +46,6 @@ def index(request):
         cleanSearch(request)
         return render(request, 'recipeFinder/index.html')
 
-
 def cleanSearch(request):
     if 'matches' in request.session:
         request.session.pop('matches')
@@ -77,7 +76,7 @@ def recipe_detail(request, id, course=None):
             print("Removed recipe %s" % id)
 
         # update save button
-        context.update({'is_saved': Recipe.objects.filter(yummlyId=id).exists()})
+        context.update({'is_saved': Recipe.objects.filter(user=request.user, yummlyId=id).exists()})
         request.session.update({'recipe_context': context})
 
         return render(request, 'recipeFinder/detail.html', context)
@@ -92,7 +91,7 @@ def recipe_detail(request, id, course=None):
             return render(request, 'recipeFinder/not_found.html')
 
         # if the recipe is saved, add that to the context (for save button)
-        context.update({'is_saved': Recipe.objects.filter(yummlyId=id).exists()})
+        context.update({'is_saved': Recipe.objects.filter(user=request.user, yummlyId=id).exists()})
         context.update({'course': course})
 
         # save the current context
@@ -198,6 +197,7 @@ def save_recipe(request, context):
 
     # add other fields
     new_recipe = Recipe.objects.create(
+    	user=request.user,
         name=name,
         date=timezone.now(),
         prepTime=prepTime,
@@ -292,18 +292,17 @@ def query_API(url):
     except ValueError:
         return None
 
-
 def recipe_search(request):
     cleanSearch(request)
     IngredientFormSet = formset_factory(IngredientInputForm, max_num=20, min_num=1, validate_min=True, extra=0)
 
     if request.method == 'GET':
         ingredient_formset = IngredientFormSet()
-        inventory_items = InventoryItem.objects.values_list('name', flat=True).distinct()
+        inventory_items = InventoryItem.objects.filter(user=request.user).values_list('name', flat=True).distinct()
         context = {'ingredient_formset': ingredient_formset,
                    'inventory_items': inventory_items,
                    'food_suggestions': generic_foods + \
-                                       [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+                                       [x for x in list(InventoryItem.objects.filter(user=request.user).values_list('name', flat=True).distinct())
                                         if x not in generic_foods]
                    }
 
@@ -341,7 +340,7 @@ def suggestions(request):
     if request.method == 'GET':
         cleanSearch(request)
 
-    inventory_items = list(InventoryItem.objects.values_list('name', flat=True).distinct())
+    inventory_items = list(InventoryItem.objects.filter(user=request.user).values_list('name', flat=True).distinct())
     search_phrase = ''
     n = len(inventory_items)
 

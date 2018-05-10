@@ -119,6 +119,26 @@ article#small-panel input[type=button] {
 	color: #000;
 }
 
+article input[type=submit] {
+	height: 35px;
+	border-radius: 5px;
+	border: 1px solid #f76707;
+	background-color: #f76707; 
+	padding-left: 5px;
+	font-size: .9em;
+	color: #f2f2f2;
+}
+
+article input[type=button] {
+	height: 35px;
+	border-radius: 5px;
+	border: 1px solid #e9ecef;
+	background-color: #e9ecef;
+	padding-left: 5px;
+	font-size: .9em;
+	color: #000;
+}
+
 @media screen and (max-width: 500px) {
 	article#small-panel {
 		width: 85%;
@@ -135,20 +155,29 @@ article#small-panel input[type=button] {
 
 .navbar {
   overflow: hidden;
-  background-color: #f76707;
+  background-color: #fff;
   position: fixed;
   top: 0;
   width: 100%;
+  box-shadow: 0px 3px #dee2e6;
 }
 
-.navbar a {
+.navbar a.logo {
+	float: left;
+  	display: block;
+  	padding: 8px;
+  	margin-left: 5px;
+}
+
+.navbar a.directory {
   float: left;
   display: block;
-  color: #f1f3f5;
+  color: #000;
   text-align: center;
   padding: 12px;
+  margin-top: 10px;
   text-decoration: none;
-  font-size: .9em;
+  font-size: 1em;
 }
 
 /*.navbar a:hover {
@@ -163,7 +192,7 @@ article#small-panel input[type=button] {
 	float: right;
 }
 
-#nav-right a {
+#nav-right a.directory {
 	float: right;
 }
 
@@ -186,6 +215,7 @@ nstead of horizontally */
 		clear: right;
 		float: none;
 		margin: 0 auto;
+		text-align: left;
 	}
 
 	#nav-right {
@@ -196,11 +226,14 @@ nstead of horizontally */
 		width: 100%;
 	}
 
-	#nav-right a {
+	#nav-right {
 		float: left;
 	}
 
-    .navbar a, .navbar input[type=text] {
+    .navbar a.logo, 
+    .navbar a.directory, 
+    #nav-right a.directory, 
+    .navbar input[type=text] {
         float: left;
         display: block;
         text-align: left;
@@ -208,6 +241,7 @@ nstead of horizontally */
         margin: 0;
         padding: 14px;
     }
+
     .navbar input[type=text] {
         border: 1px solid #ccc;
     }
@@ -219,7 +253,7 @@ nstead of horizontally */
 
 #main {
   padding: 16px;
-  margin-top: 30px;
+  margin-top: 50px;
   background-color: #f8f9fa;
 }
 
@@ -241,24 +275,13 @@ make sure the content isn't hidden by the
 menu by default */
 @media screen and (max-width: 750px) {
 	#main {
-		margin-top: 325px;
+		margin-top: 300px;
 	}
 }
 
 @media (max-width: 460px) {
 	#main {
-		width: 100%;
-		padding: 0px;
-		top: 0;
-	}
-	#content-wrapper {
-		width: 100%;
-		margin: 0px 0px 0px 0px;
-	}
-}
-
-@media (max-width: 460px) {
-	#main {
+		margin-top: 330px;
 		width: 100%;
 		padding: 0px;
 		top: 0;
@@ -359,6 +382,43 @@ p .warning {
 .recipe-preview img {
 	height: 125px;
 }
+
+.inventory-preview {
+	text-align: left; 
+	display: inline-block; 
+	height: 200px; 
+	width: 250px; 
+	margin-right: 10px;
+}
+
+.inventory-preview-no-list {
+	text-align: left; 
+	display: inline-block; 
+	height: 100px; 
+	width: 250px; 
+	margin-right: 10px;
+}
+
+
+@media (max-width: 700px) {
+	.recipe-preview {
+		display: block;
+		margin: 0 auto;
+	}
+
+	.inventory-preview {
+		display: block;
+		margin: 0 auto;
+		height: 175px;
+	}
+
+	.inventory-preview-no-list {
+		display: block;
+		margin: 0 auto;
+	}
+}
+
+
 
 .pagination {
 	text-align: center; 

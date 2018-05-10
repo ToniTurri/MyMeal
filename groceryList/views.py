@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse, Http404
 from django.template import RequestContext
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
@@ -15,17 +15,15 @@ from inventory.views import add as add_to_inventory
 from inventory.views import update as update_inventory
 from groceryList.models import GroceryItems, GroceryList
 from django.forms.formsets import formset_factory
+from django.db.models import Q
 
-
-#from django.contrib.auth.decorators import login_required
-#@login_required(login_url='/accounts/login/')
 class IndexView(ListView):
     model = GroceryList
     template_name = 'groceryList/index.html'
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
-        context['all_grocery_lists'] = GroceryList.objects.all()
+        context['all_grocery_lists'] = GroceryList.objects.filter(user=self.request.user)
         return context
 
 class NewGroceryListView(CreateView):
@@ -46,11 +44,15 @@ class GroceryListView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super(GroceryListView, self).get_context_data(**kwargs)
+        grocery_list = self.get_object()
+        if grocery_list.user != self.request.user:
+            raise Http404()
+
         context['item_form'] = forms.AddItemToListForm
-        context['grocery_list'] = self.get_object()
-        context['grocery_items'] = GroceryItems.objects.filter(groceryList=self.kwargs.get('pk'))
+        context['grocery_list'] = grocery_list
+        context['grocery_items'] = GroceryItems.objects.filter(groceryList=grocery_list)
         context['food_suggestions'] = generic_foods + \
-                                      [x for x in list(InventoryItem.objects.values_list('name', flat=True).distinct())
+                                      [x for x in list(InventoryItem.objects.filter(user=self.request.user).values_list('name', flat=True).distinct())
                                        if x not in generic_foods]
         return context
 
@@ -67,14 +69,16 @@ def add(request):
             scanned_food_name = request.POST.get("food_name")
             scanned_food_barcode = request.POST.get("barcode")
 
-            if GroceryList.objects.filter(name=text).exists():
+            if GroceryList.objects.filter(user=request.user, name=text).exists():
                 messages.warning(request, "Grocery list already exists")
 
                 return HttpResponseRedirect(reverse('groceryList:new'))
 
             # redirect to new grocery list after creation
             else:
-                new_list = GroceryList.objects.create(name=text, date=timezone.now())
+                new_list = GroceryList.objects.create(user=request.user, 
+                                                      name=text, 
+                                                      date=timezone.now())
 
                 # *if we are making a list from the barcodeScan app, add the food item too
                 if scanned_food_name is not None:
@@ -88,11 +92,41 @@ def add(request):
     else:
         form = forms.AddGroceryListForm()
     return render(request, 'groceryList:index', {'form':form})
- 
+
+# pk is the pk for the inventory item to add to the grocery list
+def add_inv_item(request, pk):
+    if request.method == "POST":
+        grocery_list_id = request.POST.get('selected_grocery_list')
+        grocery_list = get_object_or_404(GroceryList, pk = grocery_list_id, user=request.user)
+        grocery_items = GroceryItems.objects.filter(groceryList=grocery_list)
+        inventory_item = InventoryItem.objects.filter(user=request.user, pk=pk).first()
+
+        if inventory_item:
+            item = grocery_items.filter(Q(inventoryItem=inventory_item) | Q(name=inventory_item.name)).first()
+            if item:
+                if item.confirmed:
+                    item.confirmed = False
+                    item.quantity = 1
+                else:
+                    item.quantity += 1
+
+                item.save()
+            else:
+                GroceryItems.objects.create(groceryList=grocery_list, 
+                                            name=inventory_item.name, 
+                                            quantity=1,
+                                            barcode=inventory_item.barcode,
+                                            date=timezone.now(),
+                                            inventoryItem=inventory_item)
+
+        return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list_id,)))
+    else:
+        raise Http404()
+
 def update(request, pk):
 
     form = forms.AddItemToListForm()
-    grocery_list = get_object_or_404(GroceryList, pk = pk)
+    grocery_list = get_object_or_404(GroceryList, pk = pk, user=request.user)
     grocery_items = GroceryItems.objects.filter(groceryList=grocery_list)
 
     if request.method == "POST":        
@@ -105,16 +139,17 @@ def update(request, pk):
                 item = item.lower()
             # try and link the ingredient to an inventory item
             try:
-                inventory_item = InventoryItem.objects.filter(name=item)[:1].get()
+                inventory_item = InventoryItem.objects.filter(user=request.user, 
+                                                              name=item)[:1].get()
             except InventoryItem.DoesNotExist:
                 inventory_item = None
-            #inventory_item = form.cleaned_data['inventory_item']
+            
             quantity = form.cleaned_data['quantity']
 
             # the add new item form is empty, so attempt to update quantities of
             # existing items in the grocery list instead
             if not item and not quantity:
-                update_quantities(grocery_items)
+                update_quantities(request, grocery_items)
             # either item or quantity is empty which is an invalid state for adding 
             # a new item to the list. so show an error to the user
             elif not item or not quantity:
@@ -157,9 +192,9 @@ def update_quantities(request, grocery_items=None):
 def confirm_item(request, pk, id):
 
     if request.method == 'GET':
-        grocery_list = get_object_or_404(GroceryList, pk = pk)
+        grocery_list = get_object_or_404(GroceryList, pk = pk, user=request.user)
         try:
-            grocery_item = GroceryItems.objects.get(pk=id,groceryList=grocery_list,)
+            grocery_item = GroceryItems.objects.filter(pk=id,groceryList=grocery_list).first()
         except GroceryItems.DoesNotExist:
             grocery_item = None
         quantity = request.GET['quantity']
@@ -182,7 +217,7 @@ def confirm_item(request, pk, id):
                         grocery_item.inventoryItem.barcode = grocery_item.barcode
                 else:
                     # otherwise just add it to the inventory
-                    add_to_inventory(grocery_item.name, grocery_item.barcode, grocery_item.quantity)
+                    add_to_inventory(request, grocery_item.name, grocery_item.barcode, grocery_item.quantity)
             else:
                 # if the grocery item was linked to an inventory item update that
                 # item directly
@@ -190,19 +225,19 @@ def confirm_item(request, pk, id):
                     update_inventory(grocery_item.inventoryItem, grocery_item.quantity)
                 else:
                     # otherwise just add it to the inventory
-                    add_to_inventory(grocery_item.name, '', grocery_item.quantity)
+                    add_to_inventory(request, grocery_item.name, '', grocery_item.quantity)
 
     return HttpResponseRedirect(reverse('groceryList:detail', args = (grocery_list.id,)))
 
 def delete_list(request, pk):
 	if request.method == 'POST':
-		GroceryList.objects.filter(id=pk).delete()
+		GroceryList.objects.filter(id=pk,user=request.user).delete()
 		return HttpResponseRedirect(reverse('groceryList:index'))
-     
+
 def delete_item(request, pk, id):
 
     if request.method == 'GET':
-        grocery_list = get_object_or_404(GroceryList, pk = pk)
+        grocery_list = get_object_or_404(GroceryList, pk = pk,user=request.user)
         try:
             grocery_item = GroceryItems.objects.get(pk=id,groceryList=grocery_list)
         except GroceryItems.DoesNotExist:

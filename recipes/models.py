@@ -4,8 +4,7 @@ from django.urls import reverse
 from inventory.models import InventoryItem
 from django.core.validators import MinValueValidator
 from django.core.exceptions import ValidationError
-#from django.utils import timezone
-#import datetime
+from django.contrib.auth.models import User
 
 CATEGORY_CHOICES = (
 	('', ''),
@@ -33,6 +32,7 @@ class Recipe(models.Model):
         if filesize > megabyte_limit*1024*1024:
             raise ValidationError("Max file size is %sMB" % str(megabyte_limit))
 
+    user = models.ForeignKey(User, blank=False, null=False, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     date = models.DateTimeField(null=True, blank=True)
     prepTime = models.CharField(max_length=20, blank=True, null=True)
