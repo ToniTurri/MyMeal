@@ -12,7 +12,6 @@ from nltk.tokenize import word_tokenize
 from django.shortcuts import render
 from inventory.models import InventoryItem
 from recipes.models import Recipe, RecipeIngredients
-from stats.models import Consumed_Stats
 from django.utils import timezone
 from django.db import IntegrityError, transaction
 from django.forms.formsets import formset_factory
@@ -44,16 +43,95 @@ def index(request):
         # method is GET
         # it's a fresh new search - clear the previous results held in session
         cleanSearch(request)
-        return render(request, 'recipeFinder/index.html')
+        return render(request, 'recipeFinder/recipe_search.html')
 
 
-def cleanSearch(request):
-    if 'matches' in request.session:
-        request.session.pop('matches')
-    if 'ingredients' in request.session:
-        request.session.pop('ingredients')
-    if 'search_phrase' in request.session:
-        request.session.pop('search_phrase')
+def recipe_search(request):
+    cleanSearch(request)
+    IngredientFormSet = formset_factory(IngredientInputForm, max_num=20, min_num=1, validate_min=True, extra=0)
+
+    if request.method == 'GET':
+        ingredient_formset = IngredientFormSet()
+        inventory_items = InventoryItem.objects.filter(user=request.user).values_list('name', flat=True).distinct()
+        context = {'ingredient_formset': ingredient_formset,
+                   'inventory_items': inventory_items,
+                   'food_suggestions': generic_foods + \
+                                       [x for x in list(InventoryItem.objects.filter(user=request.user)
+                                                        .values_list('name', flat=True).distinct())
+                                        if x not in generic_foods]
+                   }
+
+        return render(request, 'recipeFinder/recipe_search.html', context)
+
+    # Request is POST, process the form and return search results
+    if request.method == 'POST':
+        ingredients = request.POST.getlist('checked')
+        search_phrase = request.POST.get('search_phrase')
+        ingredient_formset = IngredientFormSet(request.POST)
+
+        for ingredient_form in ingredient_formset:
+            if ingredient_form.is_valid():
+                ingredient = ingredient_form.cleaned_data.get('item')
+
+                # make sure it's not empty
+                if ingredient:
+                    # make lowercase if it's generic
+                    if ingredient.lower() in generic_foods:
+                        ingredient = ingredient.lower()
+                    ingredients.append(ingredient)
+
+    context = get_search_results(request, ingredients, search_phrase)
+
+    if context is None:
+        return render(request, 'recipeFinder/not_found.html')
+
+    return render(request, 'recipeFinder/results.html', context)
+
+
+# Suggestions based on stats
+def suggestions(request):
+    # there's probably a way of doing this that will return the maximum (or at least a large)
+    # number of recipe matches; as it stands right now, this will return a single match
+    if request.method == 'GET':
+        cleanSearch(request)
+
+    inventory_items = list(InventoryItem.objects.filter(user=request.user)
+                           .values_list('name', flat=True).distinct())
+    search_phrase = ''
+    n = len(inventory_items)
+
+    # if the user has too few ingredients, don't bother searching. this number could
+    # probably be bigger. it isn't strictly necessarily, but if the only thing in their
+    # inventory is eggs, whatever results it returns aren't going to be helpful
+    if (n < 3):
+        context = {'too_few': True}
+        return render(request, 'recipeFinder/not_found.html', context)
+
+    context = None
+    tries = 0
+    while (context is None and tries < 20):
+        tries += 1
+
+        # continually sample three random items from the user's inventory until
+        # get_search_results returns something valid, or the iteration limit is reached
+        index = random.sample(range(0, n), 3)
+        ingredients = []
+
+        for i in index:
+            ingredients.append(inventory_items[i])
+
+        context = get_search_results(request, ingredients, search_phrase)
+
+    # if the search hasn't returned anything in 20 tries, the user probably only has
+    # a handfull of ingredients that aren't typically used together
+    if (context is None):
+        context = {'too_few': True}
+        return render(request, 'recipeFinder/not_found.html', context)
+
+    ## need this to tell /results.html whether or not it's displaying randomly
+    ## generated recipes & give the user the option to search again
+    context.update({'suggested': True})
+    return render(request, 'recipeFinder/results.html', context)
 
 
 # recipe detail view
@@ -122,7 +200,7 @@ def get_search_results(request, ingredients, search_phrase):
             allowed_ingredients.append('&allowedIngredient[]=%s' % ingredient)
 
         url += ''.join(allowed_ingredients)
-
+        print(url)
         results = query_API(url)
 
     # return None if for whatever reason the response json is empty
@@ -287,10 +365,10 @@ def first(rawquery):
 
 
 def clean_ingredientLine(ingredientLine):
-    # filter out punctuation
-    ingredientLine = re.sub('[' + string.punctuation + ']', '', ingredientLine)
+    # filter out punctuation (except apostrophes)
+    ingredientLine = re.sub('[' + string.punctuation.replace("'", "") + ']', '', ingredientLine)
     # filter out special characters
-    ingredientLine = re.sub('\W+', ' ', ingredientLine)
+    ingredientLine = re.sub("(?=.*\W)^(\w')+$", ' ', ingredientLine)
     # tokenize
     tokens = word_tokenize(ingredientLine)
     # filter out english stop words ('a', 'is', 'this', 'the', 'each', etc)
@@ -310,89 +388,14 @@ def query_API(url):
         return None
 
 
-def recipe_search(request):
-    cleanSearch(request)
-    IngredientFormSet = formset_factory(IngredientInputForm, max_num=20, min_num=1, validate_min=True, extra=0)
-
-    if request.method == 'GET':
-        ingredient_formset = IngredientFormSet()
-        inventory_items = InventoryItem.objects.filter(user=request.user).values_list('name', flat=True).distinct()
-        context = {'ingredient_formset': ingredient_formset,
-                   'inventory_items': inventory_items,
-                   'food_suggestions': generic_foods + \
-                                       [x for x in list(InventoryItem.objects.filter(user=request.user)
-                                                        .values_list('name', flat=True).distinct())
-                                        if x not in generic_foods]
-                   }
-
-        return render(request, 'recipeFinder/recipe_search.html', context)
-
-    # Request is POST, process the form and return search results
-    if request.method == 'POST':
-        ingredients = request.POST.getlist('checked')
-        search_phrase = request.POST.get('search_phrase')
-        ingredient_formset = IngredientFormSet(request.POST)
-
-        if ingredient_formset.is_valid():
-            for ingredient_form in ingredient_formset:
-                ingredient = ingredient_form.cleaned_data.get('item')
-
-                # make sure it's not empty
-                if ingredient:
-                    # make lowercase if it's generic
-                    if ingredient.lower() in generic_foods:
-                        ingredient = ingredient.lower()
-                    ingredients.append(ingredient)
-
-    context = get_search_results(request, ingredients, search_phrase)
-
-    if context is None:
-        return render(request, 'recipeFinder/not_found.html')
-
-    return render(request, 'recipeFinder/results.html', context)
-
-
-# Suggestions based on stats
-def suggestions(request):
-    # there's probably a way of doing this that will return the maximum (or at least a large)
-    # number of recipe matches; as it stands right now, this will return a single match
-    if request.method == 'GET':
-        cleanSearch(request)
-
-    inventory_items = list(InventoryItem.objects.filter(user=request.user)
-                           .values_list('name', flat=True).distinct())
-    search_phrase = ''
-    n = len(inventory_items)
-
-    # if the user has too few ingredients, don't bother searching. this number could
-    # probably be bigger. it isn't strictly necessarily, but if the only thing in their
-    # inventory is eggs, whatever results it returns aren't going to be helpful
-    if (n < 3):
-        context = {'too_few': True}
-        return render(request, 'recipeFinder/not_found.html', context)
-
-    context = None
-    tries = 0
-    while (context is None and tries < 20):
-        tries += 1
-
-        # continually sample three random items from the user's inventory until
-        # get_search_results returns something valid, or the iteration limit is reached
-        index = random.sample(range(0, n), 3)
-        ingredients = []
-
-        for i in index:
-            ingredients.append(inventory_items[i])
-
-        context = get_search_results(request, ingredients, search_phrase)
-
-    # if the search hasn't returned anything in 20 tries, the user probably only has
-    # a handfull of ingredients that aren't typically used together
-    if (context is None):
-        context = {'too_few': True}
-        return render(request, 'recipeFinder/not_found.html', context)
-
-    return render(request, 'recipeFinder/results.html', context)
+# pop off session variables so that we can start with a fresh, new search
+def cleanSearch(request):
+    if 'matches' in request.session:
+        request.session.pop('matches')
+    if 'ingredients' in request.session:
+        request.session.pop('ingredients')
+    if 'search_phrase' in request.session:
+        request.session.pop('search_phrase')
 
 
 # helper function determines the inital number of ingredients to use
