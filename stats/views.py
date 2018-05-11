@@ -33,7 +33,7 @@ def reinitStats(request, day_diff):
     temp_count_array = []  # holds the values to be pushed to next day
     temp_count_array2 = []  # hold additional day
     inventory_items = InventoryItem.objects.filter(user=request.user)
-    stats_list = Consumed_Stats.objects.filter(food__in=inventory_items)
+    stats_list = Consumed_Stats.objects.filter(user=request.user, food__in=inventory_items)
 
     # Since this function is only called when a new day is detected, by default
     # all count1 values will be zeroed.
