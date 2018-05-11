@@ -1,6 +1,7 @@
 certifi==2018.1.18
 chardet==3.0.4
 Django==2.0.2
+django-mathfilters==0.4.0
 django-registration-redux==2.2
 idna==2.6
 nltk==3.2.5

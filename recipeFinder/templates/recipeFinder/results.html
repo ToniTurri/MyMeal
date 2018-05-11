@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load mathfilters %}
 
 {% block content %}
 
@@ -54,6 +55,10 @@
         {% for match in matches %}
             <div class="recipe-preview">
                 <h4>{{ match.recipeName }}</h4>
+                <div class="star-ratings">
+                    <div class="star-ratings-top" style="width: {{ match.rating|div:5.0|mul:100 }}%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                    <div class="star-ratings-bottom"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                </div>
                 <div class="recipe-image" style="height:125px">
                 <!-- display first thumbnail if available -->
                 {% if match.smallImageUrls %}
@@ -79,3 +84,12 @@
 </article>
 
 {% endblock %}
+
+<script>
+$(document).ready(function() {
+  // get span width of the filled ratings
+  var star_rating_width = $('.star-ratings-top').width();
+  // set container to span width for mobile correctness
+  $('.star-ratings').width(star_rating_width);
+});
+</script>
