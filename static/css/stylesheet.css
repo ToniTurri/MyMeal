@@ -44,6 +44,10 @@ body {
     top: 0;
     left: 0;
     overflow: hidden;
+
+    span {
+      display: inline-block;
+    }
   }
   .star-ratings-bottom {
     padding: 0;
