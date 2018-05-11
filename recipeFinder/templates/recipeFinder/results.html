@@ -56,7 +56,8 @@
             <div class="recipe-preview">
                 <h4>{{ match.recipeName }}</h4>
                 <div class="star-ratings">
-                    <div class="star-ratings-top" style="width: {{ match.rating|div:5.0|mul:100 }}%"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
+                    <div class="star-ratings-top" style="width:{% if match.rating %}{{ match.rating|div:5.0|mul:100 }}{% else %}0{% endif %}%">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
                     <div class="star-ratings-bottom"><span>★</span><span>★</span><span>★</span><span>★</span><span>★</span></div>
                 </div>
                 <div class="recipe-image" style="height:125px">
