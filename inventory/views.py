@@ -3,14 +3,13 @@ from django.shortcuts import render, redirect
 from django.http import Http404
 from inventory.models import InventoryItem
 from django.utils import timezone
-from django.contrib.auth.decorators import login_required
 from inventory.forms import AddItemToInventoryForm
 from django.db.models.functions import Lower
 from django.db.models import F
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
 from stats.models import Consumed_Stats
-from stats.views import reinitStats, timeCheck
+from stats.views import timeCheck
 
 # populate global list of generic food items
 generic_foods = []
