@@ -1,5 +1,28 @@
+<p align="center"> <img src="/static/img/MyMealFinal_Orange.png" /> </p>
+
 # MyMeal
-Web Application for managing food inventory, favorite meals, and meal suggestions.
+Web Application for managing food inventory, recipes, grocery lists and meal suggestions.
+
+Developed by:
+- Toni Turri (@ToniTurri)
+- Paul Pieper (@ppieper)
+- Brendan Shanahan (@brendanshanahan)
+- Finn Coughlin (@finn17)
+
+# Image Gallery
+
+<p align="center">
+	<img src="/static/img/register.PNG" height="350px" style="display:block; float:left;"/>
+	<img src="/static/img/inventory.PNG" height="350px" style="display:block; float:left;"/>
+	<img src="/static/img/grocery_list.PNG" height="350px" style="display:block; float:left;"/>
+</p>
+<p align="center">
+	<img src="/static/img/recipes.PNG" height="350px" style="display:block; float:left;"/>
+</p>
+<p align="center">
+	<img src="/static/img/recipe_finder.PNG" height="300px" style="display:block; float:left;"/>
+	<img src="/static/img/recipe_detail.PNG" height="300px" style="display:block; float:left;"/>
+</p>
 
 # Setup 
 * Follow setup steps mentioned in https://docs.djangoproject.com/en/2.0/howto/windows/
@@ -16,12 +39,14 @@ Web Application for managing food inventory, favorite meals, and meal suggestion
 * View requirements.txt in the main directory of this project and ensure you have all the packages installed
 
 # Running the Application
-* Navigate to your mealapp directory e.g. C:/MyDirectory/.../mealapp
+* Navigate to your mealapp directory e.g. C:/MyDirectory/.../MyMeal
 * Open terminal/command prompt and run
 	* .\manange.py runserver
 	* This will automatically launch the application at 127.0.0.1:8000
 	* Any working changes you make to files in the mealapp project will be watched and recompiled while the server is running 
 	* Refresh the webpage to see changes/errors
+* RecipeFinder:
+	* For the recipe finder to work, you will need a Yummly API key and ID and [update these variables](https://github.com/ToniTurri/MyMeal/blob/master/recipeFinder/views.py#L21) with their appropriate values.
 
 # Creating the Database
 To initially create the database, run the following command:
