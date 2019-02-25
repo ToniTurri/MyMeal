@@ -323,6 +323,7 @@ def find_InventoryItem(ingredientLine, user):
         # (e.g. Cento Crushed Tomatoes has precedence over 'tomatoes')
         query = "SELECT * FROM inventory_inventoryitem " \
                 "WHERE %s LIKE '%%' || name || '%%'" \
+                "AND user = %s " \
                 " ORDER BY LENGTH(name) DESC LIMIT 1"
         inventoryItems = InventoryItem.objects.raw(query, [ingredientLine])
     if not first(inventoryItems):
