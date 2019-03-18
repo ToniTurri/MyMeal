@@ -43,7 +43,7 @@ def index(request):
         # method is GET
         # it's a fresh new search - clear the previous results held in session
         cleanSearch(request)
-        return render(request, 'recipeFinder/recipe_search.html')
+        return recipe_search(request)
 
 
 def recipe_search(request):
