@@ -5,10 +5,10 @@
 <article>
     <header>
         <div style="display: block;">
-        <span>My Recipes</span>
-        <input type="button" id="recipe-b1" onclick="window.location.href ='{% url 'recipes:new_recipe' %}'; return false;" value="Add New Recipe"/>
-        <input type="button" id="recipe-b2" onclick="window.location.href ='{% url 'recipeFinder:recipe_search' %}'; return false;" value="Find New Recipes" />
-            </div>
+            <span>My Recipes</span>
+            <input type="button" id="recipe-b1" onclick="window.location.href ='{% url 'recipes:new_recipe' %}'; return false;" value="Add New Recipe"/>
+            <input type="button" id="recipe-b2" onclick="window.location.href ='{% url 'recipeFinder:recipe_search' %}'; return false;" value="Find New Recipes" />
+        </div>
     </header>
 
     {% if all_recipes %}
