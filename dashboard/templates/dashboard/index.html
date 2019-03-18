@@ -59,29 +59,10 @@
 <article>
     <header>
         <div style="display: block;">
-        <span>Low Inventory</span>
-        <input type="button" onclick="window.location.href ='{% url 'inventory:index' %}'; return false;" value="View My Inventory" 
-            style=" float: right;
-                height: 35px;
-                border-radius: 5px;
-                background-color: #f76707;
-                border: none;
-                color: #f2f2f2;
-                font-size: .7em;
-                clear:left;"
-                />
-        <input type="button" onclick="window.location.href ='{% url 'groceryList:new' %}'; return false;" value="Create A Grocery List" 
-            style=" float: right;
-                height: 35px;
-                border-radius: 5px;
-                background-color: #e9ecef;
-                border: none;
-                color: #000;
-                font-size: .7em;
-                clear:left;
-                margin-right:15px;"
-                />
-            </div>
+            <span>Low Inventory</span>
+            <input type="button" onclick="window.location.href ='{% url 'inventory:index' %}'; return false;" value="View Inventory"/>
+            <input class="grey" type="button" onclick="window.location.href ='{% url 'groceryList:new' %}'; return false;" value="Add Grocery List"/>
+        </div>
     </header>
 
     {% if low_inventory %}

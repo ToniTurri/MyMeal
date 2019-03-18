@@ -366,6 +366,23 @@ article header {
 	display: block;
 }
 
+article header input[type=button] {
+    float: right;
+    height: 35px;
+    border-radius: 5px;
+    background-color: #f76707;
+    border: none;
+    color: #f2f2f2;
+    font-size: .7em;
+    clear:left;
+}
+
+article header input.grey[type=button] {
+    background-color: #e9ecef;
+    color: #000;
+    margin-right:15px;
+}
+
 article section {
 	line-height: 1.5;
 	font-size: 1em;
@@ -402,39 +419,15 @@ article img.right {
 	border: solid 6px #B8B5AD;
 }
 
-/* The buttons on the recipe page */
-article input#recipe-b1{
-    float: right;
-    height: 35px;
-    border-radius: 5px;
-    background-color: #f76707;
-    border: none;
-    color: #f2f2f2;
-    font-size: .7em;
-    clear:left;
-}
-
-article input#recipe-b2{
-    float: right;
-    height: 35px;
-    border-radius: 5px;
-    background-color: #e9ecef;
-    border: none;
-    color: #000;
-    font-size: .7em;
-    clear:left;
-    margin-right:15px;
-}
-
-/* Shrink text to fit buttons on smaller screens */
+/* Shrink text to fit article header buttons on smaller screens */
 @media screen and (max-width: 550px) {
-    article input#recipe-b1, article input#recipe-b2 {
+    article header input[type=button] {
         font-size: .6em;
     }
 }
 
 @media screen and (max-width: 485px) {
-    article input#recipe-b1, article input#recipe-b2 {
+    article header input[type=button] {
         font-size: .5em;
     }
 }
