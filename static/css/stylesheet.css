@@ -223,21 +223,25 @@ article input[type=button] {
   font-size: 1em;
 }
 
-/* keep a hidden logout url on the left for mobile dropdown*/
+/* Keep a hidden logout url on the left for mobile dropdown*/
 .navbar #logout-mobile {
   display: none;
 }
 
-/* avoid 'sticky' hover background issue on mobile devices */
-.navbar a:not(:focus):hover {
+.navbar a.directory:hover {
   background: #fcd7b8;
 }
 
-.navbar a:focus {
+/* Avoid 'sticky' hover background issue on mobile devices */
+.navbar a.menu:not(:focus):hover {
+  background: #fcd7b8;
+}
+
+.navbar a.menu:focus {
   outline: none;
 }
 
-/* keep a hidden menu icon on the left for mobile dropdown*/
+/* Keep a hidden menu icon on the left for mobile dropdown*/
 .navbar #nav-right a.menu {
   display: none;
 }
@@ -277,7 +281,7 @@ article input[type=button] {
   }
 }
 
-/* for actually displaying the vertical dropdown menu */
+/* For actually displaying the vertical dropdown menu */
 @media screen and (max-width: 600px) {
   .navbar.responsive {position: relative;}
   .navbar.responsive #nav-right a.menu {
@@ -398,7 +402,7 @@ article img.right {
 	border: solid 6px #B8B5AD;
 }
 
-/* the buttons on the recipe page */
+/* The buttons on the recipe page */
 article input#recipe-b1{
     float: right;
     height: 35px;
@@ -408,9 +412,9 @@ article input#recipe-b1{
     color: #f2f2f2;
     font-size: .7em;
     clear:left;
-    width: 29%;"
+    width: 29%;
 }
-/* the buttons on the recipe page */
+
 article input#recipe-b2{
     float: right;
     height: 35px;
@@ -424,21 +428,15 @@ article input#recipe-b2{
     width: 29%;
 }
 
-/* shrink text to fit buttons on smaller screens */
+/* Shrink text to fit buttons on smaller screens */
 @media screen and (max-width: 550px) {
-    article input#recipe-b1 {
-        font-size: .6em;
-    }
-    article input#recipe-b2 {
+    article input#recipe-b1, article input#recipe-b2 {
         font-size: .6em;
     }
 }
-/* shrink text to fit buttons on smaller screens */
+
 @media screen and (max-width: 485px) {
-    article input#recipe-b1 {
-        font-size: .5em;
-    }
-    article input#recipe-b2 {
+    article input#recipe-b1, article input#recipe-b2 {
         font-size: .5em;
     }
 }

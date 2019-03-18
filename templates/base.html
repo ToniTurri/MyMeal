@@ -24,7 +24,7 @@
         	</div>
           	<div id="nav-right">
           		<a class="directory" href="{% url 'auth_logout' %}" id="logout">Log Out</a>
-                <a href="javascript:void(0);" class="menu" onclick="myFunction()">
+                <a href="javascript:void(0);" class="menu" id= "dropdown-menu" onclick="myFunction()">
                     <i class="fa fa-bars"></i>
                 </a>
           		<!--<input type="text" placeholder="Search...">-->
@@ -41,6 +41,7 @@
         /* display responsive vertical menu for small screens */
         function myFunction() {
           const navbar = document.getElementById("myNavbar");
+          document.getElementById("dropdown-menu").blur();
           if (navbar.className === "navbar") {
             navbar.className += " responsive";
             document.getElementById("main").style.marginTop='40px';
