@@ -192,6 +192,7 @@ article input[type=button] {
   top: 0;
   width: 100%;
   box-shadow: 0px 3px #dee2e6;
+  z-index: 2;
 }
 
 .navbar a.logo {
@@ -211,10 +212,35 @@ article input[type=button] {
   text-decoration: none;
   font-size: 1em;
 }
+.navbar a.menu {
+  float: left;
+  display: block;
+  color: #000;
+  text-align: center;
+  padding: 12px;
+  margin-top: 10px;
+  text-decoration: none;
+  font-size: 1em;
+}
 
-/*.navbar a:hover {
-  background: #fd7e14;
-}*/
+/* keep a hidden logout url on the left for mobile dropdown*/
+.navbar #logout-mobile {
+  display: none;
+}
+
+/* avoid 'sticky' hover background issue on mobile devices */
+.navbar a:not(:focus):hover {
+  background: #fcd7b8;
+}
+
+.navbar a:focus {
+  outline: none;
+}
+
+/* keep a hidden menu icon on the left for mobile dropdown*/
+.navbar #nav-right a.menu {
+  display: none;
+}
 
 #nav-left {
 	float: left;
@@ -225,6 +251,9 @@ article input[type=button] {
 }
 
 #nav-right a.directory {
+	float: right;
+}
+#nav-right a.menu {
 	float: right;
 }
 
@@ -238,45 +267,29 @@ article input[type=button] {
     width: 300px;
 }
 
-/* When the screen is less than 750px wide, 
-stack the links and the search field vertically i
-nstead of horizontally */
-@media screen and (max-width: 750px) {
-	
-	#nav-left {
-		clear: right;
-		float: none;
-		margin: 0 auto;
-		text-align: left;
-	}
+/* At 600px and below, hide navbar links (except home) under a menu */
+@media screen and (max-width: 600px) {
+  .navbar #nav-left a:not(:first-child) {display: none;}
+  .navbar #nav-right a:first-child{display: none;}
+  .navbar #nav-right a.menu {
+   float: right;
+   display: block;
+  }
+}
 
-	#nav-right {
-		clear: left;
-		float: left;
-		text-align: left;
-		display: inline-block;
-		width: 100%;
-	}
-
-	#nav-right {
-		float: left;
-	}
-
-    .navbar a.logo, 
-    .navbar a.directory, 
-    #nav-right a.directory, 
-    .navbar input[type=text] {
-        float: left;
-        display: block;
-        text-align: left;
-        width: 100%;
-        margin: 0;
-        padding: 14px;
-    }
-
-    .navbar input[type=text] {
-        border: 1px solid #ccc;
-    }
+/* for actually displaying the vertical dropdown menu */
+@media screen and (max-width: 600px) {
+  .navbar.responsive {position: relative;}
+  .navbar.responsive #nav-right a.menu {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  .navbar.responsive #nav-left a {
+    float: none;
+    display: block;
+    text-align: left;
+  }
 }
 
 /************************************************/
@@ -307,13 +320,13 @@ make sure the content isn't hidden by the
 menu by default */
 @media screen and (max-width: 750px) {
 	#main {
-		margin-top: 300px;
+		margin-top: 100px;
 	}
 }
 
 @media (max-width: 460px) {
 	#main {
-		margin-top: 330px;
+		margin-top: 100px;
 		width: 100%;
 		padding: 0px;
 		top: 0;

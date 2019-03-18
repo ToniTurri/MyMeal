@@ -10,7 +10,7 @@
     	<link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
     </head>
     <body>
-        <div class="navbar">
+        <div class="navbar" id="myNavbar">
         	<!-- TODO; implement collapsing navigation -->
         	<div id="nav-left">
               <a class="logo" href= "{% url 'dashboard:index' %}">
@@ -19,10 +19,14 @@
         	  	<a class="directory" href="{% url 'inventory:index' %}">Inventory</a>
         	  	<a class="directory" href="{% url 'recipes:index' %}">Recipes</a>
         	  	<a class="directory" href="{% url 'groceryList:index' %}">Grocery Lists</a>
-              <a class="directory" href="{% url 'stats:index' %}">Stats</a>
+                <a class="directory" href="{% url 'stats:index' %}">Stats</a>
+                <a class="directory" href="{% url 'auth_logout' %}" id="logout-mobile">Log Out</a>
         	</div>
           	<div id="nav-right">
-          		<a class="directory" href="{% url 'auth_logout' %}">Log Out</a>
+          		<a class="directory" href="{% url 'auth_logout' %}" id="logout">Log Out</a>
+                <a href="javascript:void(0);" class="menu" onclick="myFunction()">
+                    <i class="fa fa-bars"></i>
+                </a>
           		<!--<input type="text" placeholder="Search...">-->
         	</div>
         </div>
@@ -33,4 +37,17 @@
           </div>
         </div>
     </body>
+    <script>
+        /* display responsive vertical menu for small screens */
+        function myFunction() {
+          const navbar = document.getElementById("myNavbar");
+          if (navbar.className === "navbar") {
+            navbar.className += " responsive";
+            document.getElementById("main").style.marginTop='40px';
+          } else {
+            navbar.className = "navbar";
+            document.getElementById("main").style.marginTop='100px';
+          }
+        }
+    </script>
 </html>
