@@ -398,6 +398,51 @@ article img.right {
 	border: solid 6px #B8B5AD;
 }
 
+/* the buttons on the recipe page */
+article input#recipe-b1{
+    float: right;
+    height: 35px;
+    border-radius: 5px;
+    background-color: #f76707;
+    border: none;
+    color: #f2f2f2;
+    font-size: .7em;
+    clear:left;
+    width: 29%;"
+}
+/* the buttons on the recipe page */
+article input#recipe-b2{
+    float: right;
+    height: 35px;
+    border-radius: 5px;
+    background-color: #e9ecef;
+    border: none;
+    color: #000;
+    font-size: .7em;
+    clear:left;
+    margin-right:15px;
+    width: 29%;
+}
+
+/* shrink text to fit buttons on smaller screens */
+@media screen and (max-width: 550px) {
+    article input#recipe-b1 {
+        font-size: .6em;
+    }
+    article input#recipe-b2 {
+        font-size: .6em;
+    }
+}
+/* shrink text to fit buttons on smaller screens */
+@media screen and (max-width: 485px) {
+    article input#recipe-b1 {
+        font-size: .5em;
+    }
+    article input#recipe-b2 {
+        font-size: .5em;
+    }
+}
+
 @media (max-width: 700px) {
 	article img.right {
 		width: 90%;

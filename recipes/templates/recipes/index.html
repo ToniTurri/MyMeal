@@ -6,27 +6,8 @@
     <header>
         <div style="display: block;">
         <span>My Recipes</span>
-        <input type="button" onclick="window.location.href ='{% url 'recipes:new_recipe' %}'; return false;" value="Add New Recipe" 
-            style=" float: right;
-                height: 35px;
-                border-radius: 5px;
-                background-color: #f76707;
-                border: none;
-                color: #f2f2f2;
-                font-size: .7em;
-                clear:left;"
-                />
-        <input type="button" onclick="window.location.href ='{% url 'recipeFinder:recipe_search' %}'; return false;" value="Find New Recipes" 
-            style=" float: right;
-                height: 35px;
-                border-radius: 5px;
-                background-color: #e9ecef;
-                border: none;
-                color: #000;
-                font-size: .7em;
-                clear:left;
-                margin-right:15px;"
-                />
+        <input type="button" id="recipe-b1" onclick="window.location.href ='{% url 'recipes:new_recipe' %}'; return false;" value="Add New Recipe"/>
+        <input type="button" id="recipe-b2" onclick="window.location.href ='{% url 'recipeFinder:recipe_search' %}'; return false;" value="Find New Recipes" />
             </div>
     </header>
 
