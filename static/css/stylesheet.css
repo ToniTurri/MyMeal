@@ -412,7 +412,6 @@ article input#recipe-b1{
     color: #f2f2f2;
     font-size: .7em;
     clear:left;
-    width: 29%;
 }
 
 article input#recipe-b2{
@@ -425,7 +424,6 @@ article input#recipe-b2{
     font-size: .7em;
     clear:left;
     margin-right:15px;
-    width: 29%;
 }
 
 /* Shrink text to fit buttons on smaller screens */
